@@ -1,0 +1,107 @@
+version: '3'
+services:
+  mongo:
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - LANG=C.UTF-8
+    volumes:
+      - $PWD/data/mongo/conf:/etc/mongo/
+      - $PWD/data/mongo/db:/var/lib/mongo/
+      - $PWD/data/mongo/logs:/var/log/mongo/
+      - $PWD/data/mongo/init/init_mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo/
+    command: ["--auth","--config","/etc/mongo/mongod.conf"]
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/mongo:6.0.6
+    container_name: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - net-king
+
+  mysql:
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - $PWD/data/mysql/conf:/etc/mysql/conf.d/
+      - $PWD/data/mysql/db:/var/lib/mysql/
+      - $PWD/data/mysql/logs:/var/log/mysql/
+      - $PWD/data/mysql/init:/docker-entrypoint-initdb.d/
+      - /run/mysqld:/run/mysqld/
+      - /usr/share/zoneinfo:/usr/share/zoneinfo/
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/mysql:8.0.33
+    container_name: mysql
+    ports:
+      - 3306:3306
+    privileged: true
+    networks:
+      - net-king
+
+  etcd:
+    environment:               
+      - ALLOW_NONE_AUTHENTICATION=yes                                   
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379          
+      - ETCDCTL_API=3                                            
+    volumes:
+      - $PWD/data/etcd:/etcd-data/                       
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/etcd:3.4.26
+    container_name: etcd                
+    ports:                   
+      - "2379:2379"
+      - "2380:2380"
+    networks:
+      - net-king
+
+  king-collector:                                         
+    volumes:
+      - $PWD/logs/king-collector:/app/log/                      
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-collector
+    container_name: king-collector                
+    ports:                   
+      - "5271:5271"
+    depends_on:
+      - etcd
+      - mysql
+      - mongo
+    networks:
+      - net-king
+
+  king-email:                                         
+    volumes:
+      - $PWD/logs/king-email:/app/log/                      
+      - /etc/localtime:/etc/localtime:ro
+      - $PWD/conf/king-email/etc/smtp.json:/app/etc/smtp.json
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-email
+    container_name: king-email                
+    ports:                   
+      - "5273:5273"
+    depends_on:
+      - etcd
+      - mysql
+      - mongo
+    networks:
+      - net-king
+
+  king-repository:                                         
+    volumes:
+      - $PWD/logs/king-repository:/app/log/                       
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-repository
+    container_name: king-repository                
+    ports:                   
+      - "5272:5272"
+    depends_on:
+      - etcd
+      - mysql
+      - mongo
+    networks:
+      - net-king
+      
+networks:
+  net-king:
+    name: net-king
+    driver: bridge
