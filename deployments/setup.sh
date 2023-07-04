@@ -11,6 +11,18 @@ mkdir -p $(pwd)/data/etcd
 chmod 777 $(pwd)/data/etcd
 
 mkdir -p $(pwd)/logs/{king-collector,king-email,king-repository}
+mkdir -p $(pwd)/conf/king-email/etc
+
+# smtp.conf
+cat > $(pwd)/conf/king-email/etc/smtp.json <<EOF
+{
+    "server":"mail.liarsa.me",
+    "port":587,
+    "username":"assistant@liarsa.me",
+    "password":"5r6WAmzs2xyGMPqB",
+    "alias":"assistant"
+}
+EOF
 
 # mongodb.conf
 cat > $(pwd)/data/mongo/conf/mongod.conf <<EOF
