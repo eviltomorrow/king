@@ -2,6 +2,7 @@ package client
 
 import (
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/eviltomorrow/king/lib/language"
 )
+
+var HTTPDefault = &http.Client{
+	Timeout: 30 * time.Second,
+}
 
 // DefaultHeader default header
 var DefaultHeader = map[string]string{
@@ -23,10 +28,6 @@ var DefaultHeader = map[string]string{
 }
 
 func Get(url string, timeout time.Duration, header map[string]string, body io.Reader) (string, error) {
-	var client = &http.Client{
-		Timeout: timeout,
-	}
-
 	request, err := http.NewRequest("GET", url, body)
 	if err != nil {
 		return "", fmt.Errorf("new http request failure, nest error: %v", err)
@@ -36,7 +37,10 @@ func Get(url string, timeout time.Duration, header map[string]string, body io.Re
 		request.Header.Add(key, val)
 	}
 
-	response, err := client.Do(request)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	response, err := HTTPDefault.Do(request.WithContext(ctx))
 	if err != nil {
 		return "", fmt.Errorf("client do http request failure, nest error: %v", err)
 	}
