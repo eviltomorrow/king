@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package brain;
+
+service Finder {
+    rpc DiscoverPossibleChance(google.protobuf.StringValue) returns (stream PossibleChance){};
+    rpc CreateBuyPlan(PossibleChance) returns (BuyPlan){};
+    rpc FollowReturnWithBuyPlan(BuyPlan) returns (PositionPlan){};
+}
+
+message PossibleChance {
+    string date = 1;
+    Stock stock = 2;
+    Model model = 3;
+}
+
+message Stock {
+    string code = 1;
+    string name = 2;
+}
+
+message Model {
+    string name = 1;
+    string desc = 2;
+}
+
+message BuyPlan {
+
+}
+
+message PositionPlan {
+
+}

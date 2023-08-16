@@ -1,0 +1,28 @@
+[server]
+host = "0.0.0.0"
+port = 5271
+
+[mongodb]
+dsn = "mongodb://admin:admin123@mongo:27017/transaction_db"
+
+[etcd]
+endpoints = [
+    "etcd:2379",
+]
+
+[collector]
+code-list = [
+    "sh688***",
+    "sh605***",
+    "sh603***",
+    "sh601***",
+    "sh600***",
+    "sz300***",
+    "sz0030**",
+    "sz002***",
+    "sz001***",
+    "sz000***",
+]
+crontab = "05 19 * * MON,TUE,WED,THU,FRI"
+source = "sina"
+random-period = "20,60" # unit: s

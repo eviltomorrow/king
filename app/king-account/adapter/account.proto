@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package account;
+
+service Account {
+   rpc Add(User) returns (google.protobuf.StringValue);
+}
+
+message User {
+    string name = 1;
+}
