@@ -10,6 +10,9 @@ chmod 777 $(pwd)/data/mysql/db $(pwd)/data/mysql/logs
 mkdir -p $(pwd)/data/etcd
 chmod 777 $(pwd)/data/etcd
 
+# mkdir -p $(pwd)/data/cassandra/{db,logs}
+# chmod 777 $(pwd)/data/cassandra/db $(pwd)/data/cassandra/logs
+
 mkdir -p $(pwd)/logs/{king-collector,king-email,king-repository}
 mkdir -p $(pwd)/conf/king-email/etc
 
