@@ -15,6 +15,45 @@ chmod 777 $(pwd)/data/etcd
 
 mkdir -p $(pwd)/logs/{king-collector,king-email,king-repository}
 mkdir -p $(pwd)/conf/king-email/etc
+mkdir -p $(pwd)/conf/otel-collector
+
+# otel-collector-config.yaml
+cat > $(pwd)/conf/otel-collector/otel-collector-config.yaml << EOF
+receivers:
+  otlp:
+    protocols:
+      grpc:
+
+exporters:
+  logging:
+
+  jaeger:
+    endpoint: jaeger-collector:14250
+    tls:
+      insecure: true
+
+processors:
+  batch:
+
+extensions:
+  health_check:
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+EOF
 
 # smtp.conf
 cat > $(pwd)/conf/king-email/etc/smtp.json <<EOF
