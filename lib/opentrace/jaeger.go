@@ -12,15 +12,26 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 )
 
 var (
 	OtelAgentAddr = "127.0.0.1:4317"
+	tracer        trace.Tracer
 )
 
+func init() {
+	tracer = otel.Tracer(buildinfo.AppName)
+}
+
+func WithTracer() trace.Tracer {
+	return tracer
+}
+
 func InitTraceProvider() (func() error, error) {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	res, err := resource.New(ctx,
 		resource.WithFromEnv(),
@@ -60,9 +71,10 @@ func InitTraceProvider() (func() error, error) {
 		cxt, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 
-		if err := processor.Shutdown(cxt); err != nil {
+		if err := processor.Shutdown(context.Background()); err != nil {
 			return err
 		}
+
 		if err := exporter.Shutdown(cxt); err != nil {
 			return err
 		}

@@ -2,17 +2,18 @@ package opentrace
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 var (
-	name   = "test"
-	tracer trace.Tracer
+	name = "jaeger-test"
 )
 
 func TestDemo(t *testing.T) {
@@ -22,29 +23,28 @@ func TestDemo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer destroy()
+	defer func() {
+		// time.Sleep(3 * time.Second)
+		destroy()
+	}()
 
-	tracer = otel.Tracer(name)
-	ctx, span := tracer.Start(context.Background(), "TestMain")
+	ctx, span := otel.Tracer(name).Start(context.Background(), "Main")
+
+	span.SetAttributes(attribute.String("ip", "192.168.33.10"))
 	defer span.End()
 
 	f1(ctx)
-	time.Sleep(3 * time.Second)
+	// time.Sleep(2 * time.Second)
 }
 
 func f1(ctx context.Context) {
-	ctx, span := otel.Tracer(name).Start(ctx, "F1")
-
+	ctx, span := otel.Tracer(name).Start(ctx, "F1()")
 	defer span.End()
 
-	f2(ctx)
+	span.AddEvent("lock begin")
 	time.Sleep(1 * time.Second)
-}
-
-func f2(ctx context.Context) {
-	_, span := otel.Tracer(name).Start(ctx, "f2")
-	defer span.End()
-
-	time.Sleep(2 * time.Second)
-
+	span.AddEvent("lock end")
+	span.RecordError(fmt.Errorf("failure"))
+	span.SetStatus(codes.Error, "Failure")
+	// time.Sleep(1 * time.Second)
 }

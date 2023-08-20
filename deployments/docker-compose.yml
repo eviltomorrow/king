@@ -20,7 +20,7 @@ services:
     depends_on:
       - cassandra-schema
     networks:
-      - net-king
+      - net-jaeger
 
   jaeger-query:
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-query:1.47
@@ -39,7 +39,7 @@ services:
     depends_on:
       - cassandra-schema
     networks:
-      - net-king
+      - net-jaeger
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.83.0
@@ -58,10 +58,12 @@ services:
     depends_on:
       - jaeger-collector
     networks:
+      - net-jaeger
       - net-king
 
   cassandra:
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/cassandra:4.1.3
+    restart: on-failure
     container_name: cassandra
     ports:
       - "9042:9042"
@@ -69,15 +71,16 @@ services:
       - "./data/cassandra/db:/var/lib/cassandra"
       - "./data/cassandra/logs:/var/log/cassandra"
     networks:
-      - net-king
+      - net-jaeger
 
   cassandra-schema:
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-cassandra-schema:1.47
+    restart: on-failure
     container_name: cassandra-schema
     depends_on:
       - cassandra
     networks:
-      - net-king
+      - net-jaeger
 
   mongo:
     restart: always
@@ -189,4 +192,7 @@ services:
 networks:
   net-king:
     name: net-king
+    driver: bridge
+  net-jaeger:
+    name: net-jaeger
     driver: bridge
