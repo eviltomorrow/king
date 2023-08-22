@@ -23,6 +23,9 @@ function docker_compose(){
     cd ${root_dir}
     if [ -d ${1} ]; then
         cd ${1}
+        if [ ! -d "./data" ]; then
+            ./init.sh
+        fi
         docker compose ${2} ${3}
     else
         echo "Error: wrong file_path ${1} !"
