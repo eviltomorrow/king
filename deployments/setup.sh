@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# exist_network=$(docker network ls -f name=net-kinga -q)
+exist_network=$(docker network ls -f name=net-king -q)
 
-# if [ ! -n ${exist_network} ]; then
-#     docker network create net-king
-# fi
+if [ ! -n ${exist_network} ]; then
+    docker network create net-king
+fi
 
 # ./setup.sh ${name} up
 # ./setup.sh ${name} down
@@ -51,8 +51,8 @@ case $# in
     ;;
 
 2)
-    args_1=$1
-    args_2=$2
+    args_1=${1}
+    args_2=${2}
     if [ ${args_2} != "up" ]&&[ ${args_2} != "down" ]; then
        help;
     fi
@@ -67,7 +67,6 @@ case $# in
 *)
     help;
     ;;
-
 esac
 
 case ${name} in
@@ -109,7 +108,6 @@ case ${name} in
 *)
     invalid ${args_1}
     ;;
-
 esac
 
 
