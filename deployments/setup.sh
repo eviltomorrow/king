@@ -41,6 +41,7 @@ case $# in
 0)
     help;
     ;;
+
 1)
     args_1=$1
     if [ ${args_1} != "up" ]&&[ ${args_1} != "down" ]; then
@@ -48,6 +49,7 @@ case $# in
     fi
     action=${args_1}
     ;;
+
 2)
     args_1=$1
     args_2=$2
@@ -61,9 +63,11 @@ case $# in
     name=${args_1}
     action=${args_2}
     ;;
+
 *)
     help;
     ;;
+
 esac
 
 case ${name} in
@@ -74,6 +78,7 @@ case ${name} in
     fi
     docker_compose "./apps" ${action} ${is_d}
     ;;
+
 'db')
     is_d=""
     if [ ${action} = "up" ]; then
@@ -81,13 +86,16 @@ case ${name} in
     fi
     docker_compose "./componets/db" ${action} ${is_d}
     ;;
+
 'monitoring')
+    export APPS_HOME=${root_dir}/apps
     is_d=""
     if [ ${action} = "up" ]; then
         is_d="-d"
     fi
     docker_compose "./componets/monitoring" ${action} ${is_d}
     ;;
+
 '')
     is_d=""
     if [ ${action} = "up" ]; then
@@ -97,9 +105,11 @@ case ${name} in
     docker_compose "./componets/monitoring" ${action} ${is_d}
     docker_compose "./apps" ${action} ${is_d}
     ;;
+
 *)
     invalid ${args_1}
     ;;
+
 esac
 
 
