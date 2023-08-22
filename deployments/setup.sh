@@ -2,12 +2,13 @@
 
 exist_network=$(docker network ls -f name=net-king -q)
 
-if [ ! -n ${exist_network} ]; then
+if [ ! -n "${exist_network}" ]; then
     docker network create net-king
 fi
 
 # ./setup.sh ${name} up
 # ./setup.sh ${name} down
+# ./setup.sh ${name} clear
 
 function help(){
     echo -e "eg. \r\n ./setup.sh [name] up \r\n ./setup.sh [name] down"
@@ -17,6 +18,10 @@ function help(){
 function invalid(){
     echo "Error: wrong name '${args_1}'. Support: [apps、db、monitoring] !"
     exit 1
+}
+
+function clear_data(){
+    
 }
 
 function docker_compose(){
@@ -37,6 +42,10 @@ root_dir=$(pwd)
 name=""
 action=""
 
+support_name=("apps" "db" "monitoring")
+support_action=("up" "down" "clear")
+
+
 case $# in
 0)
     help;
@@ -44,24 +53,43 @@ case $# in
 
 1)
     args_1=$1
-    if [ ${args_1} != "up" ]&&[ ${args_1} != "down" ]; then
-       help;
+    for v in ${support_action[@]}
+    do
+        if [ ${args_1} = ${v} ]; then
+            action=${args_1}
+            break;
+        fi
+    done
+    if [ ! -n "${action}" ]; then
+        help;
     fi
-    action=${args_1}
     ;;
 
 2)
     args_1=${1}
     args_2=${2}
-    if [ ${args_2} != "up" ]&&[ ${args_2} != "down" ]; then
-       help;
-    fi
-    if [ ${args_1} != "apps" ]&&[ ${args_1} != "db" ]&&[ ${args_1} != "monitoring" ]; then
+    for v in ${support_name[@]}
+    do
+        if [ ${args_1} = ${v} ]; then
+            name=${args_1}
+            break;
+        fi
+    done
+    if [ ! -n "${name}" ]; then
         invalid ${args_1}
-        exit 1
     fi
-    name=${args_1}
-    action=${args_2}
+
+    for v in ${support_action[@]}
+    do
+        if [ ${args_2} = ${v} ]; then
+            action=${args_2}
+            break;
+        fi
+    done
+    if [ ! -n "${action}" ]; then
+        help;
+    fi
+
     ;;
 
 *)
@@ -83,7 +111,7 @@ case ${name} in
     if [ ${action} = "up" ]; then
         is_d="-d"
     fi
-    docker_compose "./componets/db" ${action} ${is_d}
+    docker_compose "./components/db" ${action} ${is_d}
     ;;
 
 'monitoring')
@@ -92,16 +120,17 @@ case ${name} in
     if [ ${action} = "up" ]; then
         is_d="-d"
     fi
-    docker_compose "./componets/monitoring" ${action} ${is_d}
+    docker_compose "./components/monitoring" ${action} ${is_d}
     ;;
 
 '')
+    export APPS_HOME=${root_dir}/apps
     is_d=""
     if [ ${action} = "up" ]; then
         is_d="-d"
     fi
-    docker_compose "./componets/db" ${action} ${is_d}
-    docker_compose "./componets/monitoring" ${action} ${is_d}
+    docker_compose "./components/db" ${action} ${is_d}
+    docker_compose "./components/monitoring" ${action} ${is_d}
     docker_compose "./apps" ${action} ${is_d}
     ;;
 

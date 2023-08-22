@@ -21,3 +21,6 @@
 # Go workspace file
 /bin
 /vendor
+/deployments/apps/data
+/deployments/components/db/data
+/deployments/components/monitoring/data
