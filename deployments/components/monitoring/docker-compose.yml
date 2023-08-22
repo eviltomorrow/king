@@ -1,0 +1,131 @@
+version: '3'
+services:
+  jaeger-collector:
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-collector:1.47
+    container_name: jaeger-collector
+    command:
+      - "--cassandra.keyspace=jaeger_v1_dc1"
+      - "--cassandra.servers=cassandra"
+      - "--collector.zipkin.host-port=:9411"
+      - "--collector.otlp.enabled=false"
+    environment:
+      - SAMPLING_CONFIG_TYPE=adaptive
+      - SPAN_STORAGE_TYPE=cassandra
+    ports:
+      - "14269:14269"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    restart: always
+    depends_on:
+      - cassandra-schema
+
+  jaeger-query:
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-query:1.47
+    container_name: jaeger-query
+    command:
+      ["--cassandra.keyspace=jaeger_v1_dc1", "--cassandra.servers=cassandra"]
+    environment:
+      - SPAN_STORAGE_TYPE=cassandra
+      - SAMPLING_CONFIG_TYPE=adaptive
+      - SAMPLING_STORAGE_TYPE=cassandra
+    ports:
+      - "16685:16685"
+      - "16686:16686"
+      - "16687"
+    restart: always
+    depends_on:
+      - cassandra-schema
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.83.0
+    container_name: otel-collector
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./data/otel-collector/etc/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - jaeger-collector
+
+  cassandra:
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/cassandra:4.1.3
+    restart: on-failure
+    container_name: cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./data/cassandra/db:/var/lib/cassandra
+      - ./data/cassandra/log:/var/log/cassandra
+
+  cassandra-schema:
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-cassandra-schema:1.47
+    restart: on-failure
+    container_name: cassandra-schema
+    depends_on:
+      - cassandra
+
+  loki:
+    image: grafana/loki:2.8.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+      - "3110:3110"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./data/loki/etc:/etc/loki/config
+      - ./data/loki/data/index:/opt/loki/index
+      - ./data/loki/data/chunks:/opt/loki/chunks
+      - ./data/loki/log:/var/log
+
+  promtail:
+    image: grafana/promtail:2.8.4
+    container_name: promtail
+    volumes:
+      - ./data/promtail/log:/var/log
+      - ./data/promtail/etc:/etc/promtail/config
+      - ${APPS_HOME}/data/king-collector/log:/log/king-collector
+      - ${APPS_HOME}/data/king-email/log:/log/king-email
+      - ${APPS_HOME}/data/king-repository/log:/log/king-repository
+    command: -config.file=/etc/promtail/config/promtail-config.yaml
+
+  grafana:
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy 
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+
+
+networks:
+  default:
+    name: net-king
+    external: true

@@ -1,0 +1,37 @@
+version: '3'
+services:
+  king-collector:     
+    restart: always                                    
+    volumes:
+      - $PWD/data/king-collector/log:/app/var/log/                      
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-collector
+    container_name: king-collector                
+    ports:                   
+      - "5271:5271"
+
+  king-email:   
+    restart: always                                      
+    volumes:
+      - $PWD/data/king-email/log:/app/var/log/
+      - $PWD/data/king-email/etc/smtp.json:/app/etc/smtp.json                      
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-email
+    container_name: king-email                
+    ports:                   
+      - "5273:5273"
+
+  king-repository:   
+    restart: always                                      
+    volumes:
+      - $PWD/data/king-repository/log:/app/var/log/                       
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-repository
+    container_name: king-repository                
+    ports:                   
+      - "5272:5272"
+
+networks:
+  default:
+    name: net-king
+    external: true
