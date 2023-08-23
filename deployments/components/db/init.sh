@@ -1,13 +1,9 @@
 #!/bin/bash
 
 mkdir -p $(pwd)/data/mongo/{db,conf,log,init}
-chmod 777 $(pwd)/data/mongo/db $(pwd)/data/mongo/log
-
 mkdir -p $(pwd)/data/mysql/{db,conf,log,init}
-chmod 777 $(pwd)/data/mysql/db $(pwd)/data/mysql/log
-
 mkdir -p $(pwd)/data/etcd
-chmod 777 $(pwd)/data/etcd
+chmod -R 777 $(pwd)/data
 
 # mongodb.conf
 cat > $(pwd)/data/mongo/conf/mongod.conf <<EOF

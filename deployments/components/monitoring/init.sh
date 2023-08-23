@@ -4,6 +4,8 @@ mkdir -p $(pwd)/data/otel-collector/etc
 mkdir -p $(pwd)/data/cassandra/{db,log}
 mkdir -p $(pwd)/data/loki/{etc,log,data}
 mkdir -p $(pwd)/data/promtail/{etc,log}
+mkdir -p $(pwd)/data/grafana/{data,log,crypto_data}
+chmod -R 777 $(pwd)/data
 
 # otel-collector-config.yaml
 cat > $(pwd)/data/otel-collector/etc/otel-collector-config.yaml << EOF

@@ -54,7 +54,8 @@ action=""
 
 support_name=("db" "apps" "monitoring")
 support_action=("up" "down" "clear")
-
+up_ordering=("db" "apps" "monitoring")
+down_ordering=("apps" "db" "monitoring")
 
 case $# in
 0)
@@ -136,7 +137,7 @@ case ${action} in
         fi
         docker_compose "./${prefix}${name}" "up" "-d"
     else
-        for v in ${support_name[@]}
+        for v in ${up_ordering[@]}
         do
             prefix=""
             if [ "${v}" != "apps" ]; then
@@ -155,7 +156,7 @@ case ${action} in
         fi
         docker_compose "./${prefix}${name}" "down"
     else
-        for v in ${support_name[@]}
+        for v in ${down_ordering[@]}
         do
             prefix=""
             if [ "${v}" != "apps" ]; then

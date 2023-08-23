@@ -8,7 +8,7 @@ import (
 
 func WaitForSigterm() os.Signal {
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP)
+	signal.Notify(ch, os.Interrupt, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP)
 	for {
 		sig := <-ch
 		if sig == syscall.SIGHUP {

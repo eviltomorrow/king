@@ -126,8 +126,10 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
-
-
+    volumes:
+      - ./data/grafana/data:/var/lib/grafana
+      - ./data/grafana/log:/var/log/grafana
+      - ./data/grafana/crypto_data:/var/log/crypto_data
 networks:
   default:
     name: net-king
