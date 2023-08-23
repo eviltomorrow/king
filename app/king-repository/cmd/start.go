@@ -40,11 +40,13 @@ var workflowsFunc = []func() error{
 
 var cfg = conf.Default
 var (
-	isDaemonVar bool
+	isBackground bool
+	ppid         int
 )
 
 func init() {
-	StartCommand.PersistentFlags().BoolVarP(&isDaemonVar, "daemon", "d", false, "run app in background")
+	StartCommand.PersistentFlags().BoolVarP(&isBackground, "daemon", "d", false, "run app in background")
+	StartCommand.PersistentFlags().IntVar(&ppid, "ppid", -1, "bootup parent pid")
 }
 
 var StartCommand = &cobra.Command{
@@ -52,7 +54,7 @@ var StartCommand = &cobra.Command{
 	Short: "Start the app in teminal(-d in background)",
 	Run: func(cmd *cobra.Command, args []string) {
 		var begin = time.Now()
-		if isDaemonVar {
+		if isBackground {
 			if err := procutil.RunAppBackground(os.Args[0], []string{"start"}); err != nil {
 				log.Fatalf("[F] Run app in background failure, nest error: %v", err)
 			}
@@ -165,6 +167,14 @@ func buildPidFile() error {
 }
 
 func notifyStopDaemon() error {
+	if ppid == -1 {
+		return nil
+	}
+
+	if _, err := procutil.FindProcessWithPid(ppid); err != nil {
+		return err
+	}
+
 	confirmationBytes, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return fmt.Errorf("reading confirmation bytes from stdin: %v", err)

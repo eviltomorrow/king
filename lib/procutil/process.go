@@ -14,6 +14,17 @@ import (
 
 var reg = regexp.MustCompile(`\s+`)
 
+func FindProcessWithPid(pid int) (*os.Process, error) {
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return nil, err
+	}
+	if err := process.Signal(syscall.Signal(0)); err != nil {
+		return nil, err
+	}
+	return process, nil
+}
+
 func LoadProcessWithPidFile(path string) (*os.Process, error) {
 	buf, err := os.ReadFile(path)
 	if err != nil {

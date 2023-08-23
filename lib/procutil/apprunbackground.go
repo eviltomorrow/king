@@ -33,6 +33,7 @@ func (bi *BootInfo) UnMarshal(buf []byte) error {
 }
 
 func RunAppBackground(name string, args []string) error {
+	args = append(args, "--ppid", fmt.Sprintf("%d", os.Getpid()))
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
