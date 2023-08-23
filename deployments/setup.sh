@@ -3,7 +3,7 @@
 exist_network=$(docker network ls -f name=net-king -q)
 
 if [ ! -n "${exist_network}" ]; then
-    docker network create net-king
+    docker network create net-king > /dev/null
 fi
 
 # ./setup.sh ${name} up
