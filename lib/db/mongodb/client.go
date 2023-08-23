@@ -43,7 +43,7 @@ func Connect() error {
 			break
 		}
 		if err != nil {
-			log.Printf("[W] Connect to MongoDB. Retry: %d, nest error: %v", i, err)
+			log.Printf("[E] Connect to MongoDB. Retry: %d, nest error: %v", i, err)
 		}
 		i++
 		time.Sleep(Period)

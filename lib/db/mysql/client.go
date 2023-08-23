@@ -42,7 +42,7 @@ func Connect() error {
 			break
 		}
 		if err != nil {
-			log.Printf("[W] Try to connect to MySQL, retry: %d, nest error: %v", i, err)
+			log.Printf("[E] Try to connect to MySQL, retry: %d, nest error: %v", i, err)
 		}
 		i++
 		time.Sleep(Period)
