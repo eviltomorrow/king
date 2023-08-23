@@ -50,7 +50,7 @@ root_dir=$(pwd)
 name=""
 action=""
 
-support_name=("apps" "db" "monitoring")
+support_name=("db" "monitoring" "apps")
 support_action=("up" "down" "clear")
 
 

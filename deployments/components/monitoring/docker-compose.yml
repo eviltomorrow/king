@@ -87,6 +87,9 @@ services:
   promtail:
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/promtail:2.8.4
     container_name: promtail
+    ports:
+      - "9080:9080"
+      - "9081:9081"
     volumes:
       - ./data/promtail/log:/var/log
       - ./data/promtail/etc:/etc/promtail/config
