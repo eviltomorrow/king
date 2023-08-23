@@ -10,6 +10,7 @@ MAINVERSION=$(shell cat version)
 GITSHA := $(shell git rev-parse HEAD)
 BUILDTIME=$(shell date +%FT%T%z)
 REGISTRY=registry.cn-beijing.aliyuncs.com
+ACCOUNT="eviltomorrow"
 
 .PHONY: go_version_check
 GO_VERSION_MIN=1.19
@@ -49,7 +50,7 @@ docker: vendor
 ifeq (${app},)
 	@bash build/docker_build.sh ${MAINVERSION} ${GITSHA} ${BUILDTIME}
 else
-	docker build --target prod -t ${REGISTRY}/eviltomorrow/${app} . --build-arg APPNAME=${app} --build-arg MAINVERSION=${MAINVERSION} --build-arg GITSHA=${GITSHA} --build-arg BUILDTIME=${BUILDTIME}
+	docker build --target prod -t ${REGISTRY}/${ACCOUNT}/${app} . --build-arg APPNAME=${app} --build-arg MAINVERSION=${MAINVERSION} --build-arg GITSHA=${GITSHA} --build-arg BUILDTIME=${BUILDTIME}
 endif
 
 # Compile protobuf
