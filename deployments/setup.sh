@@ -28,8 +28,8 @@ function invalid(){
 }
 
 function clear_data(){
-    echo ${1}
-    # sudo rm -rf ${1}
+    sudo rm -rf ${1}
+    check0 $?
 }
 
 function docker_compose(){
