@@ -140,3 +140,5 @@ scrape_configs:
           host: localhost
           __path__: /log/king-repository/*.log
 EOF
+
+touch $(pwd)/data/.ready

@@ -1,21 +1,12 @@
 #!/bin/bash
 
-exist_network=$(docker network ls -f name=net-king -q)
-
-if [ ! -n "${exist_network}" ]; then
-    docker network create net-king > /dev/null
-fi
-
-# ./setup.sh ${name} up
-# ./setup.sh ${name} down
-# ./setup.sh ${name} clear
-
 function check0(){
     if [ "0" != "${1}" ]; then
-        echo -e "\033[34m=> Execute Failure\033[0m"
+        echo -e "\033[34m=> Execute Failure\033[0m: ${2}."
         exit 1
     fi
 }
+
 
 function help(){
     echo -e "eg. \r\n ./setup.sh [name] up \r\n ./setup.sh [name] down"
@@ -29,28 +20,39 @@ function invalid(){
 
 function clear_data(){
     sudo rm -rf ${1}
-    check0 $?
+    check0 $? "rm -rf ${1}"
 }
 
 function docker_compose(){
     cd ${root_dir}
+    check0 $? "cd ${root_dir}"
     if [ -d ${1} ]; then
         cd ${1}
-        if [ ! -d "./data" ]; then
+        check0 $? "cd ${1}"
+        if [ ! -f "./data/.ready" ]; then
             ./init.sh
         fi
         docker compose ${2} ${3}
+        check0 $? "docker compose ${2} ${3}"
     else
         echo "Error: wrong file_path ${1} !"
         exit 1
     fi
 }
 
+
+exist_network=$(docker network ls -f name=net-king -q)
+
+if [ ! -n "${exist_network}" ]; then
+    docker network create net-king > /dev/null
+    check0 $? "docker network create net-king"
+fi
+
 root_dir=$(pwd)
 name=""
 action=""
 
-support_name=("db" "monitoring" "apps")
+support_name=("db" "apps" "monitoring")
 support_action=("up" "down" "clear")
 
 

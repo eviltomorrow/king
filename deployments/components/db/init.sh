@@ -142,3 +142,5 @@ create table \`king_repository\`.\`stock\` (
      PRIMARY KEY(\`code\`)
 );
 EOF
+
+touch $(pwd)/data/.ready

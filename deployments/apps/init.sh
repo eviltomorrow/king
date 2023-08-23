@@ -13,3 +13,5 @@ cat > $(pwd)/data/king-email/etc/smtp.json <<EOF
     "alias":"assistant"
 }
 EOF
+
+touch $(pwd)/data/.ready

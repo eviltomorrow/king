@@ -28,7 +28,7 @@ func (c *Config) LoadFile(path string) error {
 
 var (
 	Default = Config{
-		SmtpFile: "/etc/smtp.json",
+		SmtpFile: "etc/smtp.json",
 		Etcd: config.Etcd{
 			Endpoints: []string{
 				"127.0.0.1:2379",
