@@ -10,6 +10,13 @@ fi
 # ./setup.sh ${name} down
 # ./setup.sh ${name} clear
 
+function check0(){
+    if [ "0" != ${1} ]; then
+        echo -e "\033[34m=> Execute Failure\033[0m"
+        exit 1
+    fi
+}
+
 function help(){
     echo -e "eg. \r\n ./setup.sh [name] up \r\n ./setup.sh [name] down"
     exit 1
@@ -21,7 +28,8 @@ function invalid(){
 }
 
 function clear_data(){
-    
+    echo ${1}
+    # sudo rm -rf ${1}
 }
 
 function docker_compose(){
@@ -97,46 +105,66 @@ case $# in
     ;;
 esac
 
-case ${name} in
-'apps')
-    is_d=""
-    if [ ${action} = "up" ]; then
-        is_d="-d"
+
+case ${action} in 
+'clear')
+    if [ -n ${name} ]; then
+        prefix=""
+        if [ ${name} != "apps" ]; then
+            prefix="components/"
+        fi
+        clear_data "./${prefix}${name}/data" 
+    else
+        for v in ${support_action[@]}
+        do
+            prefix=""
+            if [ ${v} != "apps" ]; then
+                prefix="components/"
+            fi
+            clear_data "./${prefix}${v}/data" 
+        done
     fi
-    docker_compose "./apps" ${action} ${is_d}
     ;;
 
-'db')
-    is_d=""
-    if [ ${action} = "up" ]; then
-        is_d="-d"
+'up')
+    if [ -n ${name} ]; then
+        prefix=""
+        if [ ${name} != "apps" ]; then
+            prefix="components/"
+        fi
+        docker_compose "./${prefix}${name}" "up" "-d"
+    else
+        for v in ${support_action[@]}
+        do
+            prefix=""
+            if [ ${v} != "apps" ]; then
+                prefix="components/"
+            fi
+            docker_compose "./${prefix}${v}" "up" "-d"
+        done
     fi
-    docker_compose "./components/db" ${action} ${is_d}
     ;;
 
-'monitoring')
-    export APPS_HOME=${root_dir}/apps
-    is_d=""
-    if [ ${action} = "up" ]; then
-        is_d="-d"
+'down')
+    if [ -n ${name} ]; then
+        prefix=""
+        if [ ${name} != "apps" ]; then
+            prefix="components/"
+        fi
+        docker_compose "./${prefix}${name}" "down"
+    else
+        for v in ${support_action[@]}
+        do
+            prefix=""
+            if [ ${v} != "apps" ]; then
+                prefix="components/"
+            fi
+            docker_compose "./${prefix}${v}" "down"
+        done
     fi
-    docker_compose "./components/monitoring" ${action} ${is_d}
-    ;;
-
-'')
-    export APPS_HOME=${root_dir}/apps
-    is_d=""
-    if [ ${action} = "up" ]; then
-        is_d="-d"
-    fi
-    docker_compose "./components/db" ${action} ${is_d}
-    docker_compose "./components/monitoring" ${action} ${is_d}
-    docker_compose "./apps" ${action} ${is_d}
     ;;
 
 *)
-    invalid ${args_1}
     ;;
+
 esac
-
-
