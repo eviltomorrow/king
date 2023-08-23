@@ -11,7 +11,7 @@ fi
 # ./setup.sh ${name} clear
 
 function check0(){
-    if [ "0" != ${1} ]; then
+    if [ "0" != "${1}" ]; then
         echo -e "\033[34m=> Execute Failure\033[0m"
         exit 1
     fi
@@ -63,7 +63,7 @@ case $# in
     args_1=$1
     for v in ${support_action[@]}
     do
-        if [ ${args_1} = ${v} ]; then
+        if [ "${args_1}" = "${v}" ]; then
             action=${args_1}
             break;
         fi
@@ -78,7 +78,7 @@ case $# in
     args_2=${2}
     for v in ${support_name[@]}
     do
-        if [ ${args_1} = ${v} ]; then
+        if [ "${args_1}" = "${v}" ]; then
             name=${args_1}
             break;
         fi
@@ -89,7 +89,7 @@ case $# in
 
     for v in ${support_action[@]}
     do
-        if [ ${args_2} = ${v} ]; then
+        if [ "${args_2}" = "${v}" ]; then
             action=${args_2}
             break;
         fi
@@ -105,17 +105,17 @@ case $# in
     ;;
 esac
 
-
+export APPS_HOME=${root_dir}/apps
 case ${action} in 
 'clear')
-    if [ -n ${name} ]; then
+    if [ -n "${name}" ]; then
         prefix=""
         if [ ${name} != "apps" ]; then
             prefix="components/"
         fi
         clear_data "./${prefix}${name}/data" 
     else
-        for v in ${support_action[@]}
+        for v in ${support_name[@]}
         do
             prefix=""
             if [ ${v} != "apps" ]; then
@@ -127,17 +127,17 @@ case ${action} in
     ;;
 
 'up')
-    if [ -n ${name} ]; then
+    if [ -n "${name}" ]; then
         prefix=""
-        if [ ${name} != "apps" ]; then
+        if [ "${name}" != "apps" ]; then
             prefix="components/"
         fi
         docker_compose "./${prefix}${name}" "up" "-d"
     else
-        for v in ${support_action[@]}
+        for v in ${support_name[@]}
         do
             prefix=""
-            if [ ${v} != "apps" ]; then
+            if [ "${v}" != "apps" ]; then
                 prefix="components/"
             fi
             docker_compose "./${prefix}${v}" "up" "-d"
@@ -146,17 +146,17 @@ case ${action} in
     ;;
 
 'down')
-    if [ -n ${name} ]; then
+    if [ -n "${name}" ]; then
         prefix=""
-        if [ ${name} != "apps" ]; then
+        if [ "${name}" != "apps" ]; then
             prefix="components/"
         fi
         docker_compose "./${prefix}${name}" "down"
     else
-        for v in ${support_action[@]}
+        for v in ${support_name[@]}
         do
             prefix=""
-            if [ ${v} != "apps" ]; then
+            if [ "${v}" != "apps" ]; then
                 prefix="components/"
             fi
             docker_compose "./${prefix}${v}" "down"

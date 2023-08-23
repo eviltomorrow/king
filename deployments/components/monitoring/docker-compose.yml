@@ -72,7 +72,7 @@ services:
       - cassandra
 
   loki:
-    image: grafana/loki:2.8.4
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/loki:2.8.4
     container_name: loki
     ports:
       - "3100:3100"
@@ -85,7 +85,7 @@ services:
       - ./data/loki/log:/var/log
 
   promtail:
-    image: grafana/promtail:2.8.4
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/promtail:2.8.4
     container_name: promtail
     volumes:
       - ./data/promtail/log:/var/log
@@ -119,7 +119,7 @@ services:
           editable: false
         EOF
         /run.sh
-    image: grafana/grafana:latest
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/grafana:10.0.3
     container_name: grafana
     ports:
       - "3000:3000"
