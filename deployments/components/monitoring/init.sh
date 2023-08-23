@@ -116,7 +116,7 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: test 
+          job: king-collector 
           host: localhost
           __path__: /log/king-collector/*.log
 
@@ -126,7 +126,7 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: test 
+          job: king-email 
           host: localhost
           __path__: /log/king-email/*.log
   
@@ -136,7 +136,7 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: test 
+          job: king-repository 
           host: localhost
           __path__: /log/king-repository/*.log
 EOF
