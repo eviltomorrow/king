@@ -70,7 +70,7 @@ var StartCommand = &cobra.Command{
 
 		for _, f := range workflowsFunc {
 			if err := f(); err != nil {
-				log.Fatalf("Run workflow failure, nest error: %v", err)
+				log.Fatalf("[F]Run workflow failure, nest error: %v", err)
 			}
 		}
 
