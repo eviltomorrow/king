@@ -20,6 +20,7 @@ function invalid(){
 
 function clear_data(){
     sudo rm -rf ${1}
+    echo "Remove dir ${1}"
     check0 $? "rm -rf ${1}"
 }
 
@@ -57,7 +58,7 @@ action=""
 support_name=("db" "apps" "monitoring")
 support_action=("up" "down" "clear")
 up_ordering=("db" "apps" "monitoring")
-down_ordering=("apps" "db" "monitoring")
+down_ordering=("apps" "db" "monitoring") 
 
 case $# in
 0)
@@ -114,57 +115,33 @@ export APPS_HOME=${root_dir}/apps
 case ${action} in 
 'clear')
     if [ -n "${name}" ]; then
-        prefix=""
-        if [ ${name} != "apps" ]; then
-            prefix="components/"
-        fi
-        clear_data "./${prefix}${name}/data" 
+        clear_data "./${name}/data" 
     else
         for v in ${support_name[@]}
         do
-            prefix=""
-            if [ ${v} != "apps" ]; then
-                prefix="components/"
-            fi
-            clear_data "./${prefix}${v}/data" 
+            clear_data "./${v}/data" 
         done
     fi
     ;;
 
 'up')
     if [ -n "${name}" ]; then
-        prefix=""
-        if [ "${name}" != "apps" ]; then
-            prefix="components/"
-        fi
-        docker_compose "./${prefix}${name}" "up" "-d"
+        docker_compose "./${name}" "up" "-d"
     else
         for v in ${up_ordering[@]}
         do
-            prefix=""
-            if [ "${v}" != "apps" ]; then
-                prefix="components/"
-            fi
-            docker_compose "./${prefix}${v}" "up" "-d"
+            docker_compose "./${v}" "up" "-d"
         done
     fi
     ;;
 
 'down')
     if [ -n "${name}" ]; then
-        prefix=""
-        if [ "${name}" != "apps" ]; then
-            prefix="components/"
-        fi
-        docker_compose "./${prefix}${name}" "down"
+        docker_compose "./${name}" "down"
     else
         for v in ${down_ordering[@]}
         do
-            prefix=""
-            if [ "${v}" != "apps" ]; then
-                prefix="components/"
-            fi
-            docker_compose "./${prefix}${v}" "down"
+            docker_compose "./${v}" "down"
         done
     fi
     ;;
