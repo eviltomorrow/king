@@ -30,7 +30,9 @@ function docker_compose(){
         cd ${1}
         check0 $? "cd ${1}"
         if [ ! -f "./data/.ready" ]; then
-            ./init.sh
+            if [ "${2}"="up" ]; then
+                ./init.sh
+            fi
         fi
         docker compose ${2} ${3}
         check0 $? "docker compose ${2} ${3}"

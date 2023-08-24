@@ -52,12 +52,12 @@ func FetchMetadataFromNet126(codes []string) ([]*model.Metadata, error) {
 	)
 	kv, err := parseNet126DataToMap(data)
 	if err != nil {
-		zlog.Error("parseNet126DataToMap failure", zap.String("data", data), zap.Error(err))
+		zlog.Error("parseNet126DataToMap failure", zap.Error(err), zap.String("data", data))
 	}
 	for key, val := range kv {
 		metadata, err := parseNet126LineToMetadata(key, val)
 		if err != nil {
-			zlog.Error("parseNet126LineToMetadata failure", zap.String("val", val.String()), zap.Error(err))
+			zlog.Error("parseNet126LineToMetadata failure", zap.Error(err), zap.String("val", val.String()))
 		}
 		if metadata != nil {
 			if _, ok := exists[metadata.Code]; !ok {

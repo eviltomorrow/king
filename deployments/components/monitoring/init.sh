@@ -1,11 +1,16 @@
 #!/bin/bash
 
+mkdir -p $(pwd)/data/prometheus/{data,etc}
 mkdir -p $(pwd)/data/otel-collector/etc
 mkdir -p $(pwd)/data/cassandra/{db,log}
 mkdir -p $(pwd)/data/loki/{etc,log,data}
 mkdir -p $(pwd)/data/promtail/{etc,log}
-mkdir -p $(pwd)/data/grafana/{data,log,crypto_data}
+mkdir -p $(pwd)/data/grafana/{data,log,crypto_data,provisioning}
+mkdir -p $(pwd)/data/grafana/provisioning/{dashboards,datasources}
+mkdir -p $(pwd)/data/otel-collector/etc
+
 chmod -R 777 $(pwd)/data
+
 
 # otel-collector-config.yaml
 cat > $(pwd)/data/otel-collector/etc/otel-collector-config.yaml << EOF
@@ -45,13 +50,12 @@ service:
       exporters: [logging]
 EOF
 
-
 cat > $(pwd)/data/loki/etc/local-config.yaml << EOF
 auth_enabled: false
 
 server:
   http_listen_port: 3100
-  grpc_listen_port: 3110
+  grpc_listen_port: 9095
   grpc_server_max_recv_msg_size: 1073741824 #grpc最大接收消息值,默认4m
   grpc_server_max_send_msg_size: 1073741824 #grpc最大发送消息值,默认4m
 
@@ -103,7 +107,7 @@ EOF
 cat > $(pwd)/data/promtail/etc/promtail-config.yaml << EOF
 server:
   http_listen_port: 9080
-  grpc_listen_port: 9081
+  grpc_listen_port: 0
 
 positions:
   filename: /tmp/positions.yaml
@@ -118,8 +122,8 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: king-collector 
-          host: localhost
+          app: king-collector
+          host: localhost 
           __path__: /log/king-collector/*.log
 
   - job_name: king-email
@@ -128,19 +132,175 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: king-email 
-          host: localhost
+          app: king-email
+          host: localhost 
           __path__: /log/king-email/*.log
-  
+
   - job_name: king-repository
     pipeline_stages:
+      # - regex:
+      #   expression: '\[(?P<timestamp>(.+?))\] \[(?P<level>(.+?))\] \[(?P<file>(.+?))\] \["(?P<msg>(.+?))"\] (\[(error)="(?P<error>((.+)))"\] )?(?P<data>(\[(.+)\]))?'
     static_configs:
       - targets:
           - localhost
         labels:
-          job: king-repository 
-          host: localhost
+          app: king-repository
+          host: localhost 
           __path__: /log/king-repository/*.log
+
+EOF
+
+
+# prometheus.yaml
+cat > $(pwd)/data/prometheus/etc/prometheus.yml << EOF
+# my global config
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s # By default, scrape targets every 15 seconds.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'king'
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+  - 'alert.rules'
+
+# alert
+# alerting:
+#   alertmanagers:
+#   - scheme: http
+#     static_configs:
+#     - targets:
+#       - "alertmanager:9093"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label \`job=<job_name>\` to any timeseries scraped from this config.
+
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 15s
+
+    static_configs:
+         - targets: ['localhost:9090']
+
+  - job_name: 'node-exporter'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 15s
+  
+    static_configs:
+      - targets: ['node-exporter:9100']
+EOF
+
+cat > $(pwd)/data/prometheus/etc/alert.rules << EOF
+groups:
+- name: example
+  rules:
+
+  # Alert for any instance that is unreachable for >2 minutes.
+  - alert: service_down
+    expr: up == 0
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} down"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 2 minutes."
+
+  - alert: high_load
+    expr: node_load1 > 1.0
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high load"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load."
+EOF
+
+cat > $(pwd)/data/grafana/provisioning/datasources/datasource.yml << EOF
+# config file version
+apiVersion: 1
+
+# list of datasources that should be deleted from the database
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
+# list of datasources to insert/update depending
+# whats available in the database
+datasources:
+  # <string, required> name of the datasource. Required
+- name: Prometheus
+  type: prometheus
+  access: proxy
+  orgId: 1
+  url: http://prometheus:9090
+  password:
+  user:
+  database:
+  basicAuth: false
+  basicAuthUser:
+  basicAuthPassword:
+  withCredentials:
+  isDefault: true
+  jsonData:
+     graphiteVersion: "1.1"
+     tlsAuth: false
+     tlsAuthWithCACert: false
+  secureJsonData:
+    tlsCACert: "..."
+    tlsClientCert: "..."
+    tlsClientKey: "..."
+  version: 1
+  editable: true
+
+- name: Loki
+  type: loki
+  access: proxy 
+  orgId: 1
+  url: http://loki:3100
+  basicAuth: false
+  isDefault: false
+  version: 1
+  editable: true
+
+EOF
+
+
+cat > $(pwd)/data/grafana/provisioning/dashboards/dashboards.yml << EOF
+apiVersion: 1
+
+providers:
+- name: 'Prometheus'
+  orgId: 1
+  folder: ''
+  type: file
+  disableDeletion: false
+  editable: true
+  options:
+    path: /etc/grafana/provisioning/dashboards
+
+EOF
+
+cat > $(pwd)/data/grafana/provisioning/dashboards/dashboards.yml << EOF
+apiVersion: 1
+
+providers:
+- name: 'Prometheus'
+  orgId: 1
+  folder: ''
+  type: file
+  disableDeletion: false
+  editable: true
+  options:
+    path: /etc/grafana/provisioning/dashboards
+
 EOF
 
 touch $(pwd)/data/.ready

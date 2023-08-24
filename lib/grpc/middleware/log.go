@@ -21,7 +21,7 @@ var (
 func InitLogger() error {
 	access, _, err := zlog.InitLogger(&zlog.Config{
 		Level:            "info",
-		Format:           "text",
+		Format:           "json",
 		DisableTimestamp: false,
 		File: zlog.FileLogConfig{
 			Filename:   filepath.Join(LogDir, "access.log"),
@@ -50,13 +50,13 @@ func UnaryServerLogInterceptor(ctx context.Context, req interface{}, info *grpc.
 	var start = time.Now()
 	defer func() {
 		logger.Info("",
+			zap.Error(err),
 			zap.String("addr", addr),
 			zap.Duration("cost", time.Since(start)),
 			zap.String("service", path.Dir(info.FullMethod)[1:]),
 			zap.String("method", path.Base(info.FullMethod)),
 			zap.String("req", jsonFormat(req)),
 			zap.String("resp", jsonFormat(resp)),
-			zap.Error(err),
 		)
 	}()
 
@@ -73,12 +73,12 @@ func StreamServerLogInterceptor(srv interface{}, stream grpc.ServerStream, info 
 	var start = time.Now()
 	defer func() {
 		logger.Info("",
+			zap.Error(err),
 			zap.String("addr", addr),
 			zap.Duration("cost", time.Since(start)),
 			zap.String("service", path.Dir(info.FullMethod)[1:]),
 			zap.String("method", path.Base(info.FullMethod)),
 			zap.String("srv", jsonFormat(srv)),
-			zap.Error(err),
 		)
 	}()
 

@@ -79,7 +79,7 @@ var (
 		Log: config.Log{
 			DisableTimestamp: false,
 			Level:            "info",
-			Format:           "text",
+			Format:           "json",
 			MaxSize:          100,
 			MaxDays:          180,
 			MaxBackups:       90,

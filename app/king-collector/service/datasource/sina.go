@@ -61,12 +61,12 @@ func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
 	)
 	kv, err := parseSinaDataToMap(data)
 	if err != nil {
-		zlog.Error("parseSinaDataToMap failure", zap.String("data", data), zap.Error(err))
+		zlog.Error("parseSinaDataToMap failure", zap.Error(err), zap.String("data", data))
 	}
 	for key, val := range kv {
 		metadata, err := parseSinaLineToMetadata(key, val)
 		if err != nil {
-			zlog.Error("parseSinaLineToMetadata failure", zap.String("key", key), zap.String("val", val), zap.Error(err))
+			zlog.Error("parseSinaLineToMetadata failure", zap.Error(err), zap.String("key", key), zap.String("val", val))
 		}
 		if metadata != nil {
 			if _, ok := exists[metadata.Code]; !ok {
