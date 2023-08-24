@@ -17,10 +17,10 @@ services:
     command: ["--auth","--config","/etc/mongo/mongod.conf"]
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/mongo:6.0.6
     container_name: mongo
-    ports:
-      - 27017:27017
-    # networks:
-    #   - net-king
+    # ports:
+    #   - 27017:27017
+    expose:
+      - "27017"
 
   mysql:
     restart: always
@@ -36,11 +36,11 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/mysql:8.0.33
     container_name: mysql
-    ports:
-      - 3306:3306
+    # ports:
+    #   - 3306:3306
+    expose:
+      - "3306"
     privileged: true
-    # networks:
-    #   - net-king
 
   etcd:
     restart: always
@@ -53,11 +53,12 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/etcd:3.4.26
     container_name: etcd                
-    ports:                   
-      - "2379:2379"
-      - "2380:2380"
-    # networks:
-    #   - net-king
+    # ports:                   
+    #   - "2379:2379"
+    #   - "2380:2380"
+    expose:
+      - "2379"
+      - "2380"
 
 networks:
   default:

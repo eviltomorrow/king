@@ -7,8 +7,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-collector
     container_name: king-collector                
-    ports:                   
-      - "5271:5271"
+    # ports:                   
+    #   - "5271:5271"
+    expose:
+      - "5271"
 
   king-email:   
     restart: always                                      
@@ -18,8 +20,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-email
     container_name: king-email                
-    ports:                   
-      - "5273:5273"
+    # ports:                   
+    #   - "5273:5273"
+    expose:
+      - "5273"
 
   king-repository:   
     restart: always                                      
@@ -28,8 +32,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-repository
     container_name: king-repository                
-    ports:                   
-      - "5272:5272"
+    # ports:                   
+    #   - "5272:5272"
+    expose:
+      - "5272"
 
 networks:
   default:
