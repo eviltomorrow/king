@@ -21,7 +21,7 @@ var (
 func InitLogger() error {
 	access, _, err := zlog.InitLogger(&zlog.Config{
 		Level:            "info",
-		Format:           "json",
+		Format:           "text",
 		DisableTimestamp: false,
 		File: zlog.FileLogConfig{
 			Filename:   filepath.Join(LogDir, "access.log"),
