@@ -18,7 +18,7 @@ var (
 
 func TestDemo(t *testing.T) {
 	buildinfo.AppName = name
-	OtelAgentAddr = "192.168.233.10:4317"
+	OtelDSN = "192.168.233.10:4317"
 	destroy, err := InitTraceProvider()
 	if err != nil {
 		t.Fatal(err)

@@ -2,12 +2,11 @@ package config
 
 import jsoniter "github.com/json-iterator/go"
 
-type Server struct {
-	Host string `json:"host" toml:"host"`
-	Port int    `json:"port" toml:"port"`
+type Opentrace struct {
+	DSN string `json:"dsn" toml:"dsn"`
 }
 
-func (c *Server) String() string {
+func (c *Opentrace) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
 	return string(buf)
 }

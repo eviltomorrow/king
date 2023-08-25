@@ -22,6 +22,7 @@ import (
 	"github.com/eviltomorrow/king/lib/fs"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
+	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/procutil"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -37,8 +38,9 @@ var workflowsFunc = []func() error{
 	printCfg,
 	setGlobalVars,
 	runDB,
-	runCron,
 	runServer,
+	runCron,
+	runOtel,
 	buildPidFile,
 	rewritePaniclog,
 	notifyStopDaemon,
@@ -125,6 +127,16 @@ func setGlobalVars() error {
 			synchronize.RandomPeriod = [2]int{v1, v2}
 		}
 	}
+	opentrace.OtelDSN = cfg.Otel.DSN
+	return nil
+}
+
+func runOtel() error {
+	shutdown, err := opentrace.InitTraceProvider()
+	if err != nil {
+		return err
+	}
+	cleanup.RegisterCleanupFuncs(shutdown)
 	return nil
 }
 

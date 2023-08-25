@@ -5,6 +5,7 @@ import (
 
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
+	jsoniter "github.com/json-iterator/go"
 )
 
 type Log struct {
@@ -15,6 +16,11 @@ type Log struct {
 	MaxDays          int    `toml:"max-days" json:"max-days"`
 	MaxBackups       int    `toml:"max-backups" json:"max-backups"`
 	Compress         bool   `toml:"compress" json:"compress"`
+}
+
+func (c *Log) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
+	return string(buf)
 }
 
 func SetupLogger(l Log) ([]func() error, error) {

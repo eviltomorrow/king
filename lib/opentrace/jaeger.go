@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	OtelAgentAddr = "127.0.0.1:4317"
-	tracer        trace.Tracer
+	OtelDSN = "127.0.0.1:4317"
+	tracer  trace.Tracer
 )
 
 func init() {
@@ -50,7 +50,7 @@ func InitTraceProvider() (func() error, error) {
 
 	exporter, err := otlptrace.New(ctx, otlptracegrpc.NewClient(
 		otlptracegrpc.WithInsecure(),
-		otlptracegrpc.WithEndpoint(OtelAgentAddr),
+		otlptracegrpc.WithEndpoint(OtelDSN),
 		otlptracegrpc.WithDialOption(grpc.WithBlock()),
 	))
 	if err != nil {
@@ -68,16 +68,13 @@ func InitTraceProvider() (func() error, error) {
 	otel.SetTracerProvider(tracerProvider)
 
 	return func() error {
-		cxt, cancel := context.WithTimeout(ctx, 5*time.Second)
-		defer cancel()
-
 		if err := processor.Shutdown(context.Background()); err != nil {
 			return err
 		}
 
-		if err := exporter.Shutdown(cxt); err != nil {
+		if err := exporter.Shutdown(context.Background()); err != nil {
 			return err
 		}
-		return tracerProvider.Shutdown(cxt)
+		return tracerProvider.Shutdown(context.Background())
 	}, nil
 }

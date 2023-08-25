@@ -13,9 +13,10 @@ type Config struct {
 	Collector Collector `json:"collector" toml:"collector"`
 	MongoDB   MongoDB   `json:"mongodb" toml:"mongodb"`
 
-	Etcd   config.Etcd   `json:"etcd" toml:"etcd"`
-	Log    config.Log    `json:"log" toml:"log"`
-	Server config.Server `json:"server" toml:"server"`
+	Etcd   config.Etcd      `json:"etcd" toml:"etcd"`
+	Log    config.Log       `json:"log" toml:"log"`
+	Server config.Server    `json:"server" toml:"server"`
+	Otel   config.Opentrace `json:"otel" toml:"otel"`
 }
 
 type MongoDB struct {
@@ -75,6 +76,9 @@ var (
 			Endpoints: []string{
 				"127.0.0.1:2379",
 			},
+		},
+		Otel: config.Opentrace{
+			DSN: "otel-collector:4317",
 		},
 		Log: config.Log{
 			DisableTimestamp: false,
