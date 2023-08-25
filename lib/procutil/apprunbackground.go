@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/eviltomorrow/king/lib/netutil"
 	jsoniter "github.com/json-iterator/go"
@@ -48,7 +49,7 @@ func NotifyStopDaemon(buf []byte) error {
 	}
 
 	address := fmt.Sprintf("%s:%d", pingbackHost, bi.ListenPort)
-	conn, err := net.Dial("tcp", address)
+	conn, err := net.DialTimeout("tcp", address, 20*time.Second)
 	if err != nil {
 		return fmt.Errorf("dialing confirmation address: %v", err)
 	}
