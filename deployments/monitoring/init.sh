@@ -59,6 +59,17 @@ server:
   grpc_server_max_recv_msg_size: 1073741824 #grpc最大接收消息值,默认4m
   grpc_server_max_send_msg_size: 1073741824 #grpc最大发送消息值,默认4m
 
+query_range:
+  split_queries_by_interval: 0
+  parallelise_shardable_queries: false
+
+querier:
+  max_concurrent: 2048
+
+frontend:
+  max_outstanding_per_tenant: 4096
+  compress_responses: true
+  
 ingester:
   lifecycler:
     address: loki
@@ -335,21 +346,6 @@ datasources:
 
 EOF
 
-
-cat > $(pwd)/data/grafana/provisioning/dashboards/dashboards.yml << EOF
-apiVersion: 1
-
-providers:
-- name: 'Prometheus'
-  orgId: 1
-  folder: ''
-  type: file
-  disableDeletion: false
-  editable: true
-  options:
-    path: /etc/grafana/provisioning/dashboards
-
-EOF
 
 cat > $(pwd)/data/grafana/provisioning/dashboards/dashboards.yml << EOF
 apiVersion: 1
