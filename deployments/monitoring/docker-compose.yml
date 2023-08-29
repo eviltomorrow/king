@@ -6,7 +6,7 @@ services:
     restart: always
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - ./data/otel-collector/etc/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./conf/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     # ports:
     #   - "1888:1888"   # pprof extension
     #   - "8888:8888"   # Prometheus metrics exposed by the collector
@@ -98,9 +98,9 @@ services:
     expose:
       - "3100"
       - "9095"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/config/local-config.yaml
     volumes:
-      - ./data/loki/etc:/etc/loki/config
+      - ./conf/loki:/etc/loki/config
       - ./data/loki/data/index:/opt/loki/index
       - ./data/loki/data/chunks:/opt/loki/chunks
       - ./data/loki/log:/var/log
@@ -115,7 +115,7 @@ services:
       - "9080"
     volumes:
       - ./data/promtail/log:/var/log
-      - ./data/promtail/etc:/etc/promtail/config
+      - ./conf/promtail:/etc/promtail/config
       - ${APPS_HOME}/data/king-collector/log:/log/king-collector
       - ${APPS_HOME}/data/king-email/log:/log/king-email
       - ${APPS_HOME}/data/king-repository/log:/log/king-repository
@@ -126,7 +126,7 @@ services:
     container_name: prometheus
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/prometheus:2.46.0
     volumes:
-      - ./data/prometheus/etc:/etc/prometheus/
+      - ./conf/prometheus:/etc/prometheus/
       - ./data/prometheus/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -173,10 +173,10 @@ services:
     expose:
       - "3000"
     volumes:
+      - ./conf/grafana/grafana.ini:/etc/grafana/grafana.ini
       - ./data/grafana/data:/var/lib/grafana
       - ./data/grafana/log:/var/log/grafana
-      - ./data/grafana/crypto_data:/var/log/crypto_data
-      - ./data/grafana/provisioning:/etc/grafana/provisioning
+      - ./conf/grafana/provisioning:/etc/grafana/provisioning
     restart: always
 
 networks:

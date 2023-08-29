@@ -16,7 +16,7 @@ services:
     restart: always                                      
     volumes:
       - $PWD/data/king-email/log:/app/var/log/
-      - $PWD/data/king-email/etc/smtp.json:/app/etc/smtp.json                      
+      - $PWD/conf/king-email/smtp.json:/app/etc/smtp.json                      
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-email
     container_name: king-email                
