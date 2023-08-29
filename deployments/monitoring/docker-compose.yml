@@ -98,9 +98,9 @@ services:
     expose:
       - "3100"
       - "9095"
-    command: -config.file=/etc/loki/config/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
     volumes:
-      - ./conf/loki:/etc/loki/config
+      - ./conf/loki:/etc/loki
       - ./data/loki/data/index:/opt/loki/index
       - ./data/loki/data/chunks:/opt/loki/chunks
       - ./data/loki/log:/var/log
