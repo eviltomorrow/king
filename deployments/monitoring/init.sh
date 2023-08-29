@@ -60,13 +60,7 @@ server:
   grpc_server_max_send_msg_size: 1073741824 #grpc最大发送消息值,默认4m
 
 query_scheduler:
-  max_outstanding_requests_per_tenant: 4096
-
-frontend:
-  max_outstanding_per_tenant: 4096
-
-query_range:
-  parallelise_shardable_queries: true
+  max_outstanding_requests_per_tenant: 10000
 
 ingester:
   lifecycler:
@@ -98,8 +92,6 @@ storage_config:
     directory: /opt/loki/chunks
 
 limits_config:
-  split_queries_by_interval: 15m
-  max_query_parallelism: 32
   enforce_metric_name: false
   reject_old_samples: true
   reject_old_samples_max_age: 168h
