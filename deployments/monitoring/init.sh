@@ -118,35 +118,98 @@ clients:
 scrape_configs:
   - job_name: king-collector
     pipeline_stages:
+    - json:
+       expressions:
+         level: level
+         time: time
+         caller: caller
+         message: message
+         error: error
+
     static_configs:
       - targets:
           - localhost
         labels:
           app: king-collector
-          host: localhost 
-          __path__: /log/king-collector/*.log
+          type: data 
+          __path__: /log/king-collector/data.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-collector
+          type: access 
+          __path__: /log/king-collector/access.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-collector
+          type: panic
+          __path__: /log/king-collector/panic.log
 
   - job_name: king-email
     pipeline_stages:
+    - json:
+       expressions:
+         level: level
+         time: time
+         caller: caller
+         message: message
+         error: error
+
     static_configs:
       - targets:
           - localhost
         labels:
           app: king-email
-          host: localhost 
-          __path__: /log/king-email/*.log
+          type: data 
+          __path__: /log/king-email/data.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-email
+          type: access 
+          __path__: /log/king-email/access.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-email
+          type: panic 
+          __path__: /log/king-email/panic.log
 
   - job_name: king-repository
     pipeline_stages:
-      # - regex:
-      #   expression: '\[(?P<timestamp>(.+?))\] \[(?P<level>(.+?))\] \[(?P<file>(.+?))\] \["(?P<msg>(.+?))"\] (\[(error)="(?P<error>((.+)))"\] )?(?P<data>(\[(.+)\]))?'
+    - json:
+       expressions:
+         level: level
+         time: time
+         caller: caller
+         message: message
+         error: error
     static_configs:
       - targets:
           - localhost
         labels:
           app: king-repository
-          host: localhost 
-          __path__: /log/king-repository/*.log
+          type: data 
+          __path__: /log/king-repository/data.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-repository
+          type: access 
+          __path__: /log/king-repository/access.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-repository
+          type: panic 
+          __path__: /log/king-repository/panic.log
 
 EOF
 

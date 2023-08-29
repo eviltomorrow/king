@@ -28,4 +28,4 @@ code-list = [
 ]
 crontab = "05 19 * * MON,TUE,WED,THU,FRI"
 source = "sina"
-random-period = "20,60" # unit: s
+random-period = "20,50" # unit: s
