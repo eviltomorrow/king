@@ -25,9 +25,9 @@ func InitLogger() error {
 		DisableTimestamp: false,
 		File: zlog.FileLogConfig{
 			Filename:   filepath.Join(LogDir, "access.log"),
-			MaxSize:    30,
-			MaxDays:    30,
-			MaxBackups: 30,
+			MaxSize:    100,
+			MaxDays:    180,
+			MaxBackups: 90,
 			Compress:   true,
 		},
 		DisableStacktrace:   true,

@@ -6,21 +6,32 @@ import (
 	"time"
 
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-repository"
+	"github.com/eviltomorrow/king/lib/system"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 func NewRepositoryWithEtcd() (pb.RepositoryClient, func() error, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	md := metadata.Pairs(
+		"hostname", system.Runtime.HostName,
+		"ip", system.Runtime.IP,
+	)
+	newCtx := metadata.NewOutgoingContext(ctx, md)
+
 	var target = "etcd:///grpclb/king-repository"
 	conn, err := grpc.DialContext(
-		ctx,
+		newCtx,
 		target,
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(otelgrpc.StreamClientInterceptor()),
 		grpc.WithBlock(),
 	)
 	if err != nil {
