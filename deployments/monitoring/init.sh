@@ -59,9 +59,15 @@ server:
   grpc_server_max_recv_msg_size: 1073741824 #grpc最大接收消息值,默认4m
   grpc_server_max_send_msg_size: 1073741824 #grpc最大发送消息值,默认4m
 
-query_scheduler:
-  max_outstanding_requests_per_tenant: 10000
-
+loki:
+  limits_config:
+    split_queries_by_interval: 24h
+    max_query_parallelism: 100
+  query_scheduler:
+    max_outstanding_requests_per_tenant: 4096
+  frontend:
+    max_outstanding_per_tenant: 4096
+    
 ingester:
   lifecycler:
     address: loki
