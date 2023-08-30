@@ -71,9 +71,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/rabbitmq:3.12.4-management
     container_name: rabbitmq                
-    ports: 
-      - "5672:5672"                 
-      - "15672:15672"
+    # ports: 
+    #   - "5672:5672"                 
+    #   - "15672:15672"
     expose:
       - "5672"
       - "15672"
