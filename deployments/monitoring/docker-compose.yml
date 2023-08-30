@@ -1,7 +1,7 @@
 version: '3'
 services:
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.83.0
+    image: otel/opentelemetry-collector-contrib:0.84.0
     container_name: otel-collector
     restart: always
     command: ["--config=/etc/otel-collector-config.yaml"]
@@ -101,8 +101,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./conf/loki:/etc/loki
-      - ./data/loki/data/index:/opt/loki/index
-      - ./data/loki/data/chunks:/opt/loki/chunks
+      - ./data/loki/data/:/opt/loki/
       - ./data/loki/log:/var/log
     restart: always
 
