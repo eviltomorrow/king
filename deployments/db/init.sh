@@ -3,6 +3,7 @@
 mkdir -p $(pwd)/data/mongo/{db,log,init}
 mkdir -p $(pwd)/data/mysql/{db,log,init}
 mkdir -p $(pwd)/data/etcd
+mkdir -p $(pwd)/data/rabbitmq/{db,log}
 chmod -R 777 $(pwd)/data
 
 

@@ -189,7 +189,7 @@
           "refId": "A"
         }
       ],
-      "title": "日志总条数:  $searchable_pattern 级别",
+      "title": "日志条数（by level）:  $searchable_pattern",
       "type": "stat"
     },
     {
@@ -230,38 +230,6 @@
       ],
       "title": "实时日志",
       "type": "logs"
-    },
-    {
-      "datasource": {
-        "uid": "${DS_NY-ALERTING2}"
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 24,
-        "x": 0,
-        "y": 12
-      },
-      "id": 15,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "",
-        "mode": "html"
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "${DS_NY-ALERTING2}"
-          },
-          "refId": "A",
-          "target": ""
-        }
-      ],
-      "type": "text"
     },
     {
       "datasource": {
@@ -319,9 +287,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 7,
+        "w": 12,
         "x": 0,
-        "y": 14
+        "y": 12
       },
       "id": 19,
       "links": [],
@@ -364,7 +332,7 @@
           "refId": "A"
         }
       ],
-      "title": "日志总量卡片",
+      "title": "日志卡片(by app)",
       "type": "piechart"
     },
     {
@@ -393,8 +361,8 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 7,
-        "y": 14
+        "x": 12,
+        "y": 12
       },
       "id": 20,
       "interval": "1m",
@@ -437,7 +405,7 @@
           "refId": "A"
         }
       ],
-      "title": "日志匹配: \"$searchable_pattern\" 概览",
+      "title": "日志占比(by level): $searchable_pattern",
       "type": "piechart"
     },
     {
@@ -447,139 +415,79 @@
       },
       "fieldConfig": {
         "defaults": {
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "color": "#299c46",
-                  "text": "0"
-                }
-              },
-              "type": "special"
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
-          ],
-          "max": 100,
-          "min": 0,
-          "noValue": "0",
+          },
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#299c46",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "rgba(237, 129, 40, 0.89)",
-                "value": 10
-              },
-              {
-                "color": "#C4162A",
-                "value": 50
+                "color": "red",
+                "value": 80
               }
             ]
-          },
-          "unit": "percent"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 7,
-        "w": 5,
-        "x": 19,
-        "y": 14
-      },
-      "id": 9,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": false
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
-          "editorMode": "code",
-          "expr": "sum(count_over_time(({app=\"$app\", type=~\"$type\"} |~ \"(?i)$searchable_pattern\")[$__interval])) * 100 / sum(count_over_time(({app=\"$app\", type=~\"$type\"})[$__interval]))",
-          "hide": false,
-          "queryType": "range",
-          "refId": "A"
-        }
-      ],
-      "title": "日志百分占比： \"$searchable_pattern\" 级别",
-      "type": "gauge"
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
-      "decimals": 0,
-      "fieldConfig": {
-        "defaults": {
-          "links": []
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 1,
       "gridPos": {
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 19
       },
-      "hiddenSeries": false,
       "id": 18,
       "interval": "1m",
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": true,
-        "sort": "current",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 3,
       "links": [],
       "maxDataPoints": "",
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
-      "percentage": false,
       "pluginVersion": "10.0.3",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
       "targets": [
         {
           "datasource": {
@@ -592,39 +500,8 @@
           "refId": "A"
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
-      "title": "Matched word: \"$searchable_pattern\" historical",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:425",
-          "decimals": 0,
-          "format": "short",
-          "label": "Count",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:426",
-          "format": "short",
-          "logBase": 1,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "title": "关键字: \"$searchable_pattern\" 直方图",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -687,7 +564,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 19
       },
       "id": 10,
       "links": [],
@@ -718,11 +595,11 @@
           "refId": "A"
         }
       ],
-      "title": "\"$searchable_pattern\" Rate per APP",
+      "title": "速率: \"$searchable_pattern\" ",
       "type": "timeseries"
     }
   ],
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
@@ -763,7 +640,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "data",
           "value": "data"
         },
@@ -833,6 +710,6 @@
   "timezone": "",
   "title": "Logging King",
   "uid": "5rnLQdJVk",
-  "version": 5,
+  "version": 3,
   "weekStart": ""
 }

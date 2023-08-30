@@ -60,6 +60,24 @@ services:
       - "2379"
       - "2380"
 
+  rabbitmq:
+    restart: always
+    environment:               
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123                                        
+    volumes:
+      - $PWD/data/rabbitmq/db:/var/lib/rabbitmq/
+      - $PWD/data/rabbitmq/log:/var/log/rabbitmq/
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/rabbitmq:3.12.4-management
+    container_name: rabbitmq                
+    ports: 
+      - "5672:5672"                 
+      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+
 networks:
   default:
     name: net-king
