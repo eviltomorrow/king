@@ -20,7 +20,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 18042,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -595,7 +595,7 @@
           "refId": "A"
         }
       ],
-      "title": "速率: \"$searchable_pattern\" ",
+      "title": "关键字: \"$searchable_pattern\" 速率图",
       "type": "timeseries"
     }
   ],
@@ -710,6 +710,6 @@
   "timezone": "",
   "title": "Logging King",
   "uid": "5rnLQdJVk",
-  "version": 3,
+  "version": 2,
   "weekStart": ""
 }
