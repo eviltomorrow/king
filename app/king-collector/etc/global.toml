@@ -1,31 +1,31 @@
 [server]
-host = "0.0.0.0"
-port = 5271
+    host = "0.0.0.0"
+    port = 5271
 
 [mongodb]
-dsn = "mongodb://admin:admin123@mongo:27017/transaction_db"
+    dsn = "mongodb://admin:admin123@mongo:27017/transaction_db"
 
 [etcd]
-endpoints = [
-    "etcd:2379",
-]
+    endpoints = [
+        "etcd:2379",
+    ]
 
 [otel]
-dsn = "otel-collector:4317"
+    dsn = "otel-collector:4317"
 
 [collector]
-code-list = [
-    "sh688***",
-    "sh605***",
-    "sh603***",
-    "sh601***",
-    "sh600***",
-    "sz300***",
-    "sz0030**",
-    "sz002***",
-    "sz001***",
-    "sz000***",
-]
-crontab = "05 19 * * MON,TUE,WED,THU,FRI"
-source = "sina"
-random-period = "20,50" # unit: s
+    code-list = [
+        "sh688***",
+        "sh605***",
+        "sh603***",
+        "sh601***",
+        "sh600***",
+        "sz300***",
+        "sz0030**",
+        "sz002***",
+        "sz001***",
+        "sz000***",
+    ]
+    crontab = "05 19 * * MON,TUE,WED,THU,FRI"
+    source = "sina"
+    random-period = "20,50" # unit: s
