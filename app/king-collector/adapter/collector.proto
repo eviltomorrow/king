@@ -8,7 +8,7 @@ package collector;
 service Collector {
     // Crawl last metadata with specify source(sina, net126)
     rpc CrawlMetadata(google.protobuf.StringValue) returns (Counter){}
-    // Fetch metadata to cloud repository
+    // Fetch metadata to cloud storage
     rpc FetchMetadata(google.protobuf.StringValue) returns (stream Metadata){}
 }
 

@@ -8,7 +8,7 @@ import (
 
 	"github.com/eviltomorrow/king/app/king-brain/service/calculate"
 	"github.com/eviltomorrow/king/lib/grpc/client"
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-repository"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/mathutil"
 	"github.com/eviltomorrow/king/lib/zlog"
 	jsoniter "github.com/json-iterator/go"
@@ -58,7 +58,7 @@ func (d *Data) String() string {
 func NewDataWrapperChannel(mode DateType, date string) (chan *DataWrapper, error) {
 	var data = make(chan *DataWrapper, 64)
 
-	stub, closeFunc, err := client.NewRepositoryWithEtcd()
+	stub, closeFunc, err := client.NewStorageWithEtcd()
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func NewDataWrapperChannel(mode DateType, date string) (chan *DataWrapper, error
 	return data, nil
 }
 
-func getQuotes(stub pb.RepositoryClient, mode pb.QuoteRequest_Mode, code string, today string, limit int64) ([]*pb.Quote, error) {
+func getQuotes(stub pb.StorageClient, mode pb.QuoteRequest_Mode, code string, today string, limit int64) ([]*pb.Quote, error) {
 	respQuote, err := stub.GetQuoteLatest(context.Background(), &pb.QuoteRequest{
 		Code:  code,
 		Date:  today,

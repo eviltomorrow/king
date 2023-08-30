@@ -41,7 +41,7 @@ func ArchiveMetadataEveryWeekDay() error {
 		return e
 	}
 
-	affectedStock, affectedDay, affectedWeek, e = ArchiveMetadataToRepository(begin.Format(time.DateOnly))
+	affectedStock, affectedDay, affectedWeek, e = ArchiveMetadataToStorage(begin.Format(time.DateOnly))
 	if e != nil {
 		return e
 	}
@@ -56,8 +56,8 @@ func ArchiveMetadataEveryWeekDay() error {
 	return nil
 }
 
-func ArchiveMetadataToRepository(date string) (int64, int64, int64, error) {
-	client, closeFunc, err := grpcclient.NewRepositoryWithEtcd()
+func ArchiveMetadataToStorage(date string) (int64, int64, int64, error) {
+	client, closeFunc, err := grpcclient.NewStorageWithEtcd()
 	if err != nil {
 		return 0, 0, 0, err
 	}

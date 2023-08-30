@@ -18,12 +18,12 @@ chmod a+x $(pwd)/data/mongo/init/init_mongo.js
 # init.sql
 cat > $(pwd)/data/mysql/init/init_mysql.sql <<EOF
 CREATE USER 'admin'@'%' IDENTIFIED BY 'admin123';
-CREATE DATABASE \`king_repository\` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-GRANT ALL ON king_repository.* TO 'admin'@'%';
+CREATE DATABASE \`king_storage\` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON king_storage.* TO 'admin'@'%';
 
 -- create table quote_day
-drop table if exists \`king_repository\`.\`quote_day\`;
-create table \`king_repository\`.\`quote_day\` (
+drop table if exists \`king_storage\`.\`quote_day\`;
+create table \`king_storage\`.\`quote_day\` (
     \`id\` CHAR(19) NOT NULL PRIMARY KEY,
     \`code\` CHAR(8) NOT NULL COMMENT '股票代码',
     \`open\` DECIMAL(10,2) NOT NULL COMMENT '开盘价',
@@ -39,10 +39,10 @@ create table \`king_repository\`.\`quote_day\` (
     \`create_timestamp\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     \`modify_timestamp\` TIMESTAMP COMMENT '修改时间'
 );
-create index idx_code_date on \`king_repository\`.\`quote_day\`(\`code\`,\`date\`);
+create index idx_code_date on \`king_storage\`.\`quote_day\`(\`code\`,\`date\`);
 
-drop table if exists \`king_repository\`.\`quote_week\`;
-create table \`king_repository\`.\`quote_week\` (
+drop table if exists \`king_storage\`.\`quote_week\`;
+create table \`king_storage\`.\`quote_week\` (
     \`id\` CHAR(19) NOT NULL PRIMARY KEY,
     \`code\` CHAR(8) NOT NULL COMMENT '股票代码',
     \`open\` DECIMAL(10,2) NOT NULL COMMENT '开盘价',
@@ -58,11 +58,11 @@ create table \`king_repository\`.\`quote_week\` (
     \`create_timestamp\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     \`modify_timestamp\` TIMESTAMP COMMENT '修改时间'
 );
-create index idx_code_date_end on \`king_repository\`.\`quote_week\`(\`code\`,\`date\`);
+create index idx_code_date_end on \`king_storage\`.\`quote_week\`(\`code\`,\`date\`);
 
 -- create table stock
-drop table if exists \`king_repository\`.\`stock\`;
-create table \`king_repository\`.\`stock\` (
+drop table if exists \`king_storage\`.\`stock\`;
+create table \`king_storage\`.\`stock\` (
     \`code\` CHAR(8) NOT NULL COMMENT '股票代码',
     \`name\` VARCHAR(32) NOT NULL COMMENT '名称',
     \`suspend\` VARCHAR(32) NOT NULL COMMENT '停牌状态',

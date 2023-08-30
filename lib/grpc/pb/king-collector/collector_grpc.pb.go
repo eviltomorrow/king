@@ -30,7 +30,7 @@ const (
 type CollectorClient interface {
 	// Crawl last metadata with specify source(sina, net126)
 	CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error)
-	// Fetch metadata to cloud repository
+	// Fetch metadata to cloud storage
 	FetchMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (Collector_FetchMetadataClient, error)
 }
 
@@ -89,7 +89,7 @@ func (x *collectorFetchMetadataClient) Recv() (*Metadata, error) {
 type CollectorServer interface {
 	// Crawl last metadata with specify source(sina, net126)
 	CrawlMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error)
-	// Fetch metadata to cloud repository
+	// Fetch metadata to cloud storage
 	FetchMetadata(*wrapperspb.StringValue, Collector_FetchMetadataServer) error
 	mustEmbedUnimplementedCollectorServer()
 }

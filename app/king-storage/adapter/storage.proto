@@ -4,9 +4,9 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
 option go_package = "./;pb";
-package repository;
+package storage;
 
-service Repository {
+service Storage {
     rpc ArchiveMetadata(google.protobuf.StringValue) returns (Counter){}
     rpc GetStockFull(google.protobuf.Empty) returns (stream Stock){}
     rpc GetQuoteLatest(QuoteRequest) returns (stream Quote){}

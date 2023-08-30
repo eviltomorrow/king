@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"github.com/eviltomorrow/king/app/king-repository/service/db"
+	"github.com/eviltomorrow/king/app/king-storage/service/db"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/model"
 )

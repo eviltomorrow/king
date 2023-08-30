@@ -8,6 +8,6 @@ endpoints = [
 ]
 
 [mysql]
-dsn = "admin:admin123@tcp(mysql:3306)/king_repository?charset=utf8mb4&parseTime=true&loc=Local"
+dsn = "admin:admin123@tcp(mysql:3306)/king_storage?charset=utf8mb4&parseTime=true&loc=Local"
 min-open = 3
 max-open = 10

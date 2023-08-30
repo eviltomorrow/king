@@ -2,7 +2,7 @@
 #存放目录
 backup_dir=/root/db
 #数据库库名
-db_name=king_repository
+db_name=king_storage
 #日期命名
 date_tag=`date +%Y%m%d`
 #sql脚本名字

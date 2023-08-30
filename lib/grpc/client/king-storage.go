@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-repository"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewRepositoryWithEtcd() (pb.RepositoryClient, func() error, error) {
+func NewStorageWithEtcd() (pb.StorageClient, func() error, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -21,7 +21,7 @@ func NewRepositoryWithEtcd() (pb.RepositoryClient, func() error, error) {
 	// )
 	// newCtx := metadata.NewOutgoingContext(ctx, md)
 
-	var target = "etcd:///grpclb/king-repository"
+	var target = "etcd:///grpclb/king-storage"
 	conn, err := grpc.DialContext(
 		ctx,
 		target,
@@ -34,10 +34,10 @@ func NewRepositoryWithEtcd() (pb.RepositoryClient, func() error, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return pb.NewRepositoryClient(conn), func() error { return conn.Close() }, nil
+	return pb.NewStorageClient(conn), func() error { return conn.Close() }, nil
 }
 
-func NewRepositoryWithTarget(target string) (pb.RepositoryClient, func() error, error) {
+func NewStorageWithTarget(target string) (pb.StorageClient, func() error, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -50,5 +50,5 @@ func NewRepositoryWithTarget(target string) (pb.RepositoryClient, func() error, 
 	if err != nil {
 		return nil, nil, err
 	}
-	return pb.NewRepositoryClient(conn), func() error { return conn.Close() }, nil
+	return pb.NewStorageClient(conn), func() error { return conn.Close() }, nil
 }

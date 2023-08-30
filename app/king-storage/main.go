@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/eviltomorrow/king/app/king-repository/cmd"
-	"github.com/eviltomorrow/king/app/king-repository/cmd/metadata"
+	"github.com/eviltomorrow/king/app/king-storage/cmd"
+	"github.com/eviltomorrow/king/app/king-storage/cmd/metadata"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/spf13/cobra"
 )
@@ -18,8 +18,8 @@ var (
 
 var RootCommand = &cobra.Command{
 	Use:   AppName,
-	Short: "Stock trade data repository",
-	Long:  "King-repository is a stock trade data repository",
+	Short: "Stock trade data storage",
+	Long:  "King-storage is a stock trade data storage",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},

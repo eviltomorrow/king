@@ -6,11 +6,11 @@ import (
 	"io"
 	"time"
 
-	"github.com/eviltomorrow/king/app/king-repository/service/data"
-	"github.com/eviltomorrow/king/app/king-repository/service/db"
+	"github.com/eviltomorrow/king/app/king-storage/service/data"
+	"github.com/eviltomorrow/king/app/king-storage/service/db"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-repository"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/model"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -29,7 +29,7 @@ type GRPC struct {
 
 	helper *server.GrpcHelper
 
-	pb.UnimplementedRepositoryServer
+	pb.UnimplementedStorageServer
 }
 
 func (g *GRPC) ArchiveMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.Counter, error) {
@@ -100,7 +100,7 @@ func (g *GRPC) ArchiveMetadata(ctx context.Context, req *wrapperspb.StringValue)
 	return &pb.Counter{AffectedStock: affectedS, AffectedQuoteDay: affectedD, AffectedQuoteWeek: affectedW}, nil
 }
 
-func (g *GRPC) GetStockFull(_ *emptypb.Empty, gs pb.Repository_GetStockFullServer) error {
+func (g *GRPC) GetStockFull(_ *emptypb.Empty, gs pb.Storage_GetStockFullServer) error {
 	var (
 		offset, limit int64 = 0, 100
 		timeout             = 10 * time.Second
@@ -126,7 +126,7 @@ func (g *GRPC) GetStockFull(_ *emptypb.Empty, gs pb.Repository_GetStockFullServe
 	return nil
 }
 
-func (g *GRPC) GetQuoteLatest(req *pb.QuoteRequest, resp pb.Repository_GetQuoteLatestServer) error {
+func (g *GRPC) GetQuoteLatest(req *pb.QuoteRequest, resp pb.Storage_GetQuoteLatestServer) error {
 	var (
 		limit   int64 = req.Limit
 		mode    string
@@ -176,7 +176,7 @@ func (g *GRPC) Startup() error {
 		server.WithAppName(g.AppName),
 		server.WithEtcdClient(g.EtcdClient),
 		server.WithRegisterServerFunc(func(s *grpc.Server) {
-			pb.RegisterRepositoryServer(s, g)
+			pb.RegisterStorageServer(s, g)
 		}),
 	)
 	return g.helper.Init()

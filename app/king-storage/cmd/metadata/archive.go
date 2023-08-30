@@ -31,7 +31,7 @@ func init() {
 
 var ArchiveCommand = &cobra.Command{
 	Use:   "archive",
-	Short: "Archive metadata to repository",
+	Short: "Archive metadata to storage",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := loadConfig(); err != nil {
 			log.Fatalf("[F] Load config failure, nest error: %v", err)
@@ -54,9 +54,9 @@ var ArchiveCommand = &cobra.Command{
 			log.Fatalf("[F] Parse end date failure, nest error: %v, end: %s", err, endDateVar)
 		}
 
-		stub, closeFunc, err := grpcclient.NewRepositoryWithEtcd()
+		stub, closeFunc, err := grpcclient.NewStorageWithEtcd()
 		if err != nil {
-			log.Fatalf("[F] New repository client failure, nest error: %v", err)
+			log.Fatalf("[F] New storage client failure, nest error: %v", err)
 		}
 		defer closeFunc()
 

@@ -25,13 +25,13 @@ services:
     expose:
       - "5273"
 
-  king-repository:   
+  king-storage:   
     restart: always                                      
     volumes:
-      - $PWD/data/king-repository/log:/app/var/log/                       
+      - $PWD/data/king-storage/log:/app/var/log/                       
       - /etc/localtime:/etc/localtime:ro
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-repository
-    container_name: king-repository                
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-storage
+    container_name: king-storage                
     # ports:                   
     #   - "5272:5272"
     expose:

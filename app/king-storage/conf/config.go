@@ -40,7 +40,7 @@ var (
 			},
 		},
 		MySQL: MySQL{
-			DSN:     "admin:admin123@tcp(127.0.0.1:3306)/king_repository?charset=utf8mb4&parseTime=true&loc=Local",
+			DSN:     "admin:admin123@tcp(127.0.0.1:3306)/king_storage?charset=utf8mb4&parseTime=true&loc=Local",
 			MinOpen: 3,
 			MaxOpen: 10,
 		},
