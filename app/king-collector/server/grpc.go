@@ -56,7 +56,7 @@ func (g *GRPC) FetchMetadata(req *wrapperspb.StringValue, fs pb.Collector_FetchM
 		timeout       = 20 * time.Second
 	)
 
-	_, span := opentrace.DefaultTracer().Start(fs.Context(), "SelectMetadataRange-Loop")
+	_, span := opentrace.DefaultTracer().Start(fs.Context(), "Loop-SelectMetadataRange")
 	defer span.End()
 
 	for {
