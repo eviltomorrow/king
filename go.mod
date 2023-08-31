@@ -10,6 +10,7 @@ require (
 	github.com/flosch/pongo2/v6 v6.0.0
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/google/uuid v1.3.1
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/json-iterator/go v1.1.12
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.7.0
@@ -40,7 +41,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.17.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
