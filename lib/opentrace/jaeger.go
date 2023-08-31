@@ -17,16 +17,12 @@ import (
 )
 
 var (
-	OtelDSN = "127.0.0.1:4317"
-	tracer  trace.Tracer
+	OtelDSN             = "127.0.0.1:4317"
+	instrumentationName = "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
-func init() {
-	tracer = otel.Tracer(buildinfo.AppName)
-}
-
-func WithTracer() trace.Tracer {
-	return tracer
+func DefaultTracer() trace.Tracer {
+	return otel.Tracer(instrumentationName, trace.WithInstrumentationVersion(otel.Version()))
 }
 
 func InitTraceProvider() (func() error, error) {

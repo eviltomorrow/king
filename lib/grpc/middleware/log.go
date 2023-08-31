@@ -8,6 +8,7 @@ import (
 
 	"github.com/eviltomorrow/king/lib/zlog"
 	jsoniter "github.com/json-iterator/go"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
@@ -42,15 +43,21 @@ func InitLogger() error {
 
 // UnaryServerLogInterceptor log 拦截
 func UnaryServerLogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	var addr string
+	var (
+		addr    string
+		traceId string
+	)
 	if peer, ok := peer.FromContext(ctx); ok {
 		addr = peer.Addr.String()
 	}
+
+	traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
 
 	var start = time.Now()
 	defer func() {
 		logger.Info("",
 			zap.Error(err),
+			zap.String("traceId", traceId),
 			zap.String("addr", addr),
 			zap.Duration("cost", time.Since(start)),
 			zap.String("service", path.Dir(info.FullMethod)[1:]),
@@ -66,14 +73,21 @@ func UnaryServerLogInterceptor(ctx context.Context, req interface{}, info *grpc.
 
 // StreamServerRecoveryInterceptor recover
 func StreamServerLogInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
-	var addr string
-	if peer, ok := peer.FromContext(stream.Context()); ok {
+	var (
+		addr    string
+		traceId string
+		ctx     = stream.Context()
+	)
+	if peer, ok := peer.FromContext(ctx); ok {
 		addr = peer.Addr.String()
 	}
+
+	traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
 	var start = time.Now()
 	defer func() {
 		logger.Info("",
 			zap.Error(err),
+			zap.String("traceId", traceId),
 			zap.String("addr", addr),
 			zap.Duration("cost", time.Since(start)),
 			zap.String("service", path.Dir(info.FullMethod)[1:]),

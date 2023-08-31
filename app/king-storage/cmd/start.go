@@ -18,25 +18,29 @@ import (
 	"github.com/eviltomorrow/king/lib/fs"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
+	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/procutil"
 	"github.com/eviltomorrow/king/lib/system"
+	"github.com/eviltomorrow/king/lib/workflow"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/resolver"
 )
 
-var workflowsFunc = []func() error{
-	setRuntimeEnv,
-	loadConfig,
-	printCfg,
-	setGlobalVars,
-	runDB,
-	runServer,
-	buildPidFile,
-	rewritePaniclog,
-	notifyStopDaemon,
-}
+var workflowsFunc = func() []workflow.Job {
+	workflow.Register("setRuntimeEnv", setRuntimeEnv)
+	workflow.Register("loadConfig", loadConfig)
+	workflow.Register("printCfg", printCfg)
+	workflow.Register("setGlobalVars", setGlobalVars)
+	workflow.Register("runOtel", runOtel)
+	workflow.Register("runDB", runDB)
+	workflow.Register("runServer", runServer)
+	workflow.Register("buildPidFile", buildPidFile)
+	workflow.Register("rewritePaniclog", rewritePaniclog)
+	workflow.Register("notifyStopDaemon", notifyStopDaemon)
+	return workflow.Finish()
+}()
 
 var cfg = conf.Default
 var (
@@ -68,11 +72,12 @@ var StartCommand = &cobra.Command{
 			zlog.Info("Stop app complete", zap.String("app-name", buildinfo.AppName), zap.String("running-duration", system.Runtime.RunningDuration()))
 		}()
 
-		for _, f := range workflowsFunc {
-			if err := f(); err != nil {
-				log.Fatalf("[F] Run workflow failure, nest error: %v", err)
+		for _, job := range workflowsFunc {
+			if err := job.F(); err != nil {
+				log.Fatalf("[F] Run job failure, nest error: %v, job name: %v", err, job.Name)
 			}
 		}
+
 		zlog.Info("Start app success", zap.String("app-name", buildinfo.AppName), zap.Duration("cost", time.Since(begin)))
 		procutil.WaitForSigterm()
 	},
@@ -98,7 +103,7 @@ func setGlobalVars() error {
 	mysql.DSN = cfg.MySQL.DSN
 	mysql.MinOpen = cfg.MySQL.MinOpen
 	mysql.MaxOpen = cfg.MySQL.MaxOpen
-
+	opentrace.OtelDSN = cfg.Otel.DSN
 	return nil
 }
 
@@ -111,6 +116,15 @@ func setRuntimeEnv() error {
 			return fmt.Errorf("create dir failure, nest error: %v", err)
 		}
 	}
+	return nil
+}
+
+func runOtel() error {
+	shutdown, err := opentrace.InitTraceProvider()
+	if err != nil {
+		return fmt.Errorf("init trace provider failure, nest error: %v", err)
+	}
+	cleanup.RegisterCleanupFuncs(shutdown)
 	return nil
 }
 

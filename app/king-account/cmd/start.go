@@ -18,6 +18,7 @@ import (
 	"github.com/eviltomorrow/king/lib/fs"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
+	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/procutil"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -31,6 +32,7 @@ var workflowsFunc = []func() error{
 	loadConfig,
 	printCfg,
 	setGlobalVars,
+	runOtel,
 	runDB,
 	runServer,
 	buildPidFile,
@@ -108,6 +110,15 @@ func loadConfig() error {
 func setGlobalVars() error {
 	middleware.LogDir = filepath.Join(system.Runtime.RootDir, "/var/log")
 	etcd.Endpoints = cfg.Etcd.Endpoints
+	return nil
+}
+
+func runOtel() error {
+	shutdown, err := opentrace.InitTraceProvider()
+	if err != nil {
+		return err
+	}
+	cleanup.RegisterCleanupFuncs(shutdown)
 	return nil
 }
 

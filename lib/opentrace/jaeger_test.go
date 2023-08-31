@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -18,7 +19,7 @@ var (
 
 func TestDemo(t *testing.T) {
 	buildinfo.AppName = name
-	OtelDSN = "192.168.233.10:4317"
+	OtelDSN = "localhost:4317"
 	destroy, err := InitTraceProvider()
 	if err != nil {
 		t.Fatal(err)
@@ -47,4 +48,7 @@ func f1(ctx context.Context) {
 	span.RecordError(fmt.Errorf("failure"))
 	span.SetStatus(codes.Error, "Failure")
 	// time.Sleep(1 * time.Second)
+	span1 := trace.SpanFromContext(ctx)
+	var id = span1.SpanContext().TraceID().String()
+	fmt.Println(id)
 }

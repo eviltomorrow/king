@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	SmtpFile string        `json:"smtp-file" toml:"smtp-file"`
-	Etcd     config.Etcd   `json:"etcd" toml:"etcd"`
-	Log      config.Log    `json:"log" toml:"log"`
-	Server   config.Server `json:"server" toml:"server"`
+	SmtpFile string           `json:"smtp-file" toml:"smtp-file"`
+	Etcd     config.Etcd      `json:"etcd" toml:"etcd"`
+	Log      config.Log       `json:"log" toml:"log"`
+	Server   config.Server    `json:"server" toml:"server"`
+	Otel     config.Opentrace `json:"otel" toml:"otel"`
 }
 
 func (c *Config) String() string {
@@ -46,6 +47,9 @@ var (
 		Server: config.Server{
 			Host: "0.0.0.0",
 			Port: 5273,
+		},
+		Otel: config.Opentrace{
+			DSN: "otel-collector:4317",
 		},
 	}
 )

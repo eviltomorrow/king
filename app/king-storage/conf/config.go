@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	Etcd   config.Etcd   `json:"etcd" toml:"etcd"`
-	Log    config.Log    `json:"log" toml:"log"`
-	MySQL  MySQL         `json:"mysql" toml:"mysql"`
-	Server config.Server `json:"server" toml:"server"`
+	Etcd   config.Etcd      `json:"etcd" toml:"etcd"`
+	Log    config.Log       `json:"log" toml:"log"`
+	MySQL  MySQL            `json:"mysql" toml:"mysql"`
+	Server config.Server    `json:"server" toml:"server"`
+	Otel   config.Opentrace `json:"otel" toml:"otel"`
 }
 
 type MySQL struct {
@@ -56,6 +57,9 @@ var (
 		Server: config.Server{
 			Host: "0.0.0.0",
 			Port: 5272,
+		},
+		Otel: config.Opentrace{
+			DSN: "otel-collector:4317",
 		},
 	}
 )
