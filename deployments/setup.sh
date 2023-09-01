@@ -127,7 +127,7 @@ case ${action} in
                 done
             fi
             ;;
-        [nN][oO][nN])
+        [nN][oO]|[nN])
             echo "abort"
             exit 1
             ;;
