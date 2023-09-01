@@ -7,7 +7,6 @@ function check0(){
     fi
 }
 
-
 function help(){
     echo -e "eg. \r\n ./setup.sh [name] up \r\n ./setup.sh [name] down"
     exit 1
@@ -112,6 +111,7 @@ case $# in
 esac
 
 export APPS_HOME=${root_dir}/apps
+
 case ${action} in 
 'clear')
     if [ -n "${name}" ]; then
