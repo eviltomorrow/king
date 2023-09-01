@@ -113,6 +113,7 @@ services:
     expose:
       - "9080"
     volumes:
+      - ./data/promtail/conf/:/var/promtail/conf/
       - ./data/promtail/log:/var/log
       - ./conf/promtail:/etc/promtail/config
       - ${APPS_HOME}/data/king-collector/log:/log/king-collector
