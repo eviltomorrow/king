@@ -114,16 +114,29 @@ export APPS_HOME=${root_dir}/apps
 
 case ${action} in 
 'clear')
-    if [ -n "${name}" ]; then
-        clear_data "./${name}/data" 
-    else
-        for v in ${support_name[@]}
-        do
-            clear_data "./${v}/data" 
-        done
-    fi
-    ;;
+    read -r -p "Will remove path[.data], Are you sure? [Y/n]: " input
 
+    case ${input} in 
+        [yY][eE][sS]|[yY])
+            if [ -n "${name}" ]; then
+                clear_data "./${name}/data" 
+            else
+                for v in ${support_name[@]}
+                do
+                    clear_data "./${v}/data" 
+                done
+            fi
+            ;;
+        [nN][oO][nN])
+            echo "abort"
+            exit 1
+            ;;
+        *)
+            echo "invalid input"
+            exit 1
+            ;;
+    esac
+    ;;
 'up')
     if [ -n "${name}" ]; then
         docker_compose "./${name}" "up" "-d"
