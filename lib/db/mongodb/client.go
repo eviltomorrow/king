@@ -65,7 +65,7 @@ func Close() error {
 
 func buildMongoDB(dsn string) (*mongo.Client, error) {
 	if dsn == "" {
-		return nil, fmt.Errorf("MongoDB: DSN no set")
+		return nil, fmt.Errorf("MongoDB: no DSN set")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultConnectTimeout)
