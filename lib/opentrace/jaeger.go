@@ -67,7 +67,6 @@ func InitTraceProvider() (func() error, error) {
 		if err := processor.Shutdown(context.Background()); err != nil {
 			return err
 		}
-
 		if err := exporter.Shutdown(context.Background()); err != nil {
 			return err
 		}
