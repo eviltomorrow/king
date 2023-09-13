@@ -17,8 +17,8 @@ services:
     command: ["--auth","--config","/etc/mongo/mongod.conf"]
     image: mongo:${mongo_version}
     container_name: mongo
-    # ports:
-    #   - 27017:27017
+    ports:
+      - 127.0.0.1:27017:27017
     expose:
       - "27017"
 
@@ -36,8 +36,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: mysql:${mysql_version}
     container_name: mysql
-    # ports:
-    #   - 3306:3306
+    ports:
+      - 127.0.0.1:3306:3306
     expose:
       - "3306"
     privileged: true
@@ -53,9 +53,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     image: bitnami/etcd:${etcd_version}
     container_name: etcd                
-    # ports:                   
-    #   - "2379:2379"
-    #   - "2380:2380"
+    ports:                   
+      - "127.0.0.1:2379:2379"
+      - "127.0.0.1:2380:2380"
     expose:
       - "2379"
       - "2380"
