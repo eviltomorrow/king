@@ -51,6 +51,8 @@ if [ ! -n "${exist_network}" ]; then
 fi
 
 root_dir=$(pwd)
+export APPS_HOME=${root_dir}/apps
+
 name=""
 action=""
 
@@ -58,6 +60,17 @@ support_name=("db" "apps" "monitoring")
 support_action=("up" "down" "clear")
 up_ordering=("db" "apps" "monitoring")
 down_ordering=("apps" "db" "monitoring") 
+
+# version
+export opentelemetry_collector_contrib_version="0.85.0"
+export jaeger_version="1.49"
+export prometheus_version="2.47.0"
+export node_exporter_version="1.6.1"
+export grafana_version="10.0.5"
+
+export mongo_version="7.0.1"
+export mysql_version="8.0.34"
+export etcd_version="3.5.9"
 
 case $# in
 0)
@@ -109,8 +122,6 @@ case $# in
     help;
     ;;
 esac
-
-export APPS_HOME=${root_dir}/apps
 
 case ${action} in 
 'clear')

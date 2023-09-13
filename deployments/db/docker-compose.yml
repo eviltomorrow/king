@@ -15,7 +15,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /usr/share/zoneinfo:/usr/share/zoneinfo/
     command: ["--auth","--config","/etc/mongo/mongod.conf"]
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/mongo:6.0.6
+    image: mongo:${mongo_version}
     container_name: mongo
     # ports:
     #   - 27017:27017
@@ -34,7 +34,7 @@ services:
       - /run/mysqld:/run/mysqld/
       - /usr/share/zoneinfo:/usr/share/zoneinfo/
       - /etc/localtime:/etc/localtime:ro
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/mysql:8.0.33
+    image: mysql:${mysql_version}
     container_name: mysql
     # ports:
     #   - 3306:3306
@@ -51,7 +51,7 @@ services:
     volumes:
       - $PWD/data/etcd:/etcd-data/                       
       - /etc/localtime:/etc/localtime:ro
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/etcd:3.4.26
+    image: bitnami/etcd:${etcd_version}
     container_name: etcd                
     # ports:                   
     #   - "2379:2379"

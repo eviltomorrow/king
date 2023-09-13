@@ -1,7 +1,7 @@
 version: '3'
 services:
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.85.0
+    image: otel/opentelemetry-collector-contrib:${opentelemetry_collector_contrib_version}
     container_name: otel-collector
     restart: always
     command: ["--config=/etc/otel-collector-config.yaml"]
@@ -25,7 +25,7 @@ services:
       - jaeger-collector
 
   jaeger-collector:
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-collector:1.47
+    image: jaegertracing/jaeger-collector:${jaeger_version}
     container_name: jaeger-collector
     command:
       - "--cassandra.keyspace=jaeger_v1_dc1"
@@ -50,7 +50,7 @@ services:
       - cassandra-schema
 
   jaeger-query:
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-query:1.47
+    image: jaegertracing/jaeger-query:${jaeger_version}
     container_name: jaeger-query
     command:
       ["--cassandra.keyspace=jaeger_v1_dc1", "--cassandra.servers=cassandra"]
@@ -71,7 +71,7 @@ services:
       - cassandra-schema
 
   cassandra:
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/cassandra:4.1.3
+    image: cassandra:4.1.3
     restart: on-failure
     container_name: cassandra
     # ports:
@@ -83,14 +83,14 @@ services:
       - ./data/cassandra/log:/var/log/cassandra
 
   cassandra-schema:
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/jaeger-cassandra-schema:1.47
+    image: jaegertracing/jaeger-cassandra-schema:${jaeger_version}
     restart: on-failure
     container_name: cassandra-schema
     depends_on:
       - cassandra
 
   loki:
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/loki:2.8.4
+    image: grafana/loki:2.9.0
     container_name: loki
     # ports:
     #   - "3100:3100"
@@ -106,7 +106,7 @@ services:
     restart: always
 
   promtail:
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/promtail:2.8.4
+    image: grafana/promtail:2.9.0
     container_name: promtail
     # ports:
     #   - "9080:9080"
@@ -124,7 +124,7 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/prometheus:2.46.0
+    image: bitnami/prometheus:${prometheus_version}
     volumes:
       - ./conf/prometheus:/etc/prometheus/
       - ./data/prometheus/data:/prometheus
@@ -141,7 +141,7 @@ services:
 
   node-exporter:
     container_name: node-exporter
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/node-exporter:1.6.1
+    image: bitnami/node-exporter:1.6.1
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -166,7 +166,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/grafana:10.0.3
+    image: grafana/grafana:10.0.3
     container_name: grafana
     ports:
       - "3000:3000"
