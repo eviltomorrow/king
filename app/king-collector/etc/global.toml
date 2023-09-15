@@ -26,6 +26,6 @@
         "sz001***",
         "sz000***",
     ]
-    crontab = "05 19 * * MON,TUE,WED,THU,FRI"
+    crontab = "25 18 * * MON,TUE,WED,THU,FRI"
     source = "sina"
     random-period = "20,50" # unit: s

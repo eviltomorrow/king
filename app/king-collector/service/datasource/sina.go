@@ -38,7 +38,7 @@ var (
 		"Accept-Language":           "zh-CN,zh;q=0.9,en;q=0.8,da;q=0.7,pt;q=0.6,ja;q=0.5",
 	}
 	SinaMatcher = map[string][]int{
-		"sh68": {34},
+		"sh68": {33, 34},
 		"sh60": {33},
 		"sz0":  {33},
 		"sz3":  {33, 34},
