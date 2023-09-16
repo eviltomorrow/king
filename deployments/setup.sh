@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DATA_HOME="/home/shepard/data/king/data"
+export DATA_HOME="/home/shepard/data"
 
 function check0(){
     if [ "0" != "${1}" ]; then
@@ -20,6 +20,8 @@ function support_check(){
 }
 
 function docker_compose_pull(){
+    cd ${root_dir}
+    check0 $? "cd ${root_dir}"   
     if [ -d ${1} ]; then
         cd ${1}
         check0 $? "cd ${1}"
@@ -161,7 +163,7 @@ case ${action} in
             exit 1
             ;;
         *)
-            echo "invalid input"
+            echo "Error: invalid input"
             exit 1
             ;;
     esac
