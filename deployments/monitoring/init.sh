@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# version
-export opentelemetry_collector_contrib_version="0.85.0"
-export jaeger_version="1.49"
-export prometheus_version="2.47.0"
-export node_exporter_version="1.6.1"
-export grafana_version="10.0.5"
-export DATA_HOME="/home/shepard/data/king/data"
-
 mkdir -p ${DATA_HOME}/prometheus/data
 mkdir -p ${DATA_HOME}/otel-collector
 mkdir -p ${DATA_HOME}/cassandra/{db,log}
