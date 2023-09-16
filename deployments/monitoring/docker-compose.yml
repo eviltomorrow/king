@@ -79,8 +79,8 @@ services:
     expose:
       - "9402"
     volumes:
-      - ./data/cassandra/db:/var/lib/cassandra
-      - ./data/cassandra/log:/var/log/cassandra
+      - ${DATA_HOME}/cassandra/db:/var/lib/cassandra
+      - ${DATA_HOME}/cassandra/log:/var/log/cassandra
 
   cassandra-schema:
     image: jaegertracing/jaeger-cassandra-schema:${jaeger_version}
@@ -101,8 +101,8 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./conf/loki:/etc/loki
-      - ./data/loki/data/:/opt/loki/
-      - ./data/loki/log:/var/log
+      - ${DATA_HOME}/loki/data/:/opt/loki/
+      - ${DATA_HOME}/loki/log:/var/log
     restart: always
 
   promtail:
@@ -113,12 +113,12 @@ services:
     expose:
       - "9080"
     volumes:
-      - ./data/promtail/conf/:/var/promtail/conf/
-      - ./data/promtail/log:/var/log
+      - ${DATA_HOME}/promtail/conf/:/var/promtail/conf/
+      - ${DATA_HOME}/promtail/log:/var/log
       - ./conf/promtail:/etc/promtail/config
-      - ${APPS_HOME}/data/king-collector/log:/log/king-collector
-      - ${APPS_HOME}/data/king-email/log:/log/king-email
-      - ${APPS_HOME}/data/king-storage/log:/log/king-storage
+      - ${DATA_HOME}/king-collector/log:/log/king-collector
+      - ${DATA_HOME}/king-email/log:/log/king-email
+      - ${DATA_HOME}/king-storage/log:/log/king-storage
     command: -config.file=/etc/promtail/config/promtail-config.yaml
     restart: always
 
@@ -127,7 +127,7 @@ services:
     image: bitnami/prometheus:${prometheus_version}
     volumes:
       - ./conf/prometheus:/etc/prometheus/
-      - ./data/prometheus/data:/prometheus
+      - ${DATA_HOME}/prometheus/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -174,8 +174,8 @@ services:
       - "3000"
     volumes:
       - ./conf/grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./data/grafana/data:/var/lib/grafana
-      - ./data/grafana/log:/var/log/grafana
+      - ${DATA_HOME}/grafana/data:/var/lib/grafana
+      - ${DATA_HOME}/grafana/log:/var/log/grafana
       - ./conf/grafana/provisioning:/etc/grafana/provisioning
     restart: always
 
