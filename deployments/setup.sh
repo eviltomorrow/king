@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DATA_HOME="/home/shepard/data"
+export DATA_HOME=""
 
 function check0(){
     if [ "0" != "${1}" ]; then
