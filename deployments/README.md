@@ -6,5 +6,9 @@
 
 ## 第二步
 
+    设置 setup.sh 中的 DATA_HOME 的路径
+
+## 第三步
+
     执行 setup.sh up
     
