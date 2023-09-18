@@ -15,12 +15,55 @@
 package zlog
 
 import (
+	"context"
+
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 // ZapEncodingName is the encoder name registered in zap
 var ZapEncodingName = "zlog"
+
+func DebugCtx(ctx context.Context, msg string, fields ...zap.Field) {
+	if ctx != nil {
+		var traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+		fields = append(fields, zap.String("traceId", traceId))
+	}
+	ll().Debug(msg, fields...)
+}
+
+func InfoCtx(ctx context.Context, msg string, fields ...zap.Field) {
+	if ctx != nil {
+		var traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+		fields = append(fields, zap.String("traceId", traceId))
+	}
+	ll().Info(msg, fields...)
+}
+
+func WarnCtx(ctx context.Context, msg string, fields ...zap.Field) {
+	if ctx != nil {
+		var traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+		fields = append(fields, zap.String("traceId", traceId))
+	}
+	ll().Warn(msg, fields...)
+}
+
+func ErrorCtx(ctx context.Context, msg string, fields ...zap.Field) {
+	if ctx != nil {
+		var traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+		fields = append(fields, zap.String("traceId", traceId))
+	}
+	ll().Error(msg, fields...)
+}
+
+func PanicCtx(ctx context.Context, msg string, fields ...zap.Field) {
+	if ctx != nil {
+		var traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+		fields = append(fields, zap.String("traceId", traceId))
+	}
+	ll().Panic(msg, fields...)
+}
 
 // Debug logs a message at DebugLevel. The message includes any fields passed
 // at the log site, as well as any fields accumulated on the logger.
