@@ -84,7 +84,7 @@ var StartCommand = &cobra.Command{
 }
 
 func loadConfig() error {
-	if err := cfg.LoadFile(filepath.Join(system.Runtime.RootDir, "/etc/global.toml")); err != nil {
+	if err := cfg.LoadFile(filepath.Join(system.Runtime.RootDir, "/etc/config.toml")); err != nil {
 		return err
 	}
 
