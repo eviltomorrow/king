@@ -17,3 +17,7 @@ zip -rq $zipfile $sqlfile
 rm -rf $sqlfile
 #定时清除文件，以访长期堆积占用磁盘空间(删除5天以前带有.zip文件)
 find $backup_dir -mtime +5 -name '*.zip' -exec rm -rf {} \;
+
+
+
+# 01 5 * * 2,3,4,5,6 cd /root/bash; ./db_backup.sh
