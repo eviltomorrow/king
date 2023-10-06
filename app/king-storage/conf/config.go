@@ -59,7 +59,8 @@ var (
 			Port: 5272,
 		},
 		Otel: config.Opentrace{
-			DSN: "otel-collector:4317",
+			Enable: true,
+			DSN:    "otel-storage:4317",
 		},
 	}
 )

@@ -3,7 +3,8 @@ package config
 import jsoniter "github.com/json-iterator/go"
 
 type Opentrace struct {
-	DSN string `json:"dsn" toml:"dsn"`
+	Enable bool   `json:"enable" toml:"enable"`
+	DSN    string `json:"dsn" toml:"dsn"`
 }
 
 func (c *Opentrace) String() string {

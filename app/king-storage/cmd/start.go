@@ -120,6 +120,9 @@ func setRuntimeEnv() error {
 }
 
 func runOtel() error {
+	if !cfg.Otel.Enable {
+		return nil
+	}
 	shutdown, err := opentrace.InitTraceProvider()
 	if err != nil {
 		return fmt.Errorf("init trace provider failure, nest error: %v", err)

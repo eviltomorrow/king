@@ -78,7 +78,8 @@ var (
 			},
 		},
 		Otel: config.Opentrace{
-			DSN: "otel-collector:4317",
+			Enable: true,
+			DSN:    "otel-collector:4317",
 		},
 		Log: config.Log{
 			DisableTimestamp: false,
