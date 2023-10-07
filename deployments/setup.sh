@@ -77,9 +77,9 @@ up_ordering=("db" "apps" "monitoring")
 down_ordering=("apps" "db" "monitoring") 
 
 # version
-export opentelemetry_collector_contrib_version="0.85.0"
+export opentelemetry_collector_contrib_version="0.86.0"
 export jaeger_version="1.49"
-export prometheus_version="2.47.0"
+export prometheus_version="2.47.1"
 export node_exporter_version="1.6.1"
 export grafana_version="10.0.8"
 export mongo_version="7.0.1"

@@ -60,7 +60,7 @@ var (
 		},
 		Otel: config.Opentrace{
 			Enable: true,
-			DSN:    "otel-storage:4317",
+			DSN:    "otel-collector:4317",
 		},
 	}
 )

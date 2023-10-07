@@ -50,7 +50,7 @@ var (
 		},
 		Otel: config.Opentrace{
 			Enable: true,
-			DSN:    "otel-email:4317",
+			DSN:    "otel-collector:4317",
 		},
 	}
 )
