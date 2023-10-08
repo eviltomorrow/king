@@ -1,6 +1,10 @@
 #!/bin/bash
 
-export DATA_HOME=""
+# set  ${DATA_HOME} value
+if [ ! -n "${DATA_HOME}" ]; then
+    export DATA_HOME=""
+fi
+
 
 function check0(){
     if [ "0" != "${1}" ]; then
