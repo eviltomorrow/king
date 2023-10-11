@@ -1,4 +1,4 @@
-FROM golang:latest AS builder
+FROM --platform=$TARGETPLATFORM golang:latest AS builder
 
 WORKDIR /project-king
 COPY [".", "./"]
@@ -11,7 +11,7 @@ ENV MAINVERSION=${MAINVERSION} \
     BUILDTIME=${BUILDTIME} 
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.AppName=${APPNAME} -X main.MainVersion=${MAINVERSION} -X main.GitSha=${GITSHA} -X main.BuildTime=${BUILDTIME} -s -w" -gcflags "all=-trimpath=$(go env GOPATH)" -o bin/${APPNAME}/bin/${APPNAME} app/${APPNAME}/main.go
 
-FROM alpine:latest as prod
+FROM --platform=$TARGETPLATFORM alpine:latest as prod
 
 WORKDIR /app
 ARG APPNAME=unknown
