@@ -8,7 +8,7 @@ import (
 )
 
 func TestSendEmail(t *testing.T) {
-	var path = "/home/shepard/data/king/conf/king-email/etc/smtp.json"
+	var path = "../../app/king-email/etc/smtp.json"
 	smtp, err := conf.FindSMTP(path)
 	if err != nil {
 		t.Fatal(err)
