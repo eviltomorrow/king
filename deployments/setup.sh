@@ -154,7 +154,7 @@ case ${action} in
     read -r -p "=> Will pull image, Are you sure? [Y/n]: " input
 
     case ${input} in 
-        [yY][eE][sS]|[yY])
+        [yY][eE][sS]|[yY]|'')
             if [ -n "${name}" ]; then
                 docker_compose_pull "${name}"
             else
