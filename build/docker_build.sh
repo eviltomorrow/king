@@ -1,7 +1,7 @@
 #!/bin/bash
 
 root_dir=$(pwd)
-app_dir=${root_dir}/app
+app_dir=${root_dir}/apps
 
 function check0(){
     if [ "0" != ${1} ]; then

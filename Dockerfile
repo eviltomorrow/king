@@ -8,7 +8,7 @@ ARG BUILDTIME=unknown
 ENV MAINVERSION=${MAINVERSION} \
     GITSHA=${GITSHA} \
     BUILDTIME=${BUILDTIME} 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.AppName=${APPNAME} -X main.MainVersion=${MAINVERSION} -X main.GitSha=${GITSHA} -X main.BuildTime=${BUILDTIME} -s -w" -gcflags "all=-trimpath=$(go env GOPATH)" -o bin/${APPNAME}/bin/${APPNAME} app/${APPNAME}/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.AppName=${APPNAME} -X main.MainVersion=${MAINVERSION} -X main.GitSha=${GITSHA} -X main.BuildTime=${BUILDTIME} -s -w" -gcflags "all=-trimpath=$(go env GOPATH)" -o bin/${APPNAME}/bin/${APPNAME} apps/${APPNAME}/main.go
 
 
 FROM --platform=$TARGETPLATFORM alpine:latest as prod
@@ -16,5 +16,5 @@ WORKDIR /app
 ARG APPNAME=unknown
 ENV APPNAME=${APPNAME} 
 COPY --from=builder ["/project-king/bin/${APPNAME}","."]
-COPY --from=builder ["/project-king/app/${APPNAME}/etc","./etc"]
+COPY --from=builder ["/project-king/apps/${APPNAME}/etc","./etc"]
 ENTRYPOINT ["sh","-c","./bin/${APPNAME} start"]

@@ -3,7 +3,7 @@ services:
   king-collector:     
     restart: always                                    
     volumes:
-      - ${DATA_HOME}/king-collector/log:/app/var/log/                      
+      - ${DATA_HOME}/king-collector/log:/apps/var/log/                      
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-collector:${king_collector_version}
     container_name: king-collector                
@@ -15,8 +15,8 @@ services:
   king-email:   
     restart: always                                      
     volumes:
-      - ${DATA_HOME}/king-email/log:/app/var/log/
-      - ./conf/king-email/smtp.json:/app/etc/smtp.json                      
+      - ${DATA_HOME}/king-email/log:/apps/var/log/
+      - ./conf/king-email/smtp.json:/apps/etc/smtp.json                      
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-email:${king_email_version}
     container_name: king-email                
@@ -28,7 +28,7 @@ services:
   king-storage:   
     restart: always                                      
     volumes:
-      - ${DATA_HOME}/king-storage/log:/app/var/log/                       
+      - ${DATA_HOME}/king-storage/log:/apps/var/log/                       
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-storage:${king_storage_version}
     container_name: king-storage                

@@ -37,7 +37,7 @@ for name in $(ls ${root_dir}/app); do
         continue
     fi
 
-    app_dir=${root_dir}/app/${name}
+    app_dir=${root_dir}/apps/${name}
     app_name=${name}
     adapter_dir=${app_dir}/adapter
     if [ -d ${adapter_dir} ]; then
