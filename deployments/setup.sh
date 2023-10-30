@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -f .env ]; then
+    source .env
+fi
+
 # set  ${DATA_HOME} value
 if [ ! -n "${DATA_HOME}" ]; then
     export DATA_HOME=""
@@ -58,7 +62,7 @@ function docker_compose_action(){
 }
 
 if [ ! -n "${DATA_HOME}" ]; then
-    echo "=> No set DATA_HOME, please set value"
+    echo "=> No set environment \$DATA_HOME, please set value"
     exit 1
 else
     if [ ! -d ${DATA_HOME} ]; then
