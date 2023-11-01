@@ -30,7 +30,7 @@ esac
 root_dir=$(pwd)
 PATH=$PATH:${root_dir}/tools/protoc-gen-go/${GOOS}_${GOARCH}
 
-for name in $(ls ${root_dir}/app); do
+for name in $(ls ${root_dir}/apps); do
     # echo ${name}
     if echo "${name}" | grep -q -E '\-web$'
     then

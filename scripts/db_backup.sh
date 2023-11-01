@@ -10,7 +10,7 @@ sqlfile=$db_name'_'$date_tag'.'sql
 #压缩文件名字
 zipfile=$sqlfile'.'zip
 #备份
-/usr/local/apps/mysql/bin/mysqldump -h 127.0.0.1 -P 3306 -uroot -proot --databases $db_name > $backup_dir/$sqlfile 
+/usr/local/app/mysql/bin/mysqldump -h 127.0.0.1 -P 3306 -uroot -proot --databases $db_name > $backup_dir/$sqlfile 
 #进行压缩并删除原文件
 cd $backup_dir
 zip -rq $zipfile $sqlfile
