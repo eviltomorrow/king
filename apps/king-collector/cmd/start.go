@@ -38,7 +38,7 @@ var workflowsFunc = func() []workflow.Job {
 	workflow.Register("loadConfig", loadConfig)
 	workflow.Register("printCfg", printCfg)
 	workflow.Register("setGlobalVars", setGlobalVars)
-	workflow.Register("runOtel", runOtel)
+	workflow.Register("runOpentrace", runOpentrace)
 	workflow.Register("runDB", runDB)
 	workflow.Register("runServer", runServer)
 	workflow.Register("runCron", runCron)
@@ -133,7 +133,7 @@ func setGlobalVars() error {
 	return nil
 }
 
-func runOtel() error {
+func runOpentrace() error {
 	if !cfg.Otel.Enable {
 		return nil
 	}

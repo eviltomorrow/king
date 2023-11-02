@@ -2,10 +2,9 @@ receivers:
   otlp:
     protocols:
       grpc:
+        # endpoint: localhost:4317
 
 exporters:
-  logging:
-
   otlp/jaeger:
     endpoint: jaeger-collector:14250
     tls:
@@ -16,10 +15,11 @@ processors:
 
 extensions:
   health_check:
+    endpoint: localhost:13113
   pprof:
-    endpoint: :1888
+    endpoint: localhost:1888
   zpages:
-    endpoint: :55679
+    endpoint: localhost:55679
 
 service:
   extensions: [pprof, zpages, health_check]
@@ -28,7 +28,7 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp/jaeger]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [logging]
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: []
