@@ -32,7 +32,7 @@ var workflowsFunc = []func() error{
 	loadConfig,
 	printCfg,
 	setGlobalVars,
-	runOtel,
+	runOpentrace,
 	runDB,
 	runServer,
 	buildPidFile,
@@ -113,7 +113,7 @@ func setGlobalVars() error {
 	return nil
 }
 
-func runOtel() error {
+func runOpentrace() error {
 	shutdown, err := opentrace.InitTraceProvider()
 	if err != nil {
 		return err
