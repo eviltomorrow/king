@@ -31,7 +31,7 @@ services:
       - "--cassandra.keyspace=jaeger_v1_dc1"
       - "--cassandra.servers=cassandra"
       - "--collector.zipkin.host-port=:9411"
-      - "--collector.otlp.enabled=false"
+      - "--collector.otlp.enabled=true"
     environment:
       - SAMPLING_CONFIG_TYPE=adaptive
       - SPAN_STORAGE_TYPE=cassandra
