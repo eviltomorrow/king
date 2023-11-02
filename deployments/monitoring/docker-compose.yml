@@ -45,6 +45,7 @@ services:
       - "14268"
       - "14250"
       - "9411"
+      - "4317"
     restart: always
     depends_on:
       - cassandra-schema
