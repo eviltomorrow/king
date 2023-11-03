@@ -6,6 +6,8 @@ server:
   grpc_server_max_recv_msg_size: 1073741824 #grpc最大接收消息值,默认4m
   grpc_server_max_send_msg_size: 1073741824 #grpc最大发送消息值,默认4m
 
+querier:
+  tail_max_duration: 72h
 
 query_scheduler:
   max_outstanding_requests_per_tenant: 4096
@@ -53,7 +55,8 @@ limits_config:
   ingestion_rate_mb: 30 #修改每用户摄入速率限制,即每秒样本量,默认值为4M
   ingestion_burst_size_mb: 20 #修改每用户摄入速率限制,即每秒样本量,默认值为6M
   max_query_lookback: 168h
-
+  query_timeout: 5m
+  
 table_manager:
   retention_deletes_enabled: true #日志保留周期开关,默认为false
   retention_period: 168h #日志保留周期
