@@ -18,7 +18,7 @@ import (
 
 var (
 	OtelDSN             = "127.0.0.1:4317"
-	instrumentationName = "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	instrumentationName = "go.opentelemetry.io/app/king-all"
 )
 
 func DefaultTracer() trace.Tracer {
