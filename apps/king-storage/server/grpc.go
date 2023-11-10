@@ -4,21 +4,23 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync"
+	"sync/atomic"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-storage/service/data"
 	"github.com/eviltomorrow/king/apps/king-storage/service/db"
+	"github.com/eviltomorrow/king/apps/king-storage/service/storage"
+	"go.uber.org/zap"
+	"golang.org/x/sync/semaphore"
+
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/grpc/client"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/model"
 	"github.com/eviltomorrow/king/lib/zlog"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type GRPC struct {
@@ -32,72 +34,116 @@ type GRPC struct {
 	pb.UnimplementedStorageServer
 }
 
-func (g *GRPC) ArchiveMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.Counter, error) {
-	if req == nil {
-		return nil, fmt.Errorf("invalid request, date is nil")
-	}
-	d, err := time.Parse("2006-01-02", req.Value)
-	if err != nil {
-		return nil, err
-	}
+const PER_COMMIT_LIMIT = 32
 
-	stub, closeFunc, err := client.NewCollectorWithEtcd()
-	if err != nil {
-		return nil, err
-	}
-	defer closeFunc()
+var sema = semaphore.NewWeighted(32)
 
-	resp, err := stub.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: req.Value})
-	if err != nil {
-		return nil, err
+func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
+	type MetadataWrapper struct {
+		Date time.Time
+		Data []*model.Metadata
 	}
+	data := make(map[string]MetadataWrapper)
 
 	var (
-		pipe   = make(chan *model.Metadata, 128)
-		signal = make(chan struct{}, 1)
+		affectedS atomic.Int64
+		affectedD atomic.Int64
+		affectedW atomic.Int64
+
+		wg sync.WaitGroup
 	)
 
-	go func() {
-		defer func() {
-			close(pipe)
-		}()
-		for {
-			md, err := resp.Recv()
-			if err == io.EOF {
-				return
-			}
-			if err != nil {
-				zlog.Error("FetchMetadata recv failure", zap.Error(err))
-				return
-			}
-			select {
-			case <-signal:
-				return
-			default:
-				pipe <- &model.Metadata{
-					Source:          md.Source,
-					Code:            md.Code,
-					Name:            md.Name,
-					Open:            md.Open,
-					YesterdayClosed: md.YesterdayClosed,
-					Latest:          md.Latest,
-					High:            md.High,
-					Low:             md.Low,
-					Volume:          md.Volume,
-					Account:         md.Account,
-					Date:            md.Date,
-					Time:            md.Time,
-					Suspend:         md.Suspend,
-				}
-			}
+	for {
+		md, err := ps.Recv()
+		if err == io.EOF {
+			break
 		}
-	}()
-	affectedS, affectedD, affectedW, err := data.TransmissionMetadata(d, pipe)
-	if err != nil {
-		signal <- struct{}{}
-		return nil, err
+		if err != nil {
+			return err
+		}
+
+		wrapper, ok := data[md.Date]
+		if !ok {
+			d, err := time.Parse("2006-01-02", md.Date)
+			if err != nil {
+				return err
+			}
+			wrapper = MetadataWrapper{
+				Date: d,
+				Data: make([]*model.Metadata, 0, 32),
+			}
+			data[md.Date] = wrapper
+		}
+		wrapper.Data = append(wrapper.Data, &model.Metadata{
+			Source:          md.Source,
+			Code:            md.Code,
+			Name:            md.Name,
+			Open:            md.Open,
+			YesterdayClosed: md.YesterdayClosed,
+			Latest:          md.Latest,
+			High:            md.High,
+			Low:             md.Low,
+			Volume:          md.Volume,
+			Account:         md.Account,
+			Date:            md.Date,
+			Time:            md.Time,
+			Suspend:         md.Suspend,
+		})
+
+		if len(wrapper.Data) == PER_COMMIT_LIMIT {
+			ch := make(chan *model.Metadata, PER_COMMIT_LIMIT)
+
+			sema.Acquire(context.Background(), 1)
+			wg.Add(1)
+			go func() {
+				defer sema.Release(1)
+				defer wg.Done()
+				s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
+				if err != nil {
+					zlog.Error("Store metadata failure", zap.Error(err))
+					return
+				}
+				affectedS.Add(s)
+				affectedD.Add(d)
+				affectedW.Add(w)
+			}()
+			for _, md := range wrapper.Data {
+				ch <- md
+			}
+			close(ch)
+
+			wrapper.Data = wrapper.Data[:0]
+		}
+		data[md.Date] = wrapper
 	}
-	return &pb.Counter{AffectedStock: affectedS, AffectedQuoteDay: affectedD, AffectedQuoteWeek: affectedW}, nil
+
+	for _, wrapper := range data {
+		ch := make(chan *model.Metadata, PER_COMMIT_LIMIT)
+
+		sema.Acquire(context.Background(), 1)
+		wg.Add(1)
+		go func() {
+			defer sema.Release(1)
+			defer wg.Done()
+			s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
+			if err != nil {
+				zlog.Error("Store metadata failure", zap.Error(err))
+				return
+			}
+			affectedS.Add(s)
+			affectedD.Add(d)
+			affectedW.Add(w)
+		}()
+		for _, md := range wrapper.Data {
+			ch <- md
+		}
+		close(ch)
+
+		wrapper.Data = wrapper.Data[:0]
+	}
+
+	wg.Wait()
+	return ps.SendAndClose(&pb.Stats{StockAffected: affectedS.Load(), QuoteDayAffected: affectedD.Load(), QuoteWeekAffected: affectedW.Load()})
 }
 
 func (g *GRPC) GetStockFull(_ *emptypb.Empty, gs pb.Storage_GetStockFullServer) error {

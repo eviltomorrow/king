@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"log"
 	"testing"
 
@@ -21,8 +22,7 @@ func init() {
 }
 
 func TestNotifyWithEmail(t *testing.T) {
-
-	if err := notifyWithEmail("no matter"); err != nil {
-		t.Fatalf("notify failure, nest error: %v", err)
+	if err := NotifyWithEmail(context.Background(), "no matter"); err != nil {
+		t.Fatalf("Notify failure, nest error: %v", err)
 	}
 }

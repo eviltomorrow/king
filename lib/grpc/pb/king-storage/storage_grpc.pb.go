@@ -12,7 +12,6 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,16 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Storage_ArchiveMetadata_FullMethodName = "/storage.Storage/ArchiveMetadata"
-	Storage_GetStockFull_FullMethodName    = "/storage.Storage/GetStockFull"
-	Storage_GetQuoteLatest_FullMethodName  = "/storage.Storage/GetQuoteLatest"
+	Storage_PushMetadata_FullMethodName   = "/storage.Storage/PushMetadata"
+	Storage_GetStockFull_FullMethodName   = "/storage.Storage/GetStockFull"
+	Storage_GetQuoteLatest_FullMethodName = "/storage.Storage/GetQuoteLatest"
 )
 
 // StorageClient is the client API for Storage service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StorageClient interface {
-	ArchiveMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error)
+	PushMetadata(ctx context.Context, opts ...grpc.CallOption) (Storage_PushMetadataClient, error)
 	GetStockFull(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Storage_GetStockFullClient, error)
 	GetQuoteLatest(ctx context.Context, in *QuoteRequest, opts ...grpc.CallOption) (Storage_GetQuoteLatestClient, error)
 }
@@ -43,17 +42,42 @@ func NewStorageClient(cc grpc.ClientConnInterface) StorageClient {
 	return &storageClient{cc}
 }
 
-func (c *storageClient) ArchiveMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error) {
-	out := new(Counter)
-	err := c.cc.Invoke(ctx, Storage_ArchiveMetadata_FullMethodName, in, out, opts...)
+func (c *storageClient) PushMetadata(ctx context.Context, opts ...grpc.CallOption) (Storage_PushMetadataClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Storage_ServiceDesc.Streams[0], Storage_PushMetadata_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &storagePushMetadataClient{stream}
+	return x, nil
+}
+
+type Storage_PushMetadataClient interface {
+	Send(*Metadata) error
+	CloseAndRecv() (*Stats, error)
+	grpc.ClientStream
+}
+
+type storagePushMetadataClient struct {
+	grpc.ClientStream
+}
+
+func (x *storagePushMetadataClient) Send(m *Metadata) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *storagePushMetadataClient) CloseAndRecv() (*Stats, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Stats)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *storageClient) GetStockFull(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Storage_GetStockFullClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Storage_ServiceDesc.Streams[0], Storage_GetStockFull_FullMethodName, opts...)
+	stream, err := c.cc.NewStream(ctx, &Storage_ServiceDesc.Streams[1], Storage_GetStockFull_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +109,7 @@ func (x *storageGetStockFullClient) Recv() (*Stock, error) {
 }
 
 func (c *storageClient) GetQuoteLatest(ctx context.Context, in *QuoteRequest, opts ...grpc.CallOption) (Storage_GetQuoteLatestClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Storage_ServiceDesc.Streams[1], Storage_GetQuoteLatest_FullMethodName, opts...)
+	stream, err := c.cc.NewStream(ctx, &Storage_ServiceDesc.Streams[2], Storage_GetQuoteLatest_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +144,7 @@ func (x *storageGetQuoteLatestClient) Recv() (*Quote, error) {
 // All implementations must embed UnimplementedStorageServer
 // for forward compatibility
 type StorageServer interface {
-	ArchiveMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error)
+	PushMetadata(Storage_PushMetadataServer) error
 	GetStockFull(*emptypb.Empty, Storage_GetStockFullServer) error
 	GetQuoteLatest(*QuoteRequest, Storage_GetQuoteLatestServer) error
 	mustEmbedUnimplementedStorageServer()
@@ -130,8 +154,8 @@ type StorageServer interface {
 type UnimplementedStorageServer struct {
 }
 
-func (UnimplementedStorageServer) ArchiveMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ArchiveMetadata not implemented")
+func (UnimplementedStorageServer) PushMetadata(Storage_PushMetadataServer) error {
+	return status.Errorf(codes.Unimplemented, "method PushMetadata not implemented")
 }
 func (UnimplementedStorageServer) GetStockFull(*emptypb.Empty, Storage_GetStockFullServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetStockFull not implemented")
@@ -152,22 +176,30 @@ func RegisterStorageServer(s grpc.ServiceRegistrar, srv StorageServer) {
 	s.RegisterService(&Storage_ServiceDesc, srv)
 }
 
-func _Storage_ArchiveMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
-	if err := dec(in); err != nil {
+func _Storage_PushMetadata_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(StorageServer).PushMetadata(&storagePushMetadataServer{stream})
+}
+
+type Storage_PushMetadataServer interface {
+	SendAndClose(*Stats) error
+	Recv() (*Metadata, error)
+	grpc.ServerStream
+}
+
+type storagePushMetadataServer struct {
+	grpc.ServerStream
+}
+
+func (x *storagePushMetadataServer) SendAndClose(m *Stats) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *storagePushMetadataServer) Recv() (*Metadata, error) {
+	m := new(Metadata)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(StorageServer).ArchiveMetadata(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Storage_ArchiveMetadata_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StorageServer).ArchiveMetadata(ctx, req.(*wrapperspb.StringValue))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 func _Storage_GetStockFull_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -218,13 +250,13 @@ func (x *storageGetQuoteLatestServer) Send(m *Quote) error {
 var Storage_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "storage.Storage",
 	HandlerType: (*StorageServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ArchiveMetadata",
-			Handler:    _Storage_ArchiveMetadata_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "PushMetadata",
+			Handler:       _Storage_PushMetadata_Handler,
+			ClientStreams: true,
+		},
 		{
 			StreamName:    "GetStockFull",
 			Handler:       _Storage_GetStockFull_Handler,

@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Collector_CrawlMetadata_FullMethodName = "/collector.Collector/CrawlMetadata"
-	Collector_FetchMetadata_FullMethodName = "/collector.Collector/FetchMetadata"
+	Collector_StoreMetadata_FullMethodName = "/collector.Collector/StoreMetadata"
 )
 
 // CollectorClient is the client API for Collector service.
@@ -30,8 +30,8 @@ const (
 type CollectorClient interface {
 	// Crawl last metadata with specify source(sina, net126)
 	CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error)
-	// Fetch metadata to cloud storage
-	FetchMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (Collector_FetchMetadataClient, error)
+	// Store metadata to storage
+	StoreMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error)
 }
 
 type collectorClient struct {
@@ -51,36 +51,13 @@ func (c *collectorClient) CrawlMetadata(ctx context.Context, in *wrapperspb.Stri
 	return out, nil
 }
 
-func (c *collectorClient) FetchMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (Collector_FetchMetadataClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Collector_ServiceDesc.Streams[0], Collector_FetchMetadata_FullMethodName, opts...)
+func (c *collectorClient) StoreMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error) {
+	out := new(Counter)
+	err := c.cc.Invoke(ctx, Collector_StoreMetadata_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &collectorFetchMetadataClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Collector_FetchMetadataClient interface {
-	Recv() (*Metadata, error)
-	grpc.ClientStream
-}
-
-type collectorFetchMetadataClient struct {
-	grpc.ClientStream
-}
-
-func (x *collectorFetchMetadataClient) Recv() (*Metadata, error) {
-	m := new(Metadata)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // CollectorServer is the server API for Collector service.
@@ -89,8 +66,8 @@ func (x *collectorFetchMetadataClient) Recv() (*Metadata, error) {
 type CollectorServer interface {
 	// Crawl last metadata with specify source(sina, net126)
 	CrawlMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error)
-	// Fetch metadata to cloud storage
-	FetchMetadata(*wrapperspb.StringValue, Collector_FetchMetadataServer) error
+	// Store metadata to storage
+	StoreMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error)
 	mustEmbedUnimplementedCollectorServer()
 }
 
@@ -101,8 +78,8 @@ type UnimplementedCollectorServer struct {
 func (UnimplementedCollectorServer) CrawlMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CrawlMetadata not implemented")
 }
-func (UnimplementedCollectorServer) FetchMetadata(*wrapperspb.StringValue, Collector_FetchMetadataServer) error {
-	return status.Errorf(codes.Unimplemented, "method FetchMetadata not implemented")
+func (UnimplementedCollectorServer) StoreMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StoreMetadata not implemented")
 }
 func (UnimplementedCollectorServer) mustEmbedUnimplementedCollectorServer() {}
 
@@ -135,25 +112,22 @@ func _Collector_CrawlMetadata_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Collector_FetchMetadata_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(wrapperspb.StringValue)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _Collector_StoreMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(CollectorServer).FetchMetadata(m, &collectorFetchMetadataServer{stream})
-}
-
-type Collector_FetchMetadataServer interface {
-	Send(*Metadata) error
-	grpc.ServerStream
-}
-
-type collectorFetchMetadataServer struct {
-	grpc.ServerStream
-}
-
-func (x *collectorFetchMetadataServer) Send(m *Metadata) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(CollectorServer).StoreMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Collector_StoreMetadata_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CollectorServer).StoreMetadata(ctx, req.(*wrapperspb.StringValue))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // Collector_ServiceDesc is the grpc.ServiceDesc for Collector service.
@@ -167,13 +141,11 @@ var Collector_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CrawlMetadata",
 			Handler:    _Collector_CrawlMetadata_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "FetchMetadata",
-			Handler:       _Collector_FetchMetadata_Handler,
-			ServerStreams: true,
+			MethodName: "StoreMetadata",
+			Handler:    _Collector_StoreMetadata_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "collector.proto",
 }

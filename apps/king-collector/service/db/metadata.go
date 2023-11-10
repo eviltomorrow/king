@@ -21,8 +21,8 @@ func InsertMetadataMany(db *mongo.Client, source string, metadata []*model.Metad
 	if len(metadata) == 0 {
 		return 0, nil
 	}
-	var collection = db.Database(Database).Collection(collectionName)
-	var data = make([]interface{}, 0, len(metadata))
+	collection := db.Database(Database).Collection(collectionName)
+	data := make([]interface{}, 0, len(metadata))
 	for _, md := range metadata {
 		data = append(data, bson.M{
 			"source":           source,
@@ -60,7 +60,7 @@ func DeleteMetadataByDate(db *mongo.Client, source string, code, date string, ti
 	if date == "" {
 		return 0, nil
 	}
-	var collection = db.Database(Database).Collection(collectionName)
+	collection := db.Database(Database).Collection(collectionName)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -89,11 +89,11 @@ func SelectMetadataRange(db *mongo.Client, offset, limit int64, date string, las
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var collection = db.Database(Database).Collection(collectionName)
-	var opt = &options.FindOptions{}
+	collection := db.Database(Database).Collection(collectionName)
+	opt := &options.FindOptions{}
 	opt.SetLimit(limit)
 
-	var filter = bson.M{
+	filter := bson.M{
 		"date": date,
 	}
 	if lastID != "" {
@@ -112,9 +112,9 @@ func SelectMetadataRange(db *mongo.Client, offset, limit int64, date string, las
 	}
 	defer cur.Close(context.Background())
 
-	var data = make([]*model.Metadata, 0, limit)
+	data := make([]*model.Metadata, 0, limit)
 	for cur.Next(context.Background()) {
-		var m = &model.Metadata{}
+		m := &model.Metadata{}
 		if err := cur.Decode(m); err != nil {
 			return nil, err
 		}

@@ -5,12 +5,10 @@ type Job struct {
 	F    func() error
 }
 
-var (
-	cache []Job
-)
+var cache []Job
 
 func Register(name string, f func() error) {
-	var job = Job{
+	job := Job{
 		Name: name,
 		F:    f,
 	}

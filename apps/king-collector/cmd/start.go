@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -29,6 +30,8 @@ import (
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/resolver"
 )
@@ -184,7 +187,13 @@ func runServer() error {
 func runCron() error {
 	c := cron.New()
 	_, err := c.AddFunc(cfg.Collector.Crontab, func() {
-		if err := service.ArchiveMetadataEveryWeekDay(); err != nil {
+		var span trace.Span
+		ctx, span := opentrace.DefaultTracer().Start(context.Background(), "RunCron")
+		defer span.End()
+
+		if err := service.FetchMetadataEveryWeekDay(ctx); err != nil {
+			span.SetStatus(codes.Error, "FetchMetadataEveryWeekDay failure")
+			span.RecordError(err)
 			zlog.Error("Crontab run archive metadata every weekday failure", zap.Error(err))
 		}
 	})

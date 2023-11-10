@@ -8,3 +8,6 @@ smtp-file = "etc/smtp.json"
 	endpoints = [
 		"etcd:2379",
 	]
+
+[otel]
+    dsn = "otel-collector:4317"

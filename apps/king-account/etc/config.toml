@@ -7,6 +7,9 @@
 		"etcd:2379",
 	]
 
+[otel]
+    dsn = "otel-collector:4317"
+	
 [mysql]
 	dsn = "admin:admin123@tcp(mysql:3306)/king_account?charset=utf8mb4&parseTime=true&loc=Local"
 	min-open = 3
