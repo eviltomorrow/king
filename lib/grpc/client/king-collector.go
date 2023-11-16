@@ -6,6 +6,8 @@ import (
 	"time"
 
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
+	// "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	// "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
@@ -15,20 +17,13 @@ func NewCollectorWithEtcd() (pb.CollectorClient, func() error, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// md := metadata.Pairs(
-	// 	"hostname", system.Runtime.HostName,
-	// 	"ip", system.Runtime.IP,
-	// )
-	// newCtx := metadata.NewOutgoingContext(ctx, md)
-
-	var target = "etcd:///grpclb/king-collector"
+	target := "etcd:///grpclb/king-collector"
 	conn, err := grpc.DialContext(
 		ctx,
 		target,
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		// grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
-		// grpc.WithStreamInterceptor(otelgrpc.StreamClientInterceptor()),
+		// grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 		grpc.WithBlock(),
 	)
 	if err != nil {
@@ -45,6 +40,7 @@ func NewCollectorWithTarget(target string) (pb.CollectorClient, func() error, er
 		ctx,
 		target,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		// grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 		grpc.WithBlock(),
 	)
 	if err != nil {

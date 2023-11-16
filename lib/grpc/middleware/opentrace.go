@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/eviltomorrow/king/lib/opentrace"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -12,19 +13,53 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// UnaryServerRecoveryInterceptor recover
-func UnaryServerOpentraceInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	var tracer = opentrace.DefaultTracer()
-
+func UnaryClientOpentraceInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	ctx = extract(ctx, otel.GetTextMapPropagator())
+	span1 := trace.SpanFromContext(ctx)
+	id := span1.SpanContext().TraceID().String()
+	fmt.Println(id)
+
 	name, attr := spanInfo(info.FullMethod, peerFromCtx(ctx))
 
-	startOpts := append([]trace.SpanStartOption{
+	startOpts := []trace.SpanStartOption{
 		trace.WithSpanKind(trace.SpanKindServer),
-		trace.WithAttributes(attr...)},
-	)
+		trace.WithAttributes(attr...),
+	}
 
-	ctx, span := tracer.Start(
+	ctx, span := opentrace.DefaultTracer().Start(
+		trace.ContextWithRemoteSpanContext(ctx, trace.SpanContextFromContext(ctx)),
+		name,
+		startOpts...,
+	)
+	defer span.End()
+
+	resp, err = handler(ctx, req)
+	if err != nil {
+		s, _ := status.FromError(err)
+		statusCode, msg := serverStatus(s)
+		span.SetStatus(statusCode, msg)
+		span.SetAttributes(statusCodeAttr(s.Code()))
+	} else {
+		span.SetAttributes(statusCodeAttr(codes.OK))
+	}
+	return resp, err
+}
+
+// UnaryServerRecoveryInterceptor recover
+func UnaryServerOpentraceInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	ctx = extract(ctx, otel.GetTextMapPropagator())
+	span1 := trace.SpanFromContext(ctx)
+	id := span1.SpanContext().TraceID().String()
+	fmt.Println(id)
+
+	name, attr := spanInfo(info.FullMethod, peerFromCtx(ctx))
+
+	startOpts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindServer),
+		trace.WithAttributes(attr...),
+	}
+
+	ctx, span := opentrace.DefaultTracer().Start(
 		trace.ContextWithRemoteSpanContext(ctx, trace.SpanContextFromContext(ctx)),
 		name,
 		startOpts...,
@@ -45,18 +80,15 @@ func UnaryServerOpentraceInterceptor(ctx context.Context, req interface{}, info 
 
 // StreamServerRecoveryInterceptor recover
 func StreamServerOpentraceInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
-	var tracer = opentrace.DefaultTracer()
-	ctx := stream.Context()
-
-	ctx = extract(ctx, otel.GetTextMapPropagator())
+	ctx := extract(stream.Context(), otel.GetTextMapPropagator())
 	name, attr := spanInfo(info.FullMethod, peerFromCtx(ctx))
 
-	startOpts := append([]trace.SpanStartOption{
+	startOpts := []trace.SpanStartOption{
 		trace.WithSpanKind(trace.SpanKindServer),
-		trace.WithAttributes(attr...)},
-	)
+		trace.WithAttributes(attr...),
+	}
 
-	ctx, span := tracer.Start(
+	ctx, span := opentrace.DefaultTracer().Start(
 		trace.ContextWithRemoteSpanContext(ctx, trace.SpanContextFromContext(ctx)),
 		name,
 		startOpts...,

@@ -7,17 +7,16 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
-var name = "jaeger-test"
+var name = "jaeger2"
 
 func TestDemo(t *testing.T) {
 	buildinfo.AppName = name
-	OtelDSN = "otel-collector:4317"
+	OtelDSN = "127.0.0.1:4317"
 	destroy, err := InitTraceProvider()
 	if err != nil {
 		t.Fatal(err)
@@ -27,7 +26,7 @@ func TestDemo(t *testing.T) {
 		destroy()
 	}()
 
-	ctx, span := otel.Tracer(name).Start(context.Background(), "Main")
+	ctx, span := DefaultTracer().Start(context.Background(), "Main")
 
 	span.SetAttributes(attribute.String("ip", "192.168.33.10"))
 	defer span.End()
@@ -37,7 +36,7 @@ func TestDemo(t *testing.T) {
 }
 
 func f1(ctx context.Context) {
-	ctx, span := otel.Tracer(name).Start(ctx, "F1()")
+	ctx, span := DefaultTracer().Start(ctx, "F1()")
 	defer span.End()
 
 	span.AddEvent("lock begin")

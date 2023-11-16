@@ -31,7 +31,6 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/resolver"
 )
@@ -187,7 +186,6 @@ func runServer() error {
 func runCron() error {
 	c := cron.New()
 	_, err := c.AddFunc(cfg.Collector.Crontab, func() {
-		var span trace.Span
 		ctx, span := opentrace.DefaultTracer().Start(context.Background(), "RunCron")
 		defer span.End()
 

@@ -39,19 +39,29 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 	defer func() {
 		if e != nil {
 			zlog.Error("Fetch metadata every weekday has something wrong", zap.Error(e))
+
+			ctx, span = opentrace.DefaultTracer().Start(ctx, "NotifyWithEmail")
+			defer span.End()
 			if err := NotifyWithEmail(ctx, fmt.Sprintf("Possible reason: %v", e)); err != nil {
+				span.RecordError(err)
 				zlog.Error("Notify with email failure", zap.Error(err))
 			}
 		}
 	}()
 
+	ctx, span = opentrace.DefaultTracer().Start(ctx, "DataSlow")
+	defer span.End()
 	total, ignore, e = synchronize.DataSlow(Source)
 	if e != nil {
+		span.RecordError(e)
 		return e
 	}
 
+	ctx, span = opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
+	defer span.End()
 	_, affectedStock, affectedDay, affectedWeek, e = StoreMetadataToStorage(ctx, begin.Format(time.DateOnly))
 	if e != nil {
+		span.RecordError(e)
 		return e
 	}
 	if lastDay != -1 {
@@ -90,12 +100,8 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 	)
 
 	for {
-		_, newSpan := opentrace.DefaultTracer().Start(ctx, "SelectMetadataRange")
 		metadata, err := db.SelectMetadataRange(mongodb.DB, offset, limit, date, lastID, timeout)
 		if err != nil {
-			newSpan.SetStatus(codes.Error, "SelectMetadataRange failure")
-			newSpan.RecordError(err)
-			newSpan.End()
 			return 0, 0, 0, 0, err
 		}
 
@@ -115,19 +121,14 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 				Time:            md.Time,
 				Suspend:         md.Suspend,
 			}); err != nil {
-				newSpan.SetStatus(codes.Error, "Send metadata failure")
-				newSpan.RecordError(err)
-				newSpan.End()
 				return 0, 0, 0, 0, err
 			}
 			total++
 		}
 		if len(metadata) < int(limit) {
-			newSpan.End()
 			break
 		}
 		offset += limit
-		newSpan.End()
 	}
 
 	resp, err := stub.CloseAndRecv()
@@ -140,14 +141,8 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 }
 
 func NotifyWithEmail(ctx context.Context, reason string) error {
-	var span trace.Span
-	ctx, span = opentrace.DefaultTracer().Start(ctx, "notifyWithEmail")
-	defer span.End()
-
 	client, closeFunc, err := grpcclient.NewEmailWithEtcd()
 	if err != nil {
-		span.SetStatus(codes.Error, "NewEmailWithEtcd failure")
-		span.RecordError(err)
 		return err
 	}
 	defer closeFunc()
@@ -165,8 +160,6 @@ func NotifyWithEmail(ctx context.Context, reason string) error {
 		},
 	})
 	if err != nil {
-		span.SetStatus(codes.Error, "RenderTemplate failure")
-		span.RecordError(err)
 		return err
 	}
 
@@ -177,8 +170,6 @@ func NotifyWithEmail(ctx context.Context, reason string) error {
 		Subject: fmt.Sprintf("(%s): King-collector Store Data Failure", time.Now().Format(time.DateOnly)),
 		Body:    msg.Value,
 	}); err != nil {
-		span.SetStatus(codes.Error, "Send email failure")
-		span.RecordError(err)
 		return err
 	}
 
