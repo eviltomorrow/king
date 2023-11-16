@@ -10,6 +10,7 @@ import (
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
 	"github.com/eviltomorrow/king/lib/netutil"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -137,14 +138,13 @@ func (g *GrpcHelper) Init() error {
 		return err
 	}
 	g.server = grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			middleware.UnaryServerRecoveryInterceptor,
-			middleware.UnaryServerOpentraceInterceptor,
 			middleware.UnaryServerLogInterceptor,
 		),
 		grpc.ChainStreamInterceptor(
 			middleware.StreamServerRecoveryInterceptor,
-			middleware.StreamServerOpentraceInterceptor,
 			middleware.StreamServerLogInterceptor,
 		),
 	)

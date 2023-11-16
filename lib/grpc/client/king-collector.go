@@ -39,7 +39,7 @@ func NewCollectorWithTarget(target string) (pb.CollectorClient, func() error, er
 		ctx,
 		target,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		// grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 		grpc.WithBlock(),
 	)
 	if err != nil {
