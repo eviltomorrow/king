@@ -15,7 +15,7 @@ var StopCommand = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop the running app",
 	Run: func(cmd *cobra.Command, args []string) {
-		var pidFile = filepath.Join(system.Runtime.RootDir, fmt.Sprintf("/var/run/%s.pid", buildinfo.AppName))
+		pidFile := filepath.Join(system.Runtime.RootDir, fmt.Sprintf("/var/run/%s.pid", buildinfo.AppName))
 		if err := procutil.StopProcessWithPidFile(pidFile); err != nil {
 			log.Fatalf("[F] Stop process with pidfile failure, nest error: %v", err)
 		}
