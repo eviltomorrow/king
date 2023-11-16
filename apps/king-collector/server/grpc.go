@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/eviltomorrow/king/apps/king-collector/service"
 	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"github.com/eviltomorrow/king/lib/grpc/server"
@@ -23,7 +24,7 @@ type GRPC struct {
 	pb.UnimplementedCollectorServer
 }
 
-func (g *GRPC) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.Counter, error) {
+func (g *GRPC) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.CrawlCounter, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, source is nil")
 	}
@@ -34,11 +35,18 @@ func (g *GRPC) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 	if err != nil {
 		return nil, err
 	}
-	return &pb.Counter{Total: total, Ignore: ignore}, nil
+	return &pb.CrawlCounter{Total: total, Ignore: ignore}, nil
 }
 
-func (g *GRPC) StoreMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.Counter, error) {
-	return nil, nil
+func (g *GRPC) StoreMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.StoreCounter, error) {
+	if req == nil {
+		return nil, fmt.Errorf("invalid request, date is nil")
+	}
+	total, stock, day, week, err := service.StoreMetadataToStorage(ctx, req.Value)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.StoreCounter{Total: total, Stock: stock, Day: day, Week: week}, nil
 }
 
 // func (g *GRPC) FetchMetadata(req *wrapperspb.StringValue, fs pb.Collector_FetchMetadataServer) error {

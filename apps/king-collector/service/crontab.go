@@ -50,7 +50,7 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 		return e
 	}
 
-	affectedStock, affectedDay, affectedWeek, e = StoreMetadataToStorage(ctx, begin.Format(time.DateOnly))
+	_, affectedStock, affectedDay, affectedWeek, e = StoreMetadataToStorage(ctx, begin.Format(time.DateOnly))
 	if e != nil {
 		return e
 	}
@@ -65,7 +65,7 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 	return nil
 }
 
-func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, error) {
+func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, int64, error) {
 	var span trace.Span
 	ctx, span = opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
 	defer span.End()
@@ -73,20 +73,20 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 	client, closeFunc, err := grpcclient.NewStorageWithEtcd()
 	if err != nil {
 		span.RecordError(err)
-		return 0, 0, 0, err
+		return 0, 0, 0, 0, err
 	}
 	defer closeFunc()
 
 	stub, err := client.PushMetadata(ctx)
 	if err != nil {
 		span.RecordError(err)
-		return 0, 0, 0, err
+		return 0, 0, 0, 0, err
 	}
 
 	var (
-		offset, limit int64 = 0, 100
-		lastID        string
-		timeout       = 20 * time.Second
+		offset, limit, total int64 = 0, 100, 0
+		lastID               string
+		timeout              = 20 * time.Second
 	)
 
 	for {
@@ -96,7 +96,7 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 			newSpan.SetStatus(codes.Error, "SelectMetadataRange failure")
 			newSpan.RecordError(err)
 			newSpan.End()
-			return 0, 0, 0, err
+			return 0, 0, 0, 0, err
 		}
 
 		for _, md := range metadata {
@@ -118,8 +118,9 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 				newSpan.SetStatus(codes.Error, "Send metadata failure")
 				newSpan.RecordError(err)
 				newSpan.End()
-				return 0, 0, 0, err
+				return 0, 0, 0, 0, err
 			}
+			total++
 		}
 		if len(metadata) < int(limit) {
 			newSpan.End()
@@ -133,9 +134,9 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 	if err != nil {
 		span.SetStatus(codes.Error, "CloseAndRecv result failure")
 		span.RecordError(err)
-		return 0, 0, 0, err
+		return 0, 0, 0, 0, err
 	}
-	return resp.StockAffected, resp.QuoteDayAffected, resp.QuoteWeekAffected, nil
+	return total, resp.StockAffected, resp.QuoteDayAffected, resp.QuoteWeekAffected, nil
 }
 
 func NotifyWithEmail(ctx context.Context, reason string) error {
@@ -158,7 +159,7 @@ func NotifyWithEmail(ctx context.Context, reason string) error {
 		Name: "",
 		Data: map[string]string{
 			"user":     "Shepard",
-			"content1": "King-collector synchronize data failure!",
+			"content1": "King-collector store data failure!",
 			"content2": reason,
 			"end":      "Bye",
 		},
@@ -173,7 +174,7 @@ func NotifyWithEmail(ctx context.Context, reason string) error {
 		To: []*emailpb.Contact{
 			{Name: "Shepard", Address: "eviltomorrow@163.com"},
 		},
-		Subject: fmt.Sprintf("(%s): King-collector Synchronize Data Failure", time.Now().Format(time.DateOnly)),
+		Subject: fmt.Sprintf("(%s): King-collector Store Data Failure", time.Now().Format(time.DateOnly)),
 		Body:    msg.Value,
 	}); err != nil {
 		span.SetStatus(codes.Error, "Send email failure")
