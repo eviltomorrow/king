@@ -29,9 +29,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CollectorClient interface {
 	// Crawl last metadata with specify source(sina, net126)
-	CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error)
+	CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlCounter, error)
 	// Store metadata to storage
-	StoreMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error)
+	StoreMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*StoreCounter, error)
 }
 
 type collectorClient struct {
@@ -42,8 +42,8 @@ func NewCollectorClient(cc grpc.ClientConnInterface) CollectorClient {
 	return &collectorClient{cc}
 }
 
-func (c *collectorClient) CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error) {
-	out := new(Counter)
+func (c *collectorClient) CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlCounter, error) {
+	out := new(CrawlCounter)
 	err := c.cc.Invoke(ctx, Collector_CrawlMetadata_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -51,8 +51,8 @@ func (c *collectorClient) CrawlMetadata(ctx context.Context, in *wrapperspb.Stri
 	return out, nil
 }
 
-func (c *collectorClient) StoreMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Counter, error) {
-	out := new(Counter)
+func (c *collectorClient) StoreMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*StoreCounter, error) {
+	out := new(StoreCounter)
 	err := c.cc.Invoke(ctx, Collector_StoreMetadata_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,9 +65,9 @@ func (c *collectorClient) StoreMetadata(ctx context.Context, in *wrapperspb.Stri
 // for forward compatibility
 type CollectorServer interface {
 	// Crawl last metadata with specify source(sina, net126)
-	CrawlMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error)
+	CrawlMetadata(context.Context, *wrapperspb.StringValue) (*CrawlCounter, error)
 	// Store metadata to storage
-	StoreMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error)
+	StoreMetadata(context.Context, *wrapperspb.StringValue) (*StoreCounter, error)
 	mustEmbedUnimplementedCollectorServer()
 }
 
@@ -75,10 +75,10 @@ type CollectorServer interface {
 type UnimplementedCollectorServer struct {
 }
 
-func (UnimplementedCollectorServer) CrawlMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error) {
+func (UnimplementedCollectorServer) CrawlMetadata(context.Context, *wrapperspb.StringValue) (*CrawlCounter, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CrawlMetadata not implemented")
 }
-func (UnimplementedCollectorServer) StoreMetadata(context.Context, *wrapperspb.StringValue) (*Counter, error) {
+func (UnimplementedCollectorServer) StoreMetadata(context.Context, *wrapperspb.StringValue) (*StoreCounter, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StoreMetadata not implemented")
 }
 func (UnimplementedCollectorServer) mustEmbedUnimplementedCollectorServer() {}

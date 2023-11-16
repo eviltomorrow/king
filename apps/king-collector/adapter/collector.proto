@@ -7,12 +7,19 @@ package collector;
 
 service Collector {
     // Crawl last metadata with specify source(sina, net126)
-    rpc CrawlMetadata(google.protobuf.StringValue) returns (Counter){}
+    rpc CrawlMetadata(google.protobuf.StringValue) returns (CrawlCounter){}
     // Store metadata to storage
-    rpc StoreMetadata(google.protobuf.StringValue) returns (Counter){}
+    rpc StoreMetadata(google.protobuf.StringValue) returns (StoreCounter){}
 }
 
-message Counter {
+message CrawlCounter {
     int64 total = 1;
     int64 ignore = 2;   
+}
+
+message StoreCounter {
+    int64 total = 1;
+    int64 stock = 2;
+    int64 day= 3;
+    int64 week= 4;   
 }
