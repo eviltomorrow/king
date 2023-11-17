@@ -66,7 +66,7 @@ var StoreCommand = &cobra.Command{
 			return
 		}
 
-		ctx, span := opentrace.DefaultTracer().Start(context.Background(), "Manual crawl metadata")
+		ctx, span := opentrace.DefaultTracer().Start(context.Background(), "Manual store metadata")
 		defer span.End()
 
 		etcd.Endpoints = cfg.Etcd.Endpoints
