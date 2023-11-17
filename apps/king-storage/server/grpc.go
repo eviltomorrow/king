@@ -99,6 +99,9 @@ func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
 			go func() {
 				defer sema.Release(1)
 				defer wg.Done()
+
+				_, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
+				defer newspan.End()
 				s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
 				if err != nil {
 					zlog.Error("Store metadata failure", zap.Error(err))
@@ -127,7 +130,7 @@ func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
 			defer sema.Release(1)
 			defer wg.Done()
 
-			_, newspan := opentrace.DefaultTracer().Start(context.Background(), "StoreMetadata")
+			_, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
 			defer newspan.End()
 			s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
 			if err != nil {
