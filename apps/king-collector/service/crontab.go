@@ -13,7 +13,6 @@ import (
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/zlog"
-	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -76,20 +75,14 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 }
 
 func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, int64, error) {
-	var span trace.Span
-	ctx, span = opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
-	defer span.End()
-
 	client, closeFunc, err := grpcclient.NewStorageWithEtcd()
 	if err != nil {
-		span.RecordError(err)
 		return 0, 0, 0, 0, err
 	}
 	defer closeFunc()
 
 	stub, err := client.PushMetadata(ctx)
 	if err != nil {
-		span.RecordError(err)
 		return 0, 0, 0, 0, err
 	}
 
@@ -133,8 +126,6 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 
 	resp, err := stub.CloseAndRecv()
 	if err != nil {
-		span.SetStatus(codes.Error, "CloseAndRecv result failure")
-		span.RecordError(err)
 		return 0, 0, 0, 0, err
 	}
 	return total, resp.StockAffected, resp.QuoteDayAffected, resp.QuoteWeekAffected, nil

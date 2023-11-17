@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/eviltomorrow/king/apps/king-collector/service"
+	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/opentrace"
@@ -37,12 +38,11 @@ func (g *GRPC) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 	defer span.End()
 
 	span.SetAttributes(attribute.String("req", req.Value))
-	// total, ignore, err := synchronize.DataQuick(req.Value)
-	// if err != nil {
-	// 	span.RecordError(err)
-	// 	return nil, err
-	// }
-	var total, ignore int64 = 0, 0
+	total, ignore, err := synchronize.DataQuick(req.Value)
+	if err != nil {
+		span.RecordError(err)
+		return nil, err
+	}
 	return &pb.CrawlCounter{Total: total, Ignore: ignore}, nil
 }
 
@@ -50,8 +50,13 @@ func (g *GRPC) StoreMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, date is nil")
 	}
+
+	ctx, span := opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
+	defer span.End()
+
 	total, stock, day, week, err := service.StoreMetadataToStorage(ctx, req.Value)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 	return &pb.StoreCounter{Total: total, Stock: stock, Day: day, Week: week}, nil

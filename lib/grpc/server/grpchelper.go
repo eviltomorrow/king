@@ -138,7 +138,6 @@ func (g *GrpcHelper) Init() error {
 		return err
 	}
 	g.server = grpc.NewServer(
-		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			middleware.UnaryServerRecoveryInterceptor,
 			middleware.UnaryServerLogInterceptor,
@@ -147,6 +146,7 @@ func (g *GrpcHelper) Init() error {
 			middleware.StreamServerRecoveryInterceptor,
 			middleware.StreamServerLogInterceptor,
 		),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 	)
 
 	g.ctx, g.cancel = context.WithCancel(context.Background())
