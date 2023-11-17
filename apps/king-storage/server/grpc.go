@@ -17,7 +17,6 @@ import (
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/model"
-	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/zlog"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
@@ -100,8 +99,8 @@ func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
 				defer sema.Release(1)
 				defer wg.Done()
 
-				_, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
-				defer newspan.End()
+				// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
+				// defer newspan.End()
 				s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
 				if err != nil {
 					zlog.Error("Store metadata failure", zap.Error(err))
@@ -130,12 +129,12 @@ func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
 			defer sema.Release(1)
 			defer wg.Done()
 
-			_, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
-			defer newspan.End()
+			// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
+			// defer newspan.End()
 			s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
 			if err != nil {
 				zlog.Error("Store metadata failure", zap.Error(err))
-				newspan.RecordError(err)
+				// newspan.RecordError(err)
 				return
 			}
 			affectedS.Add(s)
