@@ -70,11 +70,11 @@ clear:
 mod: export GO111MODULE=on
 mod:
 	@echo "$(CGREEN)=> go mod tidy$(CEND)"
-	go mod tidy
+	@go mod tidy
 
 # vendor
 .PHONY: vendor
 vendor: export GO111MODULE=on
 vendor:
 	@echo "$(CGREEN)=> go mod vendor$(CEND)"
-	go mod vendor
+	@go mod vendor
