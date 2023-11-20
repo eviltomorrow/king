@@ -34,7 +34,7 @@ var workflowsFunc = func() []workflow.Job {
 	workflow.Register("printCfg", printCfg)
 	workflow.Register("setGlobalVars", setGlobalVars)
 	workflow.Register("runOpentrace", runOpentrace)
-	// workflow.Register("runDB", runDB)
+	workflow.Register("runDB", runDB)
 	workflow.Register("runServer", runServer)
 	workflow.Register("buildPidFile", buildPidFile)
 	workflow.Register("rewritePaniclog", rewritePaniclog)

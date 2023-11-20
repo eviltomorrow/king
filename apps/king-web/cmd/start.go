@@ -13,10 +13,8 @@ import (
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"
-	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/fs"
-	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/procutil"
@@ -25,7 +23,6 @@ import (
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/resolver"
 )
 
 var workflowsFunc = func() []workflow.Job {
@@ -34,7 +31,6 @@ var workflowsFunc = func() []workflow.Job {
 	workflow.Register("printCfg", printCfg)
 	workflow.Register("setGlobalVars", setGlobalVars)
 	workflow.Register("runOpentrace", runOpentrace)
-	workflow.Register("runDB", runDB)
 	workflow.Register("runServer", runServer)
 	workflow.Register("buildPidFile", buildPidFile)
 	workflow.Register("rewritePaniclog", rewritePaniclog)
@@ -128,26 +124,12 @@ func runOpentrace() error {
 	return nil
 }
 
-func runDB() error {
-	if err := mysql.Connect(); err != nil {
-		return err
-	}
-	cleanup.RegisterCleanupFuncs(mysql.Close)
-
-	return nil
-}
-
 func runServer() error {
 	client, err := etcd.NewClient()
 	if err != nil {
 		return err
 	}
 	cleanup.RegisterCleanupFuncs(client.Close)
-
-	if err := middleware.InitLogger(); err != nil {
-		return err
-	}
-	resolver.Register(lb.NewBuilder(client))
 
 	g := &server.HTTP{
 		AppName:    buildinfo.AppName,

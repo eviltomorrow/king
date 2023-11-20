@@ -1,4 +1,4 @@
-package service
+package data
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/eviltomorrow/king/lib/zlog"
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
+	"golang.org/x/sync/semaphore"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -70,18 +71,9 @@ func NewDataWrapperChannel(mode DateType, date string) (chan *DataWrapper, error
 	}
 	go func() {
 		var (
-			wg sync.WaitGroup
+			sema = semaphore.NewWeighted(16)
+			wg   sync.WaitGroup
 
-			limiter = func() chan struct{} {
-				var (
-					size = 16
-					ch   = make(chan struct{}, size)
-				)
-				for i := 0; i < size; i++ {
-					ch <- struct{}{}
-				}
-				return ch
-			}()
 			limit int64 = 250
 		)
 		for {
@@ -94,7 +86,7 @@ func NewDataWrapperChannel(mode DateType, date string) (chan *DataWrapper, error
 				break
 			}
 
-			<-limiter
+			sema.Acquire(context.Background(), 1)
 			wg.Add(1)
 			go func(stock *pb.Stock) {
 				var (
@@ -124,7 +116,7 @@ func NewDataWrapperChannel(mode DateType, date string) (chan *DataWrapper, error
 				}
 
 				wg.Done()
-				limiter <- struct{}{}
+				sema.Release(1)
 			}(stock)
 		}
 		wg.Wait()

@@ -28,7 +28,7 @@ message Model {
 }
 
 message BuyPlan {
-
+    string id = 1;
 }
 
 message PositionPlan {
