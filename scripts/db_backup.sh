@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -eo pipefail
 #存放目录
 backup_dir=/root/db
 #数据库库名

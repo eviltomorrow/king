@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 if [ -f .env ]; then
     source .env
 fi
@@ -9,13 +11,6 @@ if [ ! -n "${DATA_HOME}" ]; then
     export DATA_HOME=""
 fi
 
-
-function check0(){
-    if [ "0" != "${1}" ]; then
-        echo -e "\033[34m=> Execute Failure\033[0m: ${2}."
-        exit 1
-    fi
-}
 
 function help(){
     echo -e "eg. \r\n ./setup.sh [name] up \r\n ./setup.sh [name] down"
@@ -29,12 +24,9 @@ function support_check(){
 
 function docker_compose_pull(){
     cd ${root_dir}
-    check0 $? "cd ${root_dir}"   
     if [ -d ${1} ]; then
         cd ${1}
-        check0 $? "cd ${1}"
         docker compose pull
-        check0 $? "docker compose pull"
     else
         echo "Error: wrong path ${1} !"
         exit 1
@@ -43,10 +35,8 @@ function docker_compose_pull(){
 
 function docker_compose_action(){
     cd ${root_dir}
-    check0 $? "cd ${root_dir}"
     if [ -d ${1} ]; then
         cd ${1}
-        check0 $? "cd ${1}"
 
         if [ ! -f "${DATA_HOME}/.${1}.ready" ]; then
             if [ "${2}"="up" ]; then
@@ -54,7 +44,6 @@ function docker_compose_action(){
             fi
         fi
         docker compose ${2} ${3}
-        check0 $? "docker compose ${2} ${3}"
     else
         echo "Error: wrong path ${1} !"
         exit 1
@@ -67,14 +56,12 @@ if [ ! -n "${DATA_HOME}" ]; then
 else
     if [ ! -d ${DATA_HOME} ]; then
         mkdir -p ${DATA_HOME}
-        check0 $? "mkdir -p ${DATA_HOME}"
     fi
 fi
 
 exist_network=$(docker network ls -f name=net-king -q)
 if [ ! -n "${exist_network}" ]; then
     docker network create net-king > /dev/null
-    check0 $? "docker network create net-king"
 fi
 
 root_dir=$(pwd)

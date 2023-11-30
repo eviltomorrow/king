@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail 
+
 root_dir=$(pwd)
 app_dir=${root_dir}/apps
 bin_dir=${root_dir}/bin
@@ -21,26 +23,16 @@ done
 
 GCFLAGS="all=${TRIMGOPATH}"
 
-function check0(){
-    if [ "0" != ${1} ]; then
-        echo -e "\033[34m=> Build Failure\033[0m"
-        exit 1
-    fi
-}
-
 function build_app(){
     LDFLAGS="-X main.AppName=${1} -X main.MainVersion=${MAINVERSION} -X main.GitSha=${GITSHA} -X main.BuildTime=${BUILDTIME} -s -w"
 
     echo -e "\033[32m=> Building binary(${1})...\033[0m"
     mkdir -p ${bin_dir}/${1}
-    check0 ${?}
 
     cp -rp ${app_dir}/${1}/etc ${bin_dir}/${1}
-    check0 ${?}
 
     echo "go build -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go"
     go build -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go
-    check0 ${?}
 
     echo -e "\033[32m=> Build Success\033[0m"
 }

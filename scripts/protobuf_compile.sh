@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 os=$(uname -s)
 GOOS=""
 case ${os} in
