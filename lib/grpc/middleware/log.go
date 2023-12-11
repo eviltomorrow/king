@@ -53,7 +53,7 @@ func UnaryServerLogInterceptor(ctx context.Context, req interface{}, info *grpc.
 
 	traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
 
-	var start = time.Now()
+	start := time.Now()
 	defer func() {
 		logger.Info("",
 			zap.Error(err),
@@ -83,7 +83,7 @@ func StreamServerLogInterceptor(srv interface{}, stream grpc.ServerStream, info 
 	}
 
 	traceId = trace.SpanFromContext(ctx).SpanContext().TraceID().String()
-	var start = time.Now()
+	start := time.Now()
 	defer func() {
 		logger.Info("",
 			zap.Error(err),
