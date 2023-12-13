@@ -26,9 +26,10 @@ const (
 )
 
 type DataWrapper struct {
+	Type DateType `json:"type"`
+
 	Stock *pb.Stock `json:"stock"`
-	Data  []*Data   `json:"data"`
-	Type  DateType  `json:"type"`
+	Data  []*D      `json:"data"`
 }
 
 func (d *DataWrapper) String() string {
@@ -39,7 +40,7 @@ func (d *DataWrapper) String() string {
 	return string(buf)
 }
 
-type Data struct {
+type D struct {
 	Quote *pb.Quote `json:"quote"`
 
 	MA_10 float64 `json:"ma_10,omitempty"`
@@ -48,7 +49,7 @@ type Data struct {
 	MA200 float64 `json:"ma200,omitempty"`
 }
 
-func (d *Data) String() string {
+func (d *D) String() string {
 	buf, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(d)
 	if err != nil {
 		return fmt.Sprintf("marshal failure, nest error: %v", err)
@@ -154,12 +155,12 @@ func getQuotes(stub pb.StorageClient, mode pb.QuoteRequest_Mode, code string, to
 func buildDataWrapper(mode DateType, stock *pb.Stock, quotes []*pb.Quote) *DataWrapper {
 	var (
 		closed = make([]float64, 0, len(quotes))
-		data   = make([]*Data, 0, len(quotes))
+		data   = make([]*D, 0, len(quotes))
 	)
 
 	for _, quote := range quotes {
 		closed = append(closed, quote.Close)
-		d := &Data{
+		d := &D{
 			Quote: quote,
 			MA_10: maN(closed, 10),
 			MA_50: maN(closed, 50),

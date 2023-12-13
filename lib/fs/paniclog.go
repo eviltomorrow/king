@@ -1,22 +1,19 @@
 package fs
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"syscall"
-
-	"github.com/eviltomorrow/king/lib/buildinfo"
 )
 
 var (
 	stderrFileHandler *os.File
 
-	StderrFilePath = fmt.Sprintf("/var/log/%s/panic.log", buildinfo.AppName)
+	StderrFilePath = "../log/panic.log"
 )
 
 func RewriteStderrFile() error {
-	file, err := os.OpenFile(StderrFilePath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
+	file, err := os.OpenFile(StderrFilePath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0o644)
 	if err != nil {
 		return err
 	}
