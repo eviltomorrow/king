@@ -1,9 +1,6 @@
 package language
 
 import (
-	"bytes"
-	"unicode/utf8"
-
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
@@ -50,95 +47,4 @@ func BytesToStringQuick(charset Charset, buf []byte) string {
 		str = string(buf)
 	}
 	return str
-}
-
-func BytesToStringSlow(buf []byte) string {
-	var (
-		charset = GetStrCoding(buf)
-		str     string
-	)
-	switch charset {
-	case GBK:
-		tmp, _ := simplifiedchinese.GBK.NewDecoder().Bytes(buf)
-		str = string(tmp)
-	case UTF8:
-		str = string(buf)
-	default:
-		var data bytes.Buffer
-		for i := 0; i < len(buf); {
-			r, n := utf8.DecodeRune(buf[i:])
-			data.WriteRune(r)
-			i += n
-		}
-		str = data.String()
-	}
-	return str
-}
-
-func GetStrCoding(data []byte) Charset {
-	if IsUTF8(data) {
-		return UTF8
-	}
-	if IsGBK(data) {
-		return GBK
-	}
-	return UNKNOWN
-}
-
-func IsGBK(data []byte) bool {
-	length := len(data)
-	var i int = 0
-	for i < length {
-		if data[i] <= 0x7f {
-			i++
-			continue
-		} else {
-			if data[i] >= 0x81 &&
-				data[i] <= 0xfe &&
-				data[i+1] >= 0x40 &&
-				data[i+1] <= 0xfe &&
-				data[i+1] != 0xf7 {
-				i += 2
-				continue
-			} else {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func preNum(data byte) int {
-	var mask byte = 0x80
-	var num int = 0
-	for i := 0; i < 8; i++ {
-		if (data & mask) == mask {
-			num++
-			mask = mask >> 1
-		} else {
-			break
-		}
-	}
-	return num
-}
-
-func IsUTF8(data []byte) bool {
-	i := 0
-	for i < len(data) {
-		if (data[i] & 0x80) == 0x00 {
-			i++
-			continue
-		} else if num := preNum(data[i]); num > 2 {
-			i++
-			for j := 0; j < num-1 && i < len(data); j++ {
-				if (data[i] & 0xc0) != 0x80 {
-					return false
-				}
-				i++
-			}
-		} else {
-			return false
-		}
-	}
-	return true
 }
