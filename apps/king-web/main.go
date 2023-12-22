@@ -5,6 +5,7 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-web/cmd"
 	"github.com/eviltomorrow/king/lib/buildinfo"
+	libcmd "github.com/eviltomorrow/king/lib/cmd"
 	"github.com/spf13/cobra"
 )
 
@@ -33,8 +34,8 @@ func init() {
 
 func initCommand() {
 	RootCommand.AddCommand(cmd.StartCommand)
-	RootCommand.AddCommand(cmd.StopCommand)
-	RootCommand.AddCommand(cmd.VersionCommand)
+	RootCommand.AddCommand(libcmd.StopCommand)
+	RootCommand.AddCommand(libcmd.VersionCommand)
 	RootCommand.SetHelpCommand(&cobra.Command{
 		Hidden: true,
 	})
