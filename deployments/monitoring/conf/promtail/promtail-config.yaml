@@ -33,29 +33,29 @@ scrape_configs:
           type: panic
           __path__: /log/king-collector/panic.log
 
-  - job_name: king-email
+  - job_name: king-notification
     pipeline_stages:
     static_configs:
       - targets:
           - localhost
         labels:
-          app: king-email
+          app: king-notification
           type: data 
-          __path__: /log/king-email/data.log
+          __path__: /log/king-notification/data.log
 
       - targets:
           - localhost
         labels:
-          app: king-email
+          app: king-notification
           type: access 
-          __path__: /log/king-email/access.log
+          __path__: /log/king-notification/access.log
 
       - targets:
           - localhost
         labels:
-          app: king-email
+          app: king-notification
           type: panic 
-          __path__: /log/king-email/panic.log
+          __path__: /log/king-notification/panic.log
 
   - job_name: king-storage
     pipeline_stages:

@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 
 option go_package = "./;pb";
-package email;
+package notification;
 
 service Email {
     rpc RenderTemplate(TemplateData) returns (google.protobuf.StringValue){}

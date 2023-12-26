@@ -12,14 +12,14 @@ services:
     expose:
       - "5271"
 
-  king-email:   
+  king-notification:   
     restart: always                                      
     volumes:
-      - ${DATA_HOME}/king-email/log:/app/var/log/
-      - ./conf/king-email/smtp.json:/app/etc/smtp.json                      
+      - ${DATA_HOME}/king-notification/log:/app/var/log/
+      - ./conf/king-notification/smtp.json:/app/etc/smtp.json                      
       - /etc/localtime:/etc/localtime:ro
-    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-email:${king_email_version}
-    container_name: king-email                
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-notification:${king_email_version}
+    container_name: king-notification                
     # ports:                   
     #   - "5273:5273"
     expose:

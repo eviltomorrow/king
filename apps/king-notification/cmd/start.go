@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-email/conf"
-	"github.com/eviltomorrow/king/apps/king-email/server"
-	"github.com/eviltomorrow/king/apps/king-email/service"
+	"github.com/eviltomorrow/king/apps/king-notification/conf"
+	"github.com/eviltomorrow/king/apps/king-notification/server"
+	"github.com/eviltomorrow/king/apps/king-notification/service"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"

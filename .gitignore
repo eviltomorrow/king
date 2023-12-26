@@ -19,7 +19,7 @@
 # vendor/
 
 # Go workspace file
-/apps/king-email/etc/smtp.json
+/apps/king-notification/etc/smtp.json
 /bin
 /vendor
 /deployments/apps/data

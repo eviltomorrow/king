@@ -10,5 +10,12 @@ service Account {
 }
 
 message User {
-    string name = 1;
+    string uid = 1;
+    string nick_name = 2;
+    string username = 3;
+    string phone = 4;
+    string email = 5;
+    string password = 6;
+    string register_timestamp = 7;
+    string status = 8;
 }

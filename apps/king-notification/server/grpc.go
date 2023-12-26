@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/eviltomorrow/king/apps/king-email/conf"
-	"github.com/eviltomorrow/king/apps/king-email/service"
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-email"
+	"github.com/eviltomorrow/king/apps/king-notification/conf"
+	"github.com/eviltomorrow/king/apps/king-notification/service"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/smtp"
 	"github.com/eviltomorrow/king/lib/zlog"

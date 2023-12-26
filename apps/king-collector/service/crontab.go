@@ -9,7 +9,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
 	grpcclient "github.com/eviltomorrow/king/lib/grpc/client"
-	emailpb "github.com/eviltomorrow/king/lib/grpc/pb/king-email"
+	emailpb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/zlog"

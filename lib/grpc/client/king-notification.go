@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-email"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
@@ -16,7 +16,7 @@ func NewEmailWithEtcd() (pb.EmailClient, func() error, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	target := "etcd:///grpclb/king-email"
+	target := "etcd:///grpclb/king-notification"
 	conn, err := grpc.DialContext(
 		ctx,
 		target,

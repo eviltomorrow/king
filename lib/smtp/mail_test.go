@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/eviltomorrow/king/apps/king-email/conf"
+	"github.com/eviltomorrow/king/apps/king-notification/conf"
 )
 
 func TestSendEmail(t *testing.T) {
-	path := "../../apps/king-email/etc/smtp.json"
+	path := "../../apps/king-notification/etc/smtp.json"
 	smtp, err := conf.FindSMTP(path)
 	if err != nil {
 		t.Fatal(err)

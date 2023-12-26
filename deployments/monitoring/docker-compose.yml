@@ -117,7 +117,7 @@ services:
       - ${DATA_HOME}/promtail/log:/var/log
       - ./conf/promtail:/etc/promtail/config
       - ${DATA_HOME}/king-collector/log:/log/king-collector
-      - ${DATA_HOME}/king-email/log:/log/king-email
+      - ${DATA_HOME}/king-notification/log:/log/king-notification
       - ${DATA_HOME}/king-storage/log:/log/king-storage
     command: -config.file=/etc/promtail/config/promtail-config.yaml
     restart: always

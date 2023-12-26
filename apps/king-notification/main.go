@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/eviltomorrow/king/apps/king-email/cmd"
+	"github.com/eviltomorrow/king/apps/king-notification/cmd"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	libcmd "github.com/eviltomorrow/king/lib/cmd"
 	"github.com/spf13/cobra"
@@ -19,7 +19,7 @@ var (
 var RootCommand = &cobra.Command{
 	Use:   AppName,
 	Short: "Send email service",
-	Long:  "King-email is a email sender service",
+	Long:  "king-notification is a email sender service",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},
