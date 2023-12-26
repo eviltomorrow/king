@@ -83,7 +83,7 @@ export etcd_version="3.5.9"
 export loki_promtail_version="2.9.2"
 export cassandra_version="4.1.3"
 export king_collector_version="latest"
-export king_email_version="latest"
+export king_notification_version="latest"
 export king_storage_version="latest"
 
 name=""
