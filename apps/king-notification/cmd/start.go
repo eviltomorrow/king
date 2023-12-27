@@ -153,7 +153,10 @@ func runServer() error {
 		Host:       cfg.Server.Host,
 		Port:       cfg.Server.Port,
 		EtcdClient: client,
-		SMTP:       smtp,
+
+		EmailServer: &server.EmailServer{
+			SMTP: smtp,
+		},
 	}
 	if err := g.Startup(); err != nil {
 		return err

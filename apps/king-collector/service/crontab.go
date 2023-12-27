@@ -141,25 +141,12 @@ func NotifyWithEmail(ctx context.Context, reason string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	msg, err := client.RenderTemplate(ctx, &emailpb.TemplateData{
-		Name: "",
-		Data: map[string]string{
-			"user":     "Shepard",
-			"content1": "King-collector store data failure!",
-			"content2": reason,
-			"end":      "Bye",
-		},
-	})
-	if err != nil {
-		return err
-	}
-
 	if _, err = client.Send(ctx, &emailpb.Mail{
 		To: []*emailpb.Contact{
 			{Name: "Shepard", Address: "eviltomorrow@163.com"},
 		},
 		Subject: fmt.Sprintf("(%s): King-collector Store Data Failure", time.Now().Format(time.DateOnly)),
-		Body:    msg.Value,
+		Body:    "",
 	}); err != nil {
 		return err
 	}

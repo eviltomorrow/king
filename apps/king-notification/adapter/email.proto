@@ -6,7 +6,6 @@ option go_package = "./;pb";
 package notification;
 
 service Email {
-    rpc RenderTemplate(TemplateData) returns (google.protobuf.StringValue){}
     rpc Send(Mail) returns (google.protobuf.StringValue){}
 }
 
@@ -26,9 +25,4 @@ message Mail {
 message Contact {
     string name = 1;
     string address = 2;
-}
-
-message TemplateData {
-    string name = 1;
-    map<string, string> data = 2;
 }
