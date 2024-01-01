@@ -10,7 +10,8 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-notification/conf"
 	"github.com/eviltomorrow/king/apps/king-notification/server"
-	"github.com/eviltomorrow/king/apps/king-notification/service"
+	"github.com/eviltomorrow/king/apps/king-notification/server/impl"
+
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"
@@ -133,10 +134,6 @@ func runServer() error {
 		return err
 	}
 
-	if err := service.InitTemplates(); err != nil {
-		return err
-	}
-
 	client, err := etcd.NewClient()
 	if err != nil {
 		return err
@@ -153,7 +150,11 @@ func runServer() error {
 		Host:       cfg.Server.Host,
 		Port:       cfg.Server.Port,
 		EtcdClient: client,
-		SMTP:       smtp,
+
+		EmailServer: &impl.EmailServer{
+			SMTP: smtp,
+		},
+		NotificationServer: &impl.NotificationServer{},
 	}
 	if err := g.Startup(); err != nil {
 		return err
