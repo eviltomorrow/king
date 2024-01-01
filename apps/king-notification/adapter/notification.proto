@@ -1,8 +1,24 @@
 syntax = "proto3";
 
+import "google/protobuf/wrappers.proto";
+
 option go_package = "./;pb";
 package notification;
 
 service Notification {
+    rpc Send(Msg) returns (google.protobuf.StringValue){}
+}
 
+message Msg {
+    string topic = 1;
+    string message = 2;
+    string title = 3;
+    repeated string tags = 4;
+    int64 priority = 5;
+    string attach = 6;
+    string filename = 7;
+    string click = 8;
+    string ico = 9;
+    string email = 10;
+    string call = 11;
 }
