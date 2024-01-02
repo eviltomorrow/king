@@ -16,7 +16,7 @@ func Send(ntfyAddress string, username, password string, topic string, msg *Msg)
 
 func send(ntfyAddress string, username, password string, topic string, msg *Msg) (string, error) {
 	var (
-		url  = fmt.Sprintf("https://%s/%s", ntfyAddress, topic)
+		url  = fmt.Sprintf("%s/%s", ntfyAddress, topic)
 		auth = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
 	)
 

@@ -28,7 +28,7 @@ func (s *NotificationServer) Send(ctx context.Context, msg *pb.Msg) (*wrapperspb
 		return nil, status.Error(codes.InvalidArgument, "topic is nil")
 	}
 
-	data, err := ntfy.Send(fmt.Sprintf("%s:%d", s.NFTY.Server, s.NFTY.Port), s.NFTY.Username, s.NFTY.Password, msg.Topic, &ntfy.Msg{
+	data, err := ntfy.Send(fmt.Sprintf("%s://%s:%d", s.NFTY.Scheme, s.NFTY.Server, s.NFTY.Port), s.NFTY.Username, s.NFTY.Password, msg.Topic, &ntfy.Msg{
 		Title:    msg.Title,
 		Message:  msg.Message,
 		Priority: msg.Priority,

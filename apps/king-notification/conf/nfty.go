@@ -9,6 +9,7 @@ import (
 )
 
 type NFTY struct {
+	Scheme   string `json:"scheme"`
 	Server   string `json:"server"`
 	Port     int    `json:"port"`
 	Username string `json:"username"`
