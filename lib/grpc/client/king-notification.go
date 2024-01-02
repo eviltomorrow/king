@@ -47,3 +47,39 @@ func NewEmailWithTarget(target string) (pb.EmailClient, func() error, error) {
 	}
 	return pb.NewEmailClient(conn), func() error { return conn.Close() }, nil
 }
+
+func NewNotificationWithEtcd() (pb.NotificationClient, func() error, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	target := "etcd:///grpclb/king-notification"
+	conn, err := grpc.DialContext(
+		ctx,
+		target,
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithBlock(),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+	return pb.NewNotificationClient(conn), func() error { return conn.Close() }, nil
+}
+
+func NewNotificationWithTarget(target string) (pb.NotificationClient, func() error, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	conn, err := grpc.DialContext(
+		ctx,
+		target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithBlock(),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+	return pb.NewNotificationClient(conn), func() error { return conn.Close() }, nil
+}

@@ -8,8 +8,8 @@ import (
 	"github.com/eviltomorrow/king/apps/king-collector/service/db"
 	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
-	grpcclient "github.com/eviltomorrow/king/lib/grpc/client"
-	emailpb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
+	client_grpc "github.com/eviltomorrow/king/lib/grpc/client"
+	pb_notification "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -39,11 +39,16 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 		if e != nil {
 			zlog.Error("Fetch metadata every weekday has something wrong", zap.Error(e))
 
-			ctx, span = opentrace.DefaultTracer().Start(ctx, "NotifyWithEmail")
+			ctx, span = opentrace.DefaultTracer().Start(ctx, "Send notification")
 			defer span.End()
-			if err := NotifyWithEmail(ctx, fmt.Sprintf("Possible reason: %v", e)); err != nil {
+			if err := SendNotification(ctx, "Fetch metadata failure", fmt.Sprintf("Possible reason: %v", e)); err != nil {
 				span.RecordError(err)
-				zlog.Error("Notify with email failure", zap.Error(err))
+				zlog.Error("Send notification failure", zap.Error(err))
+			}
+
+			if err := SendEmail(ctx, "Fetch metadata failure", fmt.Sprintf("Possible reason: %v", e)); err != nil {
+				span.RecordError(err)
+				zlog.Error("Send email failure", zap.Error(err))
 			}
 		}
 	}()
@@ -75,7 +80,7 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 }
 
 func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, int64, error) {
-	client, closeFunc, err := grpcclient.NewStorageWithEtcd()
+	client, closeFunc, err := client_grpc.NewStorageWithEtcd()
 	if err != nil {
 		return 0, 0, 0, 0, err
 	}
@@ -131,8 +136,8 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int
 	return total, resp.StockAffected, resp.QuoteDayAffected, resp.QuoteWeekAffected, nil
 }
 
-func NotifyWithEmail(ctx context.Context, reason string) error {
-	client, closeFunc, err := grpcclient.NewEmailWithEtcd()
+func SendEmail(ctx context.Context, subject, reason string) error {
+	client, closeFunc, err := client_grpc.NewEmailWithEtcd()
 	if err != nil {
 		return err
 	}
@@ -141,12 +146,35 @@ func NotifyWithEmail(ctx context.Context, reason string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	if _, err = client.Send(ctx, &emailpb.Mail{
-		To: []*emailpb.Contact{
+	if _, err = client.Send(ctx, &pb_notification.Mail{
+		To: []*pb_notification.Contact{
 			{Name: "Shepard", Address: "eviltomorrow@163.com"},
 		},
-		Subject: fmt.Sprintf("(%s): King-collector Store Data Failure", time.Now().Format(time.DateOnly)),
-		Body:    "",
+		Subject: subject,
+		Body:    reason,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SendNotification(ctx context.Context, title, reason string) error {
+	client, closeFunc, err := client_grpc.NewNotificationWithEtcd()
+	if err != nil {
+		return err
+	}
+	defer closeFunc()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if _, err = client.Send(ctx, &pb_notification.Msg{
+		Topic:    "topic_alert",
+		Message:  reason,
+		Title:    title,
+		Priority: 4,
+		Tags:     []string{"warning", "metadata", "crawl"},
 	}); err != nil {
 		return err
 	}

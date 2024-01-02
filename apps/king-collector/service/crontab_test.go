@@ -22,7 +22,7 @@ func init() {
 }
 
 func TestNotifyWithEmail(t *testing.T) {
-	if err := NotifyWithEmail(context.Background(), "no matter"); err != nil {
+	if err := SendEmail(context.Background(), "test", "no matter"); err != nil {
 		t.Fatalf("Notify failure, nest error: %v", err)
 	}
 }

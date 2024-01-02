@@ -16,7 +16,8 @@ services:
     restart: always                                      
     volumes:
       - ${DATA_HOME}/king-notification/log:/app/var/log/
-      - ./conf/king-notification/smtp.json:/app/etc/smtp.json                      
+      # - ./conf/king-notification/smtp.json:/app/etc/smtp.json
+      # - ./conf/king-notification/ntfy.json:/app/etc/ntfy.json                 
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-notification:${king_notification_version}
     container_name: king-notification                

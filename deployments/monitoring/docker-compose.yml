@@ -58,9 +58,9 @@ services:
       - SPAN_STORAGE_TYPE=cassandra
       - SAMPLING_CONFIG_TYPE=adaptive
       - SAMPLING_STORAGE_TYPE=cassandra
-    ports:
+    # ports:
     #   - "16685:16685"
-      - "16686:16686"
+    #   - "16686:16686"
     #   - "16687"
     expose:
       - "16685"
@@ -169,7 +169,7 @@ services:
     image: grafana/grafana:${grafana_version}
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     expose:
       - "3000"
     volumes:

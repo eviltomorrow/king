@@ -18,7 +18,7 @@ function help(){
 }
 
 function support_check(){
-    echo "Error: wrong name '${args_1}'. Support: [apps、db、monitoring] !"
+    echo "Error: wrong name '${args_1}'. Support: [apps、db、monitoring、third-party] !"
     exit 1
 }
 
@@ -66,25 +66,26 @@ fi
 
 root_dir=$(pwd)
 
-supported_name=("db" "apps" "monitoring")
+supported_name=("db" "apps" "monitoring" "third-party")
 supported_action=("up" "down" "pull")
-up_ordering=("db" "apps" "monitoring")
-down_ordering=("apps" "db" "monitoring") 
+up_ordering=("db" "apps" "monitoring" "third-party")
+down_ordering=("apps" "db" "monitoring" "third-party") 
 
 # version
-export opentelemetry_collector_contrib_version="0.88.0"
-export jaeger_version="1.50.0"
-export prometheus_version="2.47.2"
-export node_exporter_version="1.6.1"
-export grafana_version="10.2.0"
-export mongo_version="7.0.2"
-export mysql_version="8.0.34"
-export etcd_version="3.5.9"
-export loki_promtail_version="2.9.2"
+export opentelemetry_collector_contrib_version="0.91.0"
+export jaeger_version="1.52.0"
+export prometheus_version="2.48.1"
+export node_exporter_version="1.7.0"
+export grafana_version="10.2.3"
+export mongo_version="7.0.4"
+export mysql_version="8.0.35"
+export etcd_version="3.5.11"
+export loki_promtail_version="2.9.3"
 export cassandra_version="4.1.3"
 export king_collector_version="latest"
 export king_notification_version="latest"
 export king_storage_version="latest"
+export ntfy_version="latest"
 
 name=""
 action=""

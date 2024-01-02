@@ -133,6 +133,10 @@ func runServer() error {
 	if err != nil {
 		return err
 	}
+	ntfy, err := conf.FindNTFY(filepath.Join(system.Runtime.RootDir, cfg.NtfyFile))
+	if err != nil {
+		return err
+	}
 
 	client, err := etcd.NewClient()
 	if err != nil {
@@ -154,7 +158,9 @@ func runServer() error {
 		EmailServer: &impl.EmailServer{
 			SMTP: smtp,
 		},
-		NotificationServer: &impl.NotificationServer{},
+		NotificationServer: &impl.NotificationServer{
+			NFTY: ntfy,
+		},
 	}
 	if err := g.Startup(); err != nil {
 		return err
