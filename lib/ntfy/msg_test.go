@@ -15,11 +15,11 @@ func TestSend(t *testing.T) {
 	}
 	fmt.Println(ntfy.String())
 
-	data, err := Send(fmt.Sprintf("%s:%d", ntfy.Server, ntfy.Port), ntfy.Username, ntfy.Password, "topic_stock", &Msg{
+	data, err := Send(fmt.Sprintf("%s://%s:%d", ntfy.Scheme, ntfy.Server, ntfy.Port), ntfy.Username, ntfy.Password, "topic_stock", &Msg{
 		Title:    "Hi",
 		Message:  "This is shepard",
 		Priority: 3,
-		// Tags:     []string{"cow", "bear"},
+		Tags:     []string{"cow", "bear"},
 	})
 	if err != nil {
 		t.Fatal(err)
