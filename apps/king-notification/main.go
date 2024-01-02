@@ -18,8 +18,8 @@ var (
 
 var RootCommand = &cobra.Command{
 	Use:   AppName,
-	Short: "Send email service",
-	Long:  "king-notification is a email sender service",
+	Short: "Notification service",
+	Long:  "king-notification is a email/notification sender service",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},

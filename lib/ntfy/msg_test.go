@@ -1,0 +1,28 @@
+package ntfy
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/eviltomorrow/king/apps/king-notification/conf"
+)
+
+func TestSend(t *testing.T) {
+	path := "../../apps/king-notification/etc/ntfy.json"
+	ntfy, err := conf.FindNTFY(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(ntfy.String())
+
+	data, err := Send(fmt.Sprintf("%s:%d", ntfy.Server, ntfy.Port), ntfy.Username, ntfy.Password, "topic_stock", &Msg{
+		Title:    "Hi",
+		Message:  "This is shepard",
+		Priority: 3,
+		// Tags:     []string{"cow", "bear"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(data)
+}
