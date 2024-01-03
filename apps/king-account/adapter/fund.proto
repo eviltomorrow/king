@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+// import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "./;pb";
+package account;
+
+service Fund {
+    rpc InitAccount(Account) returns (google.protobuf.Empty);
+}
+
+message Account {
+    string user_id = 1;
+    double opening_cash = 2;
+    double end_cash = 3;
+}
