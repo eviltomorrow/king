@@ -8,7 +8,7 @@ import (
 )
 
 func TestSend(t *testing.T) {
-	path := "../../apps/king-notification/etc/ntfy.json"
+	path := "../../tests/conf/ntfy.json"
 	ntfy, err := conf.FindNTFY(path)
 	if err != nil {
 		t.Fatal(err)
