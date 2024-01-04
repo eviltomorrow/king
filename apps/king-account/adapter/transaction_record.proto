@@ -1,10 +1,33 @@
 syntax = "proto3";
 
-// import "google/protobuf/wrappers.proto";
-// import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "./;pb";
 package account;
 
-service TransactionRecord {
+service Transaction {
+    rpc Write(Record) returns (google.protobuf.StringValue);
+}
+
+message Record {
+    string record_id = 1;
+    enum Action {
+        BUY = 0;
+        SELL = 1;
+    }
+    Action action = 2;
+    enum AssetsType {
+        STOCK = 0;
+    }
+    AssetsType assets_type = 3;
+    double close_price = 4;
+    int64 volume = 5;
+    string datetime = 6;
+    repeated Fee fee = 7;
+}
+
+message Fee {
+    string record_id = 1;
+    string item = 2;
+    string money = 3;
 }

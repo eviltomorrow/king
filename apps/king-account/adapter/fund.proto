@@ -1,17 +1,28 @@
 syntax = "proto3";
 
-// import "google/protobuf/wrappers.proto";
+import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "./;pb";
 package account;
 
 service Fund {
-    rpc InitAccount(Account) returns (google.protobuf.Empty);
+    rpc InitAccount(Account) returns (google.protobuf.StringValue);
+    rpc Remove(Account) returns (google.protobuf.Empty);
+    rpc Rebalance(Account) returns (google.protobuf.Empty);
+    rpc FindByUserId(google.protobuf.StringValue) returns (AccountResp);
+}
+
+message AccountResp {
+    repeated Account accounts = 1;
+    int64 total_count = 2;
 }
 
 message Account {
-    string user_id = 1;
-    double opening_cash = 2;
-    double end_cash = 3;
+    string fund_id = 1;
+    string user_id = 2;
+    double opening_cash = 3;
+    double end_cash = 4;
+    int32 status = 5;
+    int64 register_timestamp = 6;
 }

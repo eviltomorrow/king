@@ -7,7 +7,11 @@
 package pb
 
 import (
+	context "context"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -15,53 +19,92 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-const ()
+const (
+	Transaction_Write_FullMethodName = "/account.Transaction/Write"
+)
 
-// TransactionRecordClient is the client API for TransactionRecord service.
+// TransactionClient is the client API for Transaction service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TransactionRecordClient interface {
+type TransactionClient interface {
+	Write(ctx context.Context, in *Record, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
-type transactionRecordClient struct {
+type transactionClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTransactionRecordClient(cc grpc.ClientConnInterface) TransactionRecordClient {
-	return &transactionRecordClient{cc}
+func NewTransactionClient(cc grpc.ClientConnInterface) TransactionClient {
+	return &transactionClient{cc}
 }
 
-// TransactionRecordServer is the server API for TransactionRecord service.
-// All implementations must embed UnimplementedTransactionRecordServer
+func (c *transactionClient) Write(ctx context.Context, in *Record, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
+	err := c.cc.Invoke(ctx, Transaction_Write_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TransactionServer is the server API for Transaction service.
+// All implementations must embed UnimplementedTransactionServer
 // for forward compatibility
-type TransactionRecordServer interface {
-	mustEmbedUnimplementedTransactionRecordServer()
+type TransactionServer interface {
+	Write(context.Context, *Record) (*wrapperspb.StringValue, error)
+	mustEmbedUnimplementedTransactionServer()
 }
 
-// UnimplementedTransactionRecordServer must be embedded to have forward compatible implementations.
-type UnimplementedTransactionRecordServer struct {
+// UnimplementedTransactionServer must be embedded to have forward compatible implementations.
+type UnimplementedTransactionServer struct {
 }
 
-func (UnimplementedTransactionRecordServer) mustEmbedUnimplementedTransactionRecordServer() {}
+func (UnimplementedTransactionServer) Write(context.Context, *Record) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
+}
+func (UnimplementedTransactionServer) mustEmbedUnimplementedTransactionServer() {}
 
-// UnsafeTransactionRecordServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TransactionRecordServer will
+// UnsafeTransactionServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TransactionServer will
 // result in compilation errors.
-type UnsafeTransactionRecordServer interface {
-	mustEmbedUnimplementedTransactionRecordServer()
+type UnsafeTransactionServer interface {
+	mustEmbedUnimplementedTransactionServer()
 }
 
-func RegisterTransactionRecordServer(s grpc.ServiceRegistrar, srv TransactionRecordServer) {
-	s.RegisterService(&TransactionRecord_ServiceDesc, srv)
+func RegisterTransactionServer(s grpc.ServiceRegistrar, srv TransactionServer) {
+	s.RegisterService(&Transaction_ServiceDesc, srv)
 }
 
-// TransactionRecord_ServiceDesc is the grpc.ServiceDesc for TransactionRecord service.
+func _Transaction_Write_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Record)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServer).Write(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transaction_Write_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServer).Write(ctx, req.(*Record))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Transaction_ServiceDesc is the grpc.ServiceDesc for Transaction service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TransactionRecord_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "account.TransactionRecord",
-	HandlerType: (*TransactionRecordServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "transaction_record.proto",
+var Transaction_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "account.Transaction",
+	HandlerType: (*TransactionServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Write",
+			Handler:    _Transaction_Write_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "transaction_record.proto",
 }

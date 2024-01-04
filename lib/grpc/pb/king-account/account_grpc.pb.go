@@ -21,19 +21,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Account_Find_FullMethodName   = "/account.Account/Find"
-	Account_Add_FullMethodName    = "/account.Account/Add"
-	Account_Del_FullMethodName    = "/account.Account/Del"
-	Account_Modify_FullMethodName = "/account.Account/Modify"
+	Account_FindByUserId_FullMethodName = "/account.Account/FindByUserId"
+	Account_List_FullMethodName         = "/account.Account/List"
+	Account_Add_FullMethodName          = "/account.Account/Add"
+	Account_Remove_FullMethodName       = "/account.Account/Remove"
+	Account_Modify_FullMethodName       = "/account.Account/Modify"
 )
 
 // AccountClient is the client API for Account service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountClient interface {
-	Find(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error)
+	FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error)
+	List(ctx context.Context, in *UserReq, opts ...grpc.CallOption) (*UserResp, error)
 	Add(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	Del(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Remove(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Modify(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -45,9 +47,18 @@ func NewAccountClient(cc grpc.ClientConnInterface) AccountClient {
 	return &accountClient{cc}
 }
 
-func (c *accountClient) Find(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error) {
+func (c *accountClient) FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, Account_Find_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Account_FindByUserId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountClient) List(ctx context.Context, in *UserReq, opts ...grpc.CallOption) (*UserResp, error) {
+	out := new(UserResp)
+	err := c.cc.Invoke(ctx, Account_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +74,9 @@ func (c *accountClient) Add(ctx context.Context, in *User, opts ...grpc.CallOpti
 	return out, nil
 }
 
-func (c *accountClient) Del(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *accountClient) Remove(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Account_Del_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Account_Remove_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,9 +96,10 @@ func (c *accountClient) Modify(ctx context.Context, in *User, opts ...grpc.CallO
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility
 type AccountServer interface {
-	Find(context.Context, *wrapperspb.StringValue) (*User, error)
+	FindByUserId(context.Context, *wrapperspb.StringValue) (*User, error)
+	List(context.Context, *UserReq) (*UserResp, error)
 	Add(context.Context, *User) (*wrapperspb.StringValue, error)
-	Del(context.Context, *User) (*emptypb.Empty, error)
+	Remove(context.Context, *User) (*emptypb.Empty, error)
 	Modify(context.Context, *User) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAccountServer()
 }
@@ -96,14 +108,17 @@ type AccountServer interface {
 type UnimplementedAccountServer struct {
 }
 
-func (UnimplementedAccountServer) Find(context.Context, *wrapperspb.StringValue) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
+func (UnimplementedAccountServer) FindByUserId(context.Context, *wrapperspb.StringValue) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByUserId not implemented")
+}
+func (UnimplementedAccountServer) List(context.Context, *UserReq) (*UserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedAccountServer) Add(context.Context, *User) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
 }
-func (UnimplementedAccountServer) Del(context.Context, *User) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Del not implemented")
+func (UnimplementedAccountServer) Remove(context.Context, *User) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
 }
 func (UnimplementedAccountServer) Modify(context.Context, *User) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Modify not implemented")
@@ -121,20 +136,38 @@ func RegisterAccountServer(s grpc.ServiceRegistrar, srv AccountServer) {
 	s.RegisterService(&Account_ServiceDesc, srv)
 }
 
-func _Account_Find_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Account_FindByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).Find(ctx, in)
+		return srv.(AccountServer).FindByUserId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Account_Find_FullMethodName,
+		FullMethod: Account_FindByUserId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Find(ctx, req.(*wrapperspb.StringValue))
+		return srv.(AccountServer).FindByUserId(ctx, req.(*wrapperspb.StringValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).List(ctx, req.(*UserReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -157,20 +190,20 @@ func _Account_Add_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Account_Del_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Account_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(User)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).Del(ctx, in)
+		return srv.(AccountServer).Remove(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Account_Del_FullMethodName,
+		FullMethod: Account_Remove_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Del(ctx, req.(*User))
+		return srv.(AccountServer).Remove(ctx, req.(*User))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -201,16 +234,20 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AccountServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Find",
-			Handler:    _Account_Find_Handler,
+			MethodName: "FindByUserId",
+			Handler:    _Account_FindByUserId_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _Account_List_Handler,
 		},
 		{
 			MethodName: "Add",
 			Handler:    _Account_Add_Handler,
 		},
 		{
-			MethodName: "Del",
-			Handler:    _Account_Del_Handler,
+			MethodName: "Remove",
+			Handler:    _Account_Remove_Handler,
 		},
 		{
 			MethodName: "Modify",

@@ -12,6 +12,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,14 +21,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Fund_InitAccount_FullMethodName = "/account.Fund/InitAccount"
+	Fund_InitAccount_FullMethodName  = "/account.Fund/InitAccount"
+	Fund_Remove_FullMethodName       = "/account.Fund/Remove"
+	Fund_Rebalance_FullMethodName    = "/account.Fund/Rebalance"
+	Fund_FindByUserId_FullMethodName = "/account.Fund/FindByUserId"
 )
 
 // FundClient is the client API for Fund service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FundClient interface {
-	InitAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	InitAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	Remove(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Rebalance(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountResp, error)
 }
 
 type fundClient struct {
@@ -38,9 +45,36 @@ func NewFundClient(cc grpc.ClientConnInterface) FundClient {
 	return &fundClient{cc}
 }
 
-func (c *fundClient) InitAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *fundClient) InitAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
 	err := c.cc.Invoke(ctx, Fund_InitAccount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fundClient) Remove(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Fund_Remove_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fundClient) Rebalance(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Fund_Rebalance_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fundClient) FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountResp, error) {
+	out := new(AccountResp)
+	err := c.cc.Invoke(ctx, Fund_FindByUserId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +85,10 @@ func (c *fundClient) InitAccount(ctx context.Context, in *Account, opts ...grpc.
 // All implementations must embed UnimplementedFundServer
 // for forward compatibility
 type FundServer interface {
-	InitAccount(context.Context, *Account) (*emptypb.Empty, error)
+	InitAccount(context.Context, *Account) (*wrapperspb.StringValue, error)
+	Remove(context.Context, *Account) (*emptypb.Empty, error)
+	Rebalance(context.Context, *Account) (*emptypb.Empty, error)
+	FindByUserId(context.Context, *wrapperspb.StringValue) (*AccountResp, error)
 	mustEmbedUnimplementedFundServer()
 }
 
@@ -59,8 +96,17 @@ type FundServer interface {
 type UnimplementedFundServer struct {
 }
 
-func (UnimplementedFundServer) InitAccount(context.Context, *Account) (*emptypb.Empty, error) {
+func (UnimplementedFundServer) InitAccount(context.Context, *Account) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InitAccount not implemented")
+}
+func (UnimplementedFundServer) Remove(context.Context, *Account) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
+}
+func (UnimplementedFundServer) Rebalance(context.Context, *Account) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Rebalance not implemented")
+}
+func (UnimplementedFundServer) FindByUserId(context.Context, *wrapperspb.StringValue) (*AccountResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByUserId not implemented")
 }
 func (UnimplementedFundServer) mustEmbedUnimplementedFundServer() {}
 
@@ -93,6 +139,60 @@ func _Fund_InitAccount_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Fund_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Account)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServer).Remove(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fund_Remove_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServer).Remove(ctx, req.(*Account))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Fund_Rebalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Account)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServer).Rebalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fund_Rebalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServer).Rebalance(ctx, req.(*Account))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Fund_FindByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServer).FindByUserId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fund_FindByUserId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServer).FindByUserId(ctx, req.(*wrapperspb.StringValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Fund_ServiceDesc is the grpc.ServiceDesc for Fund service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -103,6 +203,18 @@ var Fund_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InitAccount",
 			Handler:    _Fund_InitAccount_Handler,
+		},
+		{
+			MethodName: "Remove",
+			Handler:    _Fund_Remove_Handler,
+		},
+		{
+			MethodName: "Rebalance",
+			Handler:    _Fund_Rebalance_Handler,
+		},
+		{
+			MethodName: "FindByUserId",
+			Handler:    _Fund_FindByUserId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
