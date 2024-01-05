@@ -7,7 +7,7 @@ option go_package = "./;pb";
 package account;
 
 service Assets {
-    rpc FindByUserId(google.protobuf.StringValue) returns (ItemResp);
+    rpc FindByFundId(google.protobuf.StringValue) returns (ItemResp);
     rpc Buy(Item) returns (google.protobuf.Empty);
     rpc Sell(Item) returns (google.protobuf.Empty);
 }
@@ -18,7 +18,7 @@ message ItemResp {
 }
 
 message Item {
-    string user_id = 1;
+    string fund_id = 1;
     enum AssetsType {
         STOCK = 0;
     }

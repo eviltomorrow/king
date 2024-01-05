@@ -51,3 +51,15 @@ create table `king_storage`.`stock` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间',
      PRIMARY KEY(`code`)
 );
+
+CREATE DATABASE `king_account` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON king_account.* TO 'admin'@'%';
+
+-- create table account
+drop table if exists `king_account`.`account`;
+create table `king_account`.`account` (
+    `id` CHAR(19) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `modify_timestamp` TIMESTAMP COMMENT '修改时间'
+);
+create index idx_code_date on `king_storage`.`quote_day`(`code`,`date`);

@@ -20,10 +20,11 @@ message Record {
         STOCK = 0;
     }
     AssetsType assets_type = 3;
-    double close_price = 4;
-    int64 volume = 5;
-    string datetime = 6;
-    repeated Fee fee = 7;
+    string assets_code = 4;
+    double close_price = 5;
+    int64 volume = 6;
+    string datetime = 7;
+    repeated Fee fee = 8;
 }
 
 message Fee {

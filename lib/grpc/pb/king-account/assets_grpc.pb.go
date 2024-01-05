@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Assets_FindByUserId_FullMethodName = "/account.Assets/FindByUserId"
+	Assets_FindByFundId_FullMethodName = "/account.Assets/FindByFundId"
 	Assets_Buy_FullMethodName          = "/account.Assets/Buy"
 	Assets_Sell_FullMethodName         = "/account.Assets/Sell"
 )
@@ -30,7 +30,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AssetsClient interface {
-	FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error)
+	FindByFundId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error)
 	Buy(ctx context.Context, in *Item, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Sell(ctx context.Context, in *Item, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -43,9 +43,9 @@ func NewAssetsClient(cc grpc.ClientConnInterface) AssetsClient {
 	return &assetsClient{cc}
 }
 
-func (c *assetsClient) FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error) {
+func (c *assetsClient) FindByFundId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error) {
 	out := new(ItemResp)
-	err := c.cc.Invoke(ctx, Assets_FindByUserId_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Assets_FindByFundId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *assetsClient) Sell(ctx context.Context, in *Item, opts ...grpc.CallOpti
 // All implementations must embed UnimplementedAssetsServer
 // for forward compatibility
 type AssetsServer interface {
-	FindByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error)
+	FindByFundId(context.Context, *wrapperspb.StringValue) (*ItemResp, error)
 	Buy(context.Context, *Item) (*emptypb.Empty, error)
 	Sell(context.Context, *Item) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAssetsServer()
@@ -84,8 +84,8 @@ type AssetsServer interface {
 type UnimplementedAssetsServer struct {
 }
 
-func (UnimplementedAssetsServer) FindByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindByUserId not implemented")
+func (UnimplementedAssetsServer) FindByFundId(context.Context, *wrapperspb.StringValue) (*ItemResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByFundId not implemented")
 }
 func (UnimplementedAssetsServer) Buy(context.Context, *Item) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Buy not implemented")
@@ -106,20 +106,20 @@ func RegisterAssetsServer(s grpc.ServiceRegistrar, srv AssetsServer) {
 	s.RegisterService(&Assets_ServiceDesc, srv)
 }
 
-func _Assets_FindByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Assets_FindByFundId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssetsServer).FindByUserId(ctx, in)
+		return srv.(AssetsServer).FindByFundId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Assets_FindByUserId_FullMethodName,
+		FullMethod: Assets_FindByFundId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssetsServer).FindByUserId(ctx, req.(*wrapperspb.StringValue))
+		return srv.(AssetsServer).FindByFundId(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,8 +168,8 @@ var Assets_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AssetsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FindByUserId",
-			Handler:    _Assets_FindByUserId_Handler,
+			MethodName: "FindByFundId",
+			Handler:    _Assets_FindByFundId_Handler,
 		},
 		{
 			MethodName: "Buy",
