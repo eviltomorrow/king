@@ -18,9 +18,10 @@ message ItemResp {
 }
 
 message Item {
-    string fund_id = 1;
+    string assets_id = 1;
+    string user_id = 2;
     enum AssetsType {
         STOCK = 0;
     }
-    AssetsType type = 2;
+    AssetsType type = 3;
 }
