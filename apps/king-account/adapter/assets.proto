@@ -7,7 +7,7 @@ option go_package = "./;pb";
 package account;
 
 service Assets {
-    rpc FindByFundId(google.protobuf.StringValue) returns (ItemResp);
+    rpc FindByUserId(google.protobuf.StringValue) returns (ItemResp);
     rpc Buy(Item) returns (google.protobuf.Empty);
     rpc Sell(Item) returns (google.protobuf.Empty);
 }
@@ -18,10 +18,18 @@ message ItemResp {
 }
 
 message Item {
-    string assets_id = 1;
-    string user_id = 2;
+    string id = 1;
+    string fund_id = 2;
+    string user_id = 3;
     enum AssetsType {
         STOCK = 0;
     }
-    AssetsType type = 3;
+    AssetsType type = 4;
+    // 头寸
+    double position = 5;
+    // 
+    string code = 6;
+    // 持仓量
+    int64 open_interest = 7;
+    int64 first_buy_datetime = 8;
 }

@@ -19,10 +19,10 @@ message AccountResp {
 }
 
 message Account {
-    string fund_id = 1;
+    string id = 1;
     string user_id = 2;
     double opening_cash = 3;
     double end_cash = 4;
     int32 status = 5;
-    int64 register_timestamp = 6;
+    int64 init_datetime = 6;
 }

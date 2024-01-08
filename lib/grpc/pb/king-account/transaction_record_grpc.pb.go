@@ -20,13 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Transaction_Write_FullMethodName = "/account.Transaction/Write"
+	Transaction_FindByUserFund_FullMethodName = "/account.Transaction/FindByUserFund"
+	Transaction_Write_FullMethodName          = "/account.Transaction/Write"
 )
 
 // TransactionClient is the client API for Transaction service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionClient interface {
+	FindByUserFund(ctx context.Context, in *UserFundReq, opts ...grpc.CallOption) (*RecordResp, error)
 	Write(ctx context.Context, in *Record, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
@@ -36,6 +38,15 @@ type transactionClient struct {
 
 func NewTransactionClient(cc grpc.ClientConnInterface) TransactionClient {
 	return &transactionClient{cc}
+}
+
+func (c *transactionClient) FindByUserFund(ctx context.Context, in *UserFundReq, opts ...grpc.CallOption) (*RecordResp, error) {
+	out := new(RecordResp)
+	err := c.cc.Invoke(ctx, Transaction_FindByUserFund_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *transactionClient) Write(ctx context.Context, in *Record, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
@@ -51,6 +62,7 @@ func (c *transactionClient) Write(ctx context.Context, in *Record, opts ...grpc.
 // All implementations must embed UnimplementedTransactionServer
 // for forward compatibility
 type TransactionServer interface {
+	FindByUserFund(context.Context, *UserFundReq) (*RecordResp, error)
 	Write(context.Context, *Record) (*wrapperspb.StringValue, error)
 	mustEmbedUnimplementedTransactionServer()
 }
@@ -59,6 +71,9 @@ type TransactionServer interface {
 type UnimplementedTransactionServer struct {
 }
 
+func (UnimplementedTransactionServer) FindByUserFund(context.Context, *UserFundReq) (*RecordResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByUserFund not implemented")
+}
 func (UnimplementedTransactionServer) Write(context.Context, *Record) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
 }
@@ -73,6 +88,24 @@ type UnsafeTransactionServer interface {
 
 func RegisterTransactionServer(s grpc.ServiceRegistrar, srv TransactionServer) {
 	s.RegisterService(&Transaction_ServiceDesc, srv)
+}
+
+func _Transaction_FindByUserFund_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserFundReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServer).FindByUserFund(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transaction_FindByUserFund_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServer).FindByUserFund(ctx, req.(*UserFundReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Transaction_Write_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -100,6 +133,10 @@ var Transaction_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "account.Transaction",
 	HandlerType: (*TransactionServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "FindByUserFund",
+			Handler:    _Transaction_FindByUserFund_Handler,
+		},
 		{
 			MethodName: "Write",
 			Handler:    _Transaction_Write_Handler,
