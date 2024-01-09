@@ -15,7 +15,7 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*model.Stock, timeout
 		return 0, nil
 	}
 
-	var codes = make([]string, 0, len(stocks))
+	codes := make([]string, 0, len(stocks))
 	for _, stock := range stocks {
 		codes = append(codes, stock.Code)
 	}
@@ -25,8 +25,8 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*model.Stock, timeout
 		return 0, err
 	}
 
-	var shouldInsertStocks = make([]*model.Stock, 0, len(stocks))
-	var shouldUpdateStocks = make([]*model.Stock, 0, len(stocks))
+	shouldInsertStocks := make([]*model.Stock, 0, len(stocks))
+	shouldUpdateStocks := make([]*model.Stock, 0, len(stocks))
 	for _, stock := range stocks {
 		d, ok := data[stock.Code]
 		if !ok {
@@ -75,8 +75,8 @@ func StockWithInsertMany(exec mysql.Exec, stocks []*model.Stock, timeout time.Du
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var fields = make([]string, 0, len(data))
-	var args = make([]interface{}, 0, 3*len(data))
+	fields := make([]string, 0, len(data))
+	args := make([]interface{}, 0, 3*len(data))
 	for _, record := range data {
 		fields = append(fields, "(?, ?, ?, now(), null)")
 		args = append(args, record.Code)
@@ -84,7 +84,7 @@ func StockWithInsertMany(exec mysql.Exec, stocks []*model.Stock, timeout time.Du
 		args = append(args, record.Suspend)
 	}
 
-	var _sql = fmt.Sprintf("insert into stock (%s) values %s", strings.Join(stockFields, ","), strings.Join(fields, ","))
+	_sql := fmt.Sprintf("insert into stock (%s) values %s", strings.Join(stockFields, ","), strings.Join(fields, ","))
 	result, err := exec.ExecContext(ctx, _sql, args...)
 	if err != nil {
 		return 0, err
@@ -100,7 +100,7 @@ func StockWithUpdateOne(exec mysql.Exec, code string, stock *model.Stock, timeou
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var _sql = `update stock set name = ?, suspend = ?, modify_timestamp = now() where code = ?`
+	_sql := `update stock set name = ?, suspend = ?, modify_timestamp = now() where code = ?`
 	result, err := exec.ExecContext(ctx, _sql, stock.Name, stock.Suspend, code)
 	if err != nil {
 		return 0, err
@@ -115,23 +115,23 @@ func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration)
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var fields = make([]string, 0, len(codes))
-	var args = make([]interface{}, 0, len(codes))
+	fields := make([]string, 0, len(codes))
+	args := make([]interface{}, 0, len(codes))
 	for _, code := range codes {
 		fields = append(fields, "?")
 		args = append(args, code)
 	}
 
-	var _sql = fmt.Sprintf(`select code, name, suspend, create_timestamp, modify_timestamp from stock where code in (%s)`, strings.Join(fields, ","))
+	_sql := fmt.Sprintf(`select code, name, suspend, create_timestamp, modify_timestamp from stock where code in (%s)`, strings.Join(fields, ","))
 	rows, err := exec.QueryContext(ctx, _sql, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var stocks = make(map[string]*model.Stock, len(codes))
+	stocks := make(map[string]*model.Stock, len(codes))
 	for rows.Next() {
-		var stock = &model.Stock{}
+		stock := &model.Stock{}
 		if err := rows.Scan(&stock.Code, &stock.Name, &stock.Suspend, &stock.CreateTimestamp, &stock.ModifyTimestamp); err != nil {
 			return nil, err
 		}
@@ -147,16 +147,16 @@ func StockWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Dur
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var _sql = `select code, name, suspend, create_timestamp, modify_timestamp from stock limit ?, ?`
+	_sql := `select code, name, suspend, create_timestamp, modify_timestamp from stock limit ?, ?`
 	rows, err := exec.QueryContext(ctx, _sql, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var stocks = make([]*model.Stock, 0, limit)
+	stocks := make([]*model.Stock, 0, limit)
 	for rows.Next() {
-		var stock = &model.Stock{}
+		stock := &model.Stock{}
 		if err := rows.Scan(&stock.Code, &stock.Name, &stock.Suspend, &stock.CreateTimestamp, &stock.ModifyTimestamp); err != nil {
 			return nil, err
 		}
