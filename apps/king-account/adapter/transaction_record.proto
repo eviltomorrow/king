@@ -6,12 +6,15 @@ option go_package = "./;pb";
 package account;
 
 service Transaction {
-    rpc FindByUserFund(UserFundReq) returns (RecordResp);
     rpc Write(Record) returns (google.protobuf.StringValue);
+    rpc FindByUserFund(UserFundReq) returns (RecordResp);
 }
 
 message UserFundReq {
-    
+    string user_id = 1;
+    string fund_id = 2;
+    int64 page_no = 3;
+    int64 page_size = 4;
 }
 
 message RecordResp {
@@ -21,20 +24,22 @@ message RecordResp {
 
 message Record {
     string id = 1;
+    string user_id = 2;
+    string fund_id = 3;
     enum Action {
         BUY = 0;
         SELL = 1;
     }
-    Action action = 2;
+    Action action = 4;
     enum AssetsType {
         STOCK = 0;
     }
-    AssetsType assets_type = 3;
-    string assets_code = 4;
-    double close_price = 5;
-    int64 volume = 6;
-    string datetime = 7;
-    repeated Fee fee = 8;
+    AssetsType assets_type = 5;
+    string assets_code = 6;
+    double close_price = 7;
+    int64 volume = 8;
+    string datetime = 9;
+    repeated Fee fee = 10;
 }
 
 message Fee {

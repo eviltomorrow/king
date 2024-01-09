@@ -60,7 +60,7 @@ drop table if exists `king_account`.`account`;
 create table `king_account`.`account` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
     `username` VARCHAR(32) COMMENT '用户名',
-    `password` VARCHAR(64) NOT NULL COMMENT '密码',
+    `password` VARCHAR(64) COMMENT '密码',
     `nick_name` VARCHAR(32) COMMENT '密码', 
     `phone` VARCHAR(15) COMMENT '电话',
     `email` VARCHAR(32) COMMENT 'email',
@@ -73,16 +73,17 @@ create table `king_account`.`account` (
 create index idx_username on `king_account`.`account`(`username`);
 create index idx_phone on `king_account`.`account`(`phone`);
 create index idx_email on `king_account`.`account`(`email`);
+create unique index idx_username_phone_email on `king_account`.`account`(`username`,`phone`,`email`);
 
 -- create table assets
 drop table if exists `king_account`.`assets`;
 create table `king_account`.`assets` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
-    `fund_id` CHAR(19) COMMENT 'fund 表 id',
+    `fund_id` CHAR(19) NOT NULL COMMENT 'fund 表 id',
     `user_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
-    `type` TINYINT COMMENT '类型', 
-    `cash_position` DECIMAL(10,2) COMMENT '头寸',
-    `code` VARCHAR(8) COMMENT '代码',
+    `type` TINYINT NOT NULL COMMENT '类型', 
+    `cash_position` DECIMAL(10,2) NOT NULL COMMENT '头寸',
+    `code` VARCHAR(8) NOT NULL COMMENT '代码',
     `open_interest` INT NOT NULL COMMENT '持仓量',
     `first_buy_datetime` DATETIME NOT NULL COMMENT '第一次购买时间',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -112,7 +113,7 @@ create table `king_account`.`transaction_record` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
     `action` TINYINT NOT NULL COMMENT '动作(buy/sell)',
     `assert_type` TINYINT NOT NULL COMMENT '资产类型',
-    `assert_code` CHAR(8) COMMENT '资产代码',
+    `assert_code` CHAR(8) NOT NULL COMMENT '资产代码',
     `close_price` DECIMAL(10,2) NOT NULL COMMENT '成交价',
     `volume` INT NOT NULL COMMENT '成交量',
     `datetime` DATETIME NOT NULL COMMENT '成交时间',
