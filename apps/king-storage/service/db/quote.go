@@ -2,13 +2,14 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/mathutil"
-	"github.com/eviltomorrow/king/lib/model"
+	jsoniter "github.com/json-iterator/go"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 	Week = "week"
 )
 
-func QuoteWithInsertMany(exec mysql.Exec, model string, data []*model.Quote, timeout time.Duration) (int64, error) {
+func QuoteWithInsertMany(exec mysql.Exec, model string, data []*Quote, timeout time.Duration) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -24,8 +25,8 @@ func QuoteWithInsertMany(exec mysql.Exec, model string, data []*model.Quote, tim
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var FieldQuotes = make([]string, 0, len(data))
-	var args = make([]interface{}, 0, 12*len(data))
+	FieldQuotes := make([]string, 0, len(data))
+	args := make([]interface{}, 0, 12*len(data))
 	for _, m := range data {
 		FieldQuotes = append(FieldQuotes, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())")
 		args = append(args, m.Id)
@@ -42,7 +43,7 @@ func QuoteWithInsertMany(exec mysql.Exec, model string, data []*model.Quote, tim
 		args = append(args, m.Xd)
 	}
 
-	var _sql = fmt.Sprintf("insert into quote_%s (%s) values %s", model, strings.Join(quoteFeilds, ","), strings.Join(FieldQuotes, ","))
+	_sql := fmt.Sprintf("insert into quote_%s (%s) values %s", model, strings.Join(quoteFeilds, ","), strings.Join(FieldQuotes, ","))
 	result, err := exec.ExecContext(ctx, _sql, args...)
 	if err != nil {
 		return 0, err
@@ -58,15 +59,15 @@ func QuoteWithDeleteManyByCodesAndDate(exec mysql.Exec, model string, codes []st
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var FieldQuotes = make([]string, 0, len(codes))
-	var args = make([]interface{}, 0, len(codes)+1)
+	FieldQuotes := make([]string, 0, len(codes))
+	args := make([]interface{}, 0, len(codes)+1)
 	for _, code := range codes {
 		FieldQuotes = append(FieldQuotes, "?")
 		args = append(args, code)
 	}
 	args = append(args, date)
 
-	var _sql = fmt.Sprintf("delete from quote_%s where code in (%s) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ?", model, strings.Join(FieldQuotes, ","))
+	_sql := fmt.Sprintf("delete from quote_%s where code in (%s) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ?", model, strings.Join(FieldQuotes, ","))
 	result, err := exec.ExecContext(ctx, _sql, args...)
 	if err != nil {
 		return 0, err
@@ -74,20 +75,20 @@ func QuoteWithDeleteManyByCodesAndDate(exec mysql.Exec, model string, codes []st
 	return result.RowsAffected()
 }
 
-func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, mode string, code string, begin, end string, timeout time.Duration) ([]*model.Quote, error) {
+func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, mode string, code string, begin, end string, timeout time.Duration) ([]*Quote, error) {
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var _sql = fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", mode)
+	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", mode)
 	rows, err := exec.QueryContext(ctx, _sql, code, begin, end)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var data = make([]*model.Quote, 0, 5)
+	data := make([]*Quote, 0, 5)
 	for rows.Next() {
-		var m = model.Quote{}
+		m := Quote{}
 		if err := rows.Scan(
 			&m.Id,
 			&m.Code,
@@ -109,12 +110,12 @@ func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, mode string, code stri
 		data = append(data, &m)
 	}
 
-	var result = make([]*model.Quote, len(data))
+	result := make([]*Quote, len(data))
 	var xd float64 = 1.0
 	for i := len(data) - 1; i >= 0; i-- {
-		var d = data[i]
+		d := data[i]
 		if xd != 1.0 {
-			var n = &model.Quote{
+			n := &Quote{
 				Id:              d.Id,
 				Code:            d.Code,
 				Open:            mathutil.Trunc2(d.Open * xd),
@@ -143,20 +144,20 @@ func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, mode string, code stri
 	return result, nil
 }
 
-func QuoteWithSelectManyLatest(exec mysql.Exec, mode string, code string, date string, limit int64, timeout time.Duration) ([]*model.Quote, error) {
+func QuoteWithSelectManyLatest(exec mysql.Exec, mode string, code string, date string, limit int64, timeout time.Duration) ([]*Quote, error) {
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var _sql = fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? order by `date` desc limit ?", mode)
+	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? order by `date` desc limit ?", mode)
 	rows, err := exec.QueryContext(ctx, _sql, code, date, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var data = make([]*model.Quote, 0, limit)
+	data := make([]*Quote, 0, limit)
 	for rows.Next() {
-		var m = model.Quote{}
+		m := Quote{}
 		if err := rows.Scan(
 			&m.Id,
 			&m.Code,
@@ -178,11 +179,11 @@ func QuoteWithSelectManyLatest(exec mysql.Exec, mode string, code string, date s
 		data = append(data, &m)
 	}
 
-	var result = make([]*model.Quote, 0, len(data))
-	var xd = 1.0
+	result := make([]*Quote, 0, len(data))
+	xd := 1.0
 	for _, d := range data {
 		if xd != 1.0 {
-			var n = &model.Quote{
+			n := &Quote{
 				Id:              d.Id,
 				Code:            d.Code,
 				Open:            mathutil.Trunc2(d.Open * xd),
@@ -211,20 +212,20 @@ func QuoteWithSelectManyLatest(exec mysql.Exec, mode string, code string, date s
 	return result, nil
 }
 
-func QuoteWithSelectRangeByDate(exec mysql.Exec, mode string, date string, offset, limit int64, timeout time.Duration) ([]*model.Quote, error) {
+func QuoteWithSelectRangeByDate(exec mysql.Exec, mode string, date string, offset, limit int64, timeout time.Duration) ([]*Quote, error) {
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var _sql = fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ? limit ?, ?", mode)
+	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ? limit ?, ?", mode)
 	rows, err := exec.QueryContext(ctx, _sql, date, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var data = make([]*model.Quote, 0, limit)
+	data := make([]*Quote, 0, limit)
 	for rows.Next() {
-		var m = model.Quote{}
+		m := Quote{}
 		if err := rows.Scan(
 			&m.Id,
 			&m.Code,
@@ -249,16 +250,16 @@ func QuoteWithSelectRangeByDate(exec mysql.Exec, mode string, date string, offse
 	return data, nil
 }
 
-func QuoteWithSelectOneByCodeAndDate(exec mysql.Exec, mode string, code string, date string, timeout time.Duration) (*model.Quote, error) {
+func QuoteWithSelectOneByCodeAndDate(exec mysql.Exec, mode string, code string, date string, timeout time.Duration) (*Quote, error) {
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
-	var _sql = fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ?", mode)
+	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ?", mode)
 	row := exec.QueryRowContext(ctx, _sql, code, date)
 	if row.Err() != nil {
 		return nil, row.Err()
 	}
-	var m = model.Quote{}
+	m := Quote{}
 	if err := row.Scan(
 		&m.Id,
 		&m.Code,
@@ -278,6 +279,28 @@ func QuoteWithSelectOneByCodeAndDate(exec mysql.Exec, mode string, code string, 
 		return nil, err
 	}
 	return &m, nil
+}
+
+type Quote struct {
+	Id              string       `json:"id"`
+	Code            string       `json:"code"`
+	Open            float64      `json:"open"`
+	Close           float64      `json:"close"`
+	High            float64      `json:"high"`
+	Low             float64      `json:"low"`
+	YesterdayClosed float64      `json:"yesterday_closed"`
+	Volume          uint64       `json:"volume"`
+	Account         float64      `json:"account"`
+	Date            time.Time    `json:"date"`
+	NumOfYear       int          `json:"num_of_year"`
+	Xd              float64      `json:"xd"`
+	CreateTimestamp time.Time    `json:"create_timestamp"`
+	ModifyTimestamp sql.NullTime `json:"modify_timestamp"`
+}
+
+func (q *Quote) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(q)
+	return string(buf)
 }
 
 const (

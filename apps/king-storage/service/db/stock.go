@@ -2,15 +2,16 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/model"
+	jsoniter "github.com/json-iterator/go"
 )
 
-func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*model.Stock, timeout time.Duration) (int64, error) {
+func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*Stock, timeout time.Duration) (int64, error) {
 	if len(stocks) == 0 {
 		return 0, nil
 	}
@@ -25,8 +26,8 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*model.Stock, timeout
 		return 0, err
 	}
 
-	shouldInsertStocks := make([]*model.Stock, 0, len(stocks))
-	shouldUpdateStocks := make([]*model.Stock, 0, len(stocks))
+	shouldInsertStocks := make([]*Stock, 0, len(stocks))
+	shouldUpdateStocks := make([]*Stock, 0, len(stocks))
 	for _, stock := range stocks {
 		d, ok := data[stock.Code]
 		if !ok {
@@ -56,14 +57,14 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*model.Stock, timeout
 	return count, nil
 }
 
-func StockWithInsertMany(exec mysql.Exec, stocks []*model.Stock, timeout time.Duration) (int64, error) {
+func StockWithInsertMany(exec mysql.Exec, stocks []*Stock, timeout time.Duration) (int64, error) {
 	if len(stocks) == 0 {
 		return 0, nil
 	}
 
 	var (
 		exist = make(map[string]struct{}, len(stocks))
-		data  = make([]*model.Stock, 0, len(stocks))
+		data  = make([]*Stock, 0, len(stocks))
 	)
 	for _, stock := range stocks {
 		if _, ok := exist[stock.Code]; !ok {
@@ -92,7 +93,7 @@ func StockWithInsertMany(exec mysql.Exec, stocks []*model.Stock, timeout time.Du
 	return result.RowsAffected()
 }
 
-func StockWithUpdateOne(exec mysql.Exec, code string, stock *model.Stock, timeout time.Duration) (int64, error) {
+func StockWithUpdateOne(exec mysql.Exec, code string, stock *Stock, timeout time.Duration) (int64, error) {
 	if stock == nil {
 		return 0, nil
 	}
@@ -108,9 +109,9 @@ func StockWithUpdateOne(exec mysql.Exec, code string, stock *model.Stock, timeou
 	return result.RowsAffected()
 }
 
-func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration) (map[string]*model.Stock, error) {
+func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration) (map[string]*Stock, error) {
 	if len(codes) == 0 {
-		return map[string]*model.Stock{}, nil
+		return map[string]*Stock{}, nil
 	}
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
@@ -129,9 +130,9 @@ func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration)
 	}
 	defer rows.Close()
 
-	stocks := make(map[string]*model.Stock, len(codes))
+	stocks := make(map[string]*Stock, len(codes))
 	for rows.Next() {
-		stock := &model.Stock{}
+		stock := &Stock{}
 		if err := rows.Scan(&stock.Code, &stock.Name, &stock.Suspend, &stock.CreateTimestamp, &stock.ModifyTimestamp); err != nil {
 			return nil, err
 		}
@@ -143,7 +144,7 @@ func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration)
 	return stocks, nil
 }
 
-func StockWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Duration) ([]*model.Stock, error) {
+func StockWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Duration) ([]*Stock, error) {
 	ctx, cannel := context.WithTimeout(context.Background(), timeout)
 	defer cannel()
 
@@ -154,9 +155,9 @@ func StockWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Dur
 	}
 	defer rows.Close()
 
-	stocks := make([]*model.Stock, 0, limit)
+	stocks := make([]*Stock, 0, limit)
 	for rows.Next() {
-		stock := &model.Stock{}
+		stock := &Stock{}
 		if err := rows.Scan(&stock.Code, &stock.Name, &stock.Suspend, &stock.CreateTimestamp, &stock.ModifyTimestamp); err != nil {
 			return nil, err
 		}
@@ -166,6 +167,20 @@ func StockWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Dur
 		return nil, err
 	}
 	return stocks, nil
+}
+
+// Stock
+type Stock struct {
+	Code            string       `json:"code"`
+	Name            string       `json:"name"`
+	Suspend         string       `json:"suspend"`
+	CreateTimestamp time.Time    `json:"create_timestamp"`
+	ModifyTimestamp sql.NullTime `json:"modify_timestamp"`
+}
+
+func (s *Stock) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(s)
+	return string(buf)
 }
 
 const (

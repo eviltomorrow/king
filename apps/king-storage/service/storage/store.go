@@ -11,7 +11,7 @@ import (
 
 var timeout = 30 * time.Second
 
-func StoreStock(data []*model.Stock) (int64, error) {
+func StoreStock(data []*db.Stock) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -32,7 +32,7 @@ func StoreStock(data []*model.Stock) (int64, error) {
 	return affected, nil
 }
 
-func StoreQuote(data []*model.Quote, mode string, date time.Time) (int64, error) {
+func StoreQuote(data []*db.Quote, mode string, date time.Time) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -104,14 +104,14 @@ func StoreMetadata(date time.Time, metadata chan *model.Metadata) (int64, int64,
 
 func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, int64, error) {
 	var (
-		stocks = make([]*model.Stock, 0, len(metadata))
-		days   = make([]*model.Quote, 0, len(metadata))
+		stocks = make([]*db.Stock, 0, len(metadata))
+		days   = make([]*db.Quote, 0, len(metadata))
 
 		affectedS, affectedD, affectedW int64
 	)
 
 	for _, md := range metadata {
-		stocks = append(stocks, &model.Stock{
+		stocks = append(stocks, &db.Stock{
 			Code:            md.Code,
 			Name:            md.Name,
 			Suspend:         md.Suspend,
@@ -140,7 +140,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, in
 	}
 
 	if date.Weekday() == time.Friday {
-		weeks := make([]*model.Quote, 0, len(stocks))
+		weeks := make([]*db.Quote, 0, len(stocks))
 		for _, stock := range stocks {
 			week, err := AssembleQuoteWeek(stock.Code, date)
 			if err != nil && err != ErrNoData {
