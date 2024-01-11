@@ -19,14 +19,14 @@ message ItemResp {
 
 message Item {
     string id = 1;
-    string fund_id = 2;
+    string fund_no = 2;
     string user_id = 3;
     enum AssetsType {
         STOCK = 0;
     }
     AssetsType type = 4;
     // 头寸
-    double position = 5;
+    double cash_position = 5;
     // 
     string code = 6;
     // 持仓量

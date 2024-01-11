@@ -79,6 +79,10 @@ func TestAccountWithInsertOne(t *testing.T) {
 	affected, err := AccountWithInsertOne(mysql.DB, account3, 10*time.Second)
 	_assert.NotNil(err)
 	_assert.Equal(int64(0), affected)
+
+	affected, err = AccountWithInsertOne(mysql.DB, nil, 10*time.Second)
+	_assert.NotNil(err)
+	_assert.Equal(int64(0), affected)
 }
 
 func TestAccountWithDeleteOne(t *testing.T) {
@@ -133,4 +137,17 @@ func TestAccountWithUpdateOne(t *testing.T) {
 	_assert.Nil(err)
 	_assert.Equal(int32(2), accountUpdated.Status)
 	_assert.Equal(sql.NullString{}, accountUpdated.Phone)
+
+	affected, err = AccountWithUpdateOne(mysql.DB, id, nil, 10*time.Second)
+	_assert.NotNil(err)
+	_assert.Equal(int64(0), affected)
+}
+
+func TestAccountWithSelectRange(t *testing.T) {
+	_assert := assert.New(t)
+	Init()
+
+	accounts, err := AccountWithSelectRange(mysql.DB, 0, 10, 10*time.Second)
+	_assert.Nil(err)
+	_assert.Equal(0, len(accounts))
 }

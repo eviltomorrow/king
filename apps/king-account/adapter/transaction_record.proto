@@ -12,7 +12,7 @@ service Transaction {
 
 message UserFundReq {
     string user_id = 1;
-    string fund_id = 2;
+    string fund_no = 2;
     int64 page_no = 3;
     int64 page_size = 4;
 }
@@ -25,7 +25,7 @@ message RecordResp {
 message Record {
     string id = 1;
     string user_id = 2;
-    string fund_id = 3;
+    string fund_no = 3;
     enum Action {
         BUY = 0;
         SELL = 1;
