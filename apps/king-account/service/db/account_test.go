@@ -150,4 +150,16 @@ func TestAccountWithSelectRange(t *testing.T) {
 	accounts, err := AccountWithSelectRange(mysql.DB, 0, 10, 10*time.Second)
 	_assert.Nil(err)
 	_assert.Equal(0, len(accounts))
+
+	for _, account := range []*Account{account1, account2, account3} {
+		id := snowflake.GenerateID()
+		account.Id = id
+		affected, err := AccountWithInsertOne(mysql.DB, account, 10*time.Second)
+		_assert.Nil(err)
+		_assert.Equal(int64(1), affected)
+	}
+
+	accounts, err = AccountWithSelectRange(mysql.DB, 0, 2, 10*time.Second)
+	_assert.Nil(err)
+	_assert.Equal(2, len(accounts))
 }
