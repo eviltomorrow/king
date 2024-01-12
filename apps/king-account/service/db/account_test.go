@@ -48,13 +48,13 @@ func TruncateAccount() error {
 	return err
 }
 
-func Init() {
+func InitAccount() {
 	TruncateAccount()
 }
 
 func TestAccountWithInsertOne(t *testing.T) {
 	_assert := assert.New(t)
-	Init()
+	InitAccount()
 
 	for _, account := range []*Account{account1, account2, account3} {
 		id := snowflake.GenerateID()
@@ -87,7 +87,7 @@ func TestAccountWithInsertOne(t *testing.T) {
 
 func TestAccountWithDeleteOne(t *testing.T) {
 	_assert := assert.New(t)
-	Init()
+	InitAccount()
 
 	for _, account := range []*Account{account1, account2, account3} {
 		id := snowflake.GenerateID()
@@ -113,7 +113,7 @@ func TestAccountWithDeleteOne(t *testing.T) {
 
 func TestAccountWithUpdateOne(t *testing.T) {
 	_assert := assert.New(t)
-	Init()
+	InitAccount()
 
 	id := snowflake.GenerateID()
 	account1.Id = id
@@ -145,7 +145,7 @@ func TestAccountWithUpdateOne(t *testing.T) {
 
 func TestAccountWithSelectRange(t *testing.T) {
 	_assert := assert.New(t)
-	Init()
+	InitAccount()
 
 	accounts, err := AccountWithSelectRange(mysql.DB, 0, 10, 10*time.Second)
 	_assert.Nil(err)

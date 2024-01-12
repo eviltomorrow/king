@@ -181,5 +181,5 @@ func maN(closed []float64, n int) float64 {
 	if len(closed) < n {
 		return 0
 	}
-	return mathutil.Trunc4(calculate.MA(closed[len(closed)-n:]))
+	return mathutil.Trunc2(calculate.MA(closed[len(closed)-n:]))
 }

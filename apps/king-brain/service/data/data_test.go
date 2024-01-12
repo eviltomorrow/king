@@ -9,7 +9,7 @@ import (
 
 func TestNewDataWrapperChannel(t *testing.T) {
 	assert := assert.New(t)
-	pipe, err := NewDataWrapperChannel(DAY, "2023-12-22")
+	pipe, err := NewDataWrapperChannel(DAY, "2024-01-11")
 	assert.Nil(err)
 
 	var count int
