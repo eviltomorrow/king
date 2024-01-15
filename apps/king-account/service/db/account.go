@@ -4,137 +4,93 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/orm"
 )
 
-func AccountWithSelectOne(exec mysql.Exec, id string, timeout time.Duration) (*Account, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
-	_sql := `select id, username, password, nick_name, phone, email, status, register_datetime, create_timestamp, modify_timestamp from account where id = ?`
-	row := exec.QueryRowContext(ctx, _sql, id)
-	if row.Err() != nil {
-		return nil, row.Err()
+func AccountWithSelectOne(ctx context.Context, exec mysql.Exec, id string) (*Account, error) {
+	account := Account{}
+	scan := func(row *sql.Row) error {
+		return row.Scan(
+			&account.Id,
+			&account.Username,
+			&account.Password,
+			&account.NickName,
+			&account.Phone,
+			&account.Email,
+			&account.Status,
+			&account.RegisterDatetime,
+			&account.CreateTimestamp,
+			&account.ModifyTimestamp,
+		)
 	}
-	a := Account{}
-	if err := row.Scan(
-		&a.Id,
-		&a.Username,
-		&a.Password,
-		&a.NickName,
-		&a.Phone,
-		&a.Email,
-		&a.Status,
-		&a.RegisterDatetime,
-		&a.CreateTimestamp,
-		&a.ModifyTimestamp,
-	); err != nil {
+	if err := orm.TableWithSelectOne(ctx, exec, TableAccountName, AccountFields, map[string]interface{}{FieldAccountId: id}, scan); err != nil {
 		return nil, err
 	}
-	return &a, nil
+	return &account, nil
 }
 
-func AccountWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Duration) ([]*Account, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
-	_sql := `select id, username, password, nick_name, phone, email, status, register_datetime, create_timestamp, modify_timestamp from account limit ?, ?`
-	rows, err := exec.QueryContext(ctx, _sql, offset, limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	data := make([]*Account, 0, limit)
-	for rows.Next() {
-		a := Account{}
-		if err := rows.Scan(
-			&a.Id,
-			&a.Username,
-			&a.Password,
-			&a.NickName,
-			&a.Phone,
-			&a.Email,
-			&a.Status,
-			&a.RegisterDatetime,
-			&a.CreateTimestamp,
-			&a.ModifyTimestamp,
-		); err != nil {
-			return nil, err
+func AccountWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit int64) ([]*Account, error) {
+	accounts := make([]*Account, 0, limit)
+	scan := func(rows *sql.Rows) error {
+		for rows.Next() {
+			account := Account{}
+			if err := rows.Scan(
+				&account.Id,
+				&account.Username,
+				&account.Password,
+				&account.NickName,
+				&account.Phone,
+				&account.Email,
+				&account.Status,
+				&account.RegisterDatetime,
+				&account.CreateTimestamp,
+				&account.ModifyTimestamp,
+			); err != nil {
+				return err
+			}
+			accounts = append(accounts, &account)
 		}
-		data = append(data, &a)
+		return nil
 	}
-	return data, nil
+	if err := orm.TableWithSelectRange(ctx, exec, TableAccountName, AccountFields, nil, nil, offset, limit, scan); err != nil {
+		return nil, err
+	}
+	return accounts, nil
 }
 
-func AccountWithUpdateOne(exec mysql.Exec, id string, values map[string]interface{}, timeout time.Duration) (int64, error) {
-	if values == nil {
+func AccountWithUpdateOne(ctx context.Context, exec mysql.Exec, id string, value map[string]interface{}) (int64, error) {
+	if value == nil {
 		return 0, fmt.Errorf("invalid parameter, value is nil")
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	fields := []string{}
-	args := make([]interface{}, 0, 6)
-	for k, v := range values {
-		if k == FieldAccountRegisterDatetime {
-			continue
-		}
-		fields = append(fields, fmt.Sprintf("%s = ?", k))
-		args = append(args, v)
-	}
-	fields = append(fields, fmt.Sprintf("modify_timestamp = now()"))
-	args = append(args, id)
-	_sql := fmt.Sprintf(`update account set %s where id = ?`, strings.Join(fields, ", "))
-	result, err := exec.ExecContext(ctx, _sql, args...)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	return orm.TableWithUpdate(ctx, exec, TableAccountName, value, map[string]interface{}{FieldAccountId: id})
 }
 
-func AccountWithDeleteOne(exec mysql.Exec, id string, timeout time.Duration) (int64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	_sql := `delete from account where id = ?`
-
-	result, err := exec.ExecContext(ctx, _sql, id)
-	if err != nil {
-		return 0, err
+func AccountWithDeleteOne(ctx context.Context, exec mysql.Exec, id string) (int64, error) {
+	if id == "" {
+		return 0, fmt.Errorf("invalid parameter, id is nil")
 	}
-	return result.RowsAffected()
+	return orm.TableWithDelete(ctx, exec, TableAccountName, map[string]interface{}{FieldAccountId: id})
 }
 
-func AccountWithInsertOne(exec mysql.Exec, account *Account, timeout time.Duration) (int64, error) {
+func AccountWithInsertOne(ctx context.Context, exec mysql.Exec, account *Account) (int64, error) {
 	if account == nil {
 		return 0, fmt.Errorf("invalid parameter, account is nil")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	fields := `(?, ?, ?, ?, ?, ?, ?, ?, now())`
-	args := []interface{}{
-		account.Id,
-		account.Username,
-		account.Password,
-		account.NickName,
-		account.Phone,
-		account.Email,
-		account.Status,
-		account.RegisterDatetime,
+	value := map[string]interface{}{
+		FieldAccountId:               account.Id,
+		FieldAccountUsername:         account.Username,
+		FieldAccountPassword:         account.Password,
+		FieldAccountNickName:         account.NickName,
+		FieldAccountPhone:            account.Phone,
+		FieldAccountEmail:            account.Email,
+		FieldAccountStatus:           account.Status,
+		FieldAccountRegisterDatetime: account.RegisterDatetime,
 	}
-	_sql := fmt.Sprintf(`insert into account (%s) values %s`, strings.Join(AccountFields, ","), fields)
-	result, err := exec.ExecContext(ctx, _sql, args...)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	return orm.TableWithInsert(ctx, exec, TableAccountName, value)
 }
 
 type Account struct {
@@ -144,13 +100,15 @@ type Account struct {
 	NickName         sql.NullString `json:"nick_name"`
 	Phone            sql.NullString `json:"phone"`
 	Email            sql.NullString `json:"email"`
-	Status           int32          `json:"status"`
+	Status           int8           `json:"status"`
 	RegisterDatetime time.Time      `json:"register_datetime"`
 	CreateTimestamp  time.Time      `json:"create_timestamp"`
 	ModifyTimestamp  sql.NullTime   `json:"modify_timestamp"`
 }
 
 const (
+	TableAccountName = "account"
+
 	FieldAccountId               = "id"
 	FieldAccountUsername         = "username"
 	FieldAccountPassword         = "password"
@@ -173,4 +131,5 @@ var AccountFields = []string{
 	FieldAccountStatus,
 	FieldAccountRegisterDatetime,
 	FieldAccountCreateTimestamp,
+	FieldAccountModifyTimestamp,
 }

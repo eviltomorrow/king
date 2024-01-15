@@ -4,83 +4,93 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/orm"
 )
 
-func AssetsWithSelectManyByUserId(exec mysql.Exec, userId string, timeout time.Duration) ([]*Assets, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
-	_sql := `select id, fund_no, user_id, type, cash_position, code, open_interest, first_buy_datetime, create_timestamp, modify_timestamp from account limit ?, ?`
-	rows, err := exec.QueryContext(ctx, _sql, userId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	data := make([]*Assets, 0, 8)
-	for rows.Next() {
-		a := Assets{}
-		if err := rows.Scan(
-			&a.Id,
-			&a.FundNo,
-			&a.UserId,
-			&a.Type,
-			&a.CashPosition,
-			&a.Code,
-			&a.OpenInterest,
-			&a.FirstBuyDatetime,
-			&a.CreateTimestamp,
-			&a.ModifyTimestamp,
-		); err != nil {
-			return nil, err
+func AssetsWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId string) ([]*Assets, error) {
+	data := make([]*Assets, 0, 16)
+	scan := func(rows *sql.Rows) error {
+		for rows.Next() {
+			assets := Assets{}
+			if err := rows.Scan(
+				&assets.Id,
+				&assets.FundNo,
+				&assets.UserId,
+				&assets.Type,
+				&assets.CashPosition,
+				&assets.Code,
+				&assets.OpenInterest,
+				&assets.FirstBuyDatetime,
+				&assets.CreateTimestamp,
+				&assets.ModifyTimestamp,
+			); err != nil {
+				return err
+			}
+			data = append(data, &assets)
 		}
-		data = append(data, &a)
+		return nil
+	}
+	if err := orm.TableWithSelectMany(ctx, exec, TableAssetsName, AssetsFields, map[string]interface{}{FieldAssetsUserId: userId}, nil, scan); err != nil {
+		return nil, err
 	}
 	return data, nil
 }
 
-func AssetsWithDeleteOne(exec mysql.Exec, id string, timeout time.Duration) (int64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	_sql := `delete from assets where id = ?`
-
-	result, err := exec.ExecContext(ctx, _sql, id)
-	if err != nil {
-		return 0, err
+func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo string) ([]*Assets, error) {
+	data := make([]*Assets, 0, 16)
+	scan := func(rows *sql.Rows) error {
+		for rows.Next() {
+			assets := Assets{}
+			if err := rows.Scan(
+				&assets.Id,
+				&assets.FundNo,
+				&assets.UserId,
+				&assets.Type,
+				&assets.CashPosition,
+				&assets.Code,
+				&assets.OpenInterest,
+				&assets.FirstBuyDatetime,
+				&assets.CreateTimestamp,
+				&assets.ModifyTimestamp,
+			); err != nil {
+				return err
+			}
+			data = append(data, &assets)
+		}
+		return nil
 	}
-	return result.RowsAffected()
+	if err := orm.TableWithSelectMany(ctx, exec, TableAssetsName, AssetsFields, map[string]interface{}{FieldAssetsFundNo: fundNo}, nil, scan); err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
-func AssetsWithInsertOne(exec mysql.Exec, assets *Assets, timeout time.Duration) (int64, error) {
+func AssetsWithDeleteOne(ctx context.Context, exec mysql.Exec, id string) (int64, error) {
+	if id == "" {
+		return 0, fmt.Errorf("invalid parameter, id is nil")
+	}
+	return orm.TableWithDelete(ctx, exec, TableAssetsName, map[string]interface{}{FieldAssetsId: id})
+}
+
+func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (int64, error) {
 	if assets == nil {
 		return 0, fmt.Errorf("invalid parameter, assets is nil")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	fields := `(?, ?, ?, ?, ?, ?, ?, ?, now())`
-	args := []interface{}{
-		assets.Id,
-		assets.FundNo,
-		assets.UserId,
-		assets.Type,
-		assets.CashPosition,
-		assets.Code,
-		assets.OpenInterest,
-		assets.FirstBuyDatetime,
+	value := map[string]interface{}{
+		FieldAssetsId:               assets.Id,
+		FieldAssetsFundNo:           assets.FundNo,
+		FieldAssetsUserId:           assets.UserId,
+		FieldAssetsType:             assets.Type,
+		FieldAssetsCashPosition:     assets.CashPosition,
+		FieldAssetsCode:             assets.Code,
+		FieldAssetsOpenInterest:     assets.OpenInterest,
+		FieldAssetsFirstBuyDatetime: assets.FirstBuyDatetime,
 	}
-	_sql := fmt.Sprintf(`insert into assets (%s) values %s`, strings.Join(AssetsFields, ","), fields)
-	result, err := exec.ExecContext(ctx, _sql, args...)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	return orm.TableWithInsert(ctx, exec, TableAssetsName, value)
 }
 
 type Assets struct {
@@ -97,6 +107,8 @@ type Assets struct {
 }
 
 const (
+	TableAssetsName = "assets"
+
 	FieldAssetsId               = "id"
 	FieldAssetsFundNo           = "fund_no"
 	FieldAssetsUserId           = "user_id"
@@ -118,4 +130,6 @@ var AssetsFields = []string{
 	FieldAssetsCode,
 	FieldAssetsOpenInterest,
 	FieldAssetsFirstBuyDatetime,
+	FieldAssetsCreateTimestamp,
+	FieldAssetsModifyTimestamp,
 }
