@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/eviltomorrow/king/apps/king-collector/service"
-	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/opentrace"

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-account/conf"
-	"github.com/eviltomorrow/king/apps/king-account/server"
+	"github.com/eviltomorrow/king/apps/king-account/domain/server"
+	"github.com/eviltomorrow/king/apps/king-web/conf"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"

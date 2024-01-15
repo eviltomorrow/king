@@ -29,7 +29,7 @@ function build_app(){
     echo -e "\033[32m=> Building binary(${1})...\033[0m"
     mkdir -p ${bin_dir}/${1}
 
-    cp -rp ${app_dir}/${1}/etc ${bin_dir}/${1}
+    cp -rp ${app_dir}/${1}/conf/etc ${bin_dir}/${1}
 
     echo "go build -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go"
     go build -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go

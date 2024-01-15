@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-notification/conf"
-	"github.com/eviltomorrow/king/apps/king-notification/server"
-	"github.com/eviltomorrow/king/apps/king-notification/server/impl"
+	"github.com/eviltomorrow/king/apps/king-notification/domain/server"
+	"github.com/eviltomorrow/king/apps/king-notification/domain/server/impl"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"

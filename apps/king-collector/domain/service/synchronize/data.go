@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-collector/service/datasource"
-	"github.com/eviltomorrow/king/apps/king-collector/service/db"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service/datasource"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service/db"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
 	"github.com/eviltomorrow/king/lib/mathutil"
 	"github.com/eviltomorrow/king/lib/model"

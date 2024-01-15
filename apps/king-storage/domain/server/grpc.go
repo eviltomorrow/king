@@ -8,11 +8,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-storage/service/db"
-	"github.com/eviltomorrow/king/apps/king-storage/service/storage"
 	"go.uber.org/zap"
 	"golang.org/x/sync/semaphore"
 
+	"github.com/eviltomorrow/king/apps/king-storage/domain/service/db"
+	"github.com/eviltomorrow/king/apps/king-storage/domain/service/storage"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/grpc/server"

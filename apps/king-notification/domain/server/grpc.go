@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/eviltomorrow/king/apps/king-notification/server/impl"
+	"github.com/eviltomorrow/king/apps/king-notification/domain/server/impl"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	clientv3 "go.etcd.io/etcd/client/v3"

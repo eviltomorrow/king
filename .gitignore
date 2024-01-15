@@ -19,8 +19,8 @@
 # vendor/
 
 # Go workspace file
-/apps/king-notification/etc/smtp.json
-/apps/king-notification/etc/ntfy.json
+/apps/king-notification/conf/etc/smtp.json
+/apps/king-notification/conf/etc/ntfy.json
 /bin
 /vendor
 /deployments/apps/data

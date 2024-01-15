@@ -16,5 +16,5 @@ WORKDIR /app
 ARG APPNAME=unknown
 ENV APPNAME=${APPNAME} 
 COPY --from=builder ["/project-king/bin/${APPNAME}","."]
-COPY --from=builder ["/project-king/apps/${APPNAME}/etc","./etc"]
+COPY --from=builder ["/project-king/apps/${APPNAME}/conf/etc","./etc"]
 ENTRYPOINT ["sh","-c","./bin/${APPNAME} start"]

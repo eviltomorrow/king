@@ -11,10 +11,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/eviltomorrow/king/apps/king-account/domain/server"
 	"github.com/eviltomorrow/king/apps/king-collector/conf"
-	"github.com/eviltomorrow/king/apps/king-collector/server"
-	"github.com/eviltomorrow/king/apps/king-collector/service"
-	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
+
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"

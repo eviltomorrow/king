@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-collector/service/db"
-	"github.com/eviltomorrow/king/apps/king-collector/service/synchronize"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service/db"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
 	client_grpc "github.com/eviltomorrow/king/lib/grpc/client"
 	pb_notification "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"

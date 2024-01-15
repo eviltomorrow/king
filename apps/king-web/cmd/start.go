@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-web/conf"
-	"github.com/eviltomorrow/king/apps/king-web/server"
+	"github.com/eviltomorrow/king/apps/king-web/domain/server"
+
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"

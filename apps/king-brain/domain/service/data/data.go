@@ -6,7 +6,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/eviltomorrow/king/apps/king-brain/service/calculate"
+	"github.com/eviltomorrow/king/apps/king-brain/domain/service/calculate"
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/mathutil"
