@@ -2,6 +2,7 @@
 
 mkdir -p ${DATA_HOME}/mongo/{db,log}
 mkdir -p ${DATA_HOME}/mysql/{db,log,run}
+mkdir -p ${DATA_HOME}/mysql/run/mysqld
 mkdir -p ${DATA_HOME}/etcd
 
 chmod -R 777 ${DATA_HOME}/mongo

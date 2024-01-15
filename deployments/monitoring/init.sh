@@ -4,7 +4,7 @@ mkdir -p ${DATA_HOME}/prometheus/data
 mkdir -p ${DATA_HOME}/otel-collector
 mkdir -p ${DATA_HOME}/cassandra/{db,log}
 mkdir -p ${DATA_HOME}/loki/{log,data}
-mkdir -p ${DATA_HOME}/promtail/log
+mkdir -p ${DATA_HOME}/promtail/{conf,log}
 mkdir -p ${DATA_HOME}/grafana/{data,log,provisioning}
 mkdir -p ${DATA_HOME}/grafana/provisioning/{dashboards,datasources}
 

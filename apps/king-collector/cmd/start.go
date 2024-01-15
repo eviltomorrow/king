@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-account/domain/server"
 	"github.com/eviltomorrow/king/apps/king-collector/conf"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/server"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
 
