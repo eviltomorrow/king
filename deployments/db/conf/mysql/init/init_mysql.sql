@@ -90,6 +90,7 @@ CREATE TABLE `king_account`.`assets` (
 );
 CREATE INDEX idx_fund_no ON `king_account`.`assets`(`fund_no`);
 CREATE INDEX idx_user_id ON `king_account`.`assets`(`user_id`);
+CREATE UNIQUE INDEX idx_fund_no_user_id_code ON `king_account`.`assets`(`fund_no`, `user_id`, `code`);
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`fund`;
@@ -113,8 +114,8 @@ CREATE TABLE `king_account`.`transaction_record` (
     `user_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
     `fund_no` CHAR(19) NOT NULL COMMENT 'fund no',
     `action` TINYINT NOT NULL COMMENT '动作(buy/sell)',
-    `assert_type` TINYINT NOT NULL COMMENT '资产类型',
-    `assert_code` CHAR(8) NOT NULL COMMENT '资产代码',
+    `assets_type` TINYINT NOT NULL COMMENT '资产类型',
+    `assets_code` CHAR(8) NOT NULL COMMENT '资产代码',
     `close_price` DECIMAL(11,2) NOT NULL COMMENT '成交价',
     `volume` INT NOT NULL COMMENT '成交量',
     `datetime` DATETIME NOT NULL COMMENT '成交时间',
@@ -122,7 +123,7 @@ CREATE TABLE `king_account`.`transaction_record` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_datetime ON `king_account`.`transaction_record`(`datetime`);
-CREATE INDEX idx_assert_code ON `king_account`.`transaction_record`(`assert_code`);
+CREATE INDEX idx_assets_code ON `king_account`.`transaction_record`(`assets_code`);
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`transaction_fee`;

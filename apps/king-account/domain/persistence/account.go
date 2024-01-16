@@ -65,6 +65,7 @@ func AccountWithUpdateOne(ctx context.Context, exec mysql.Exec, id string, value
 	if value == nil {
 		return 0, fmt.Errorf("invalid parameter, value is nil")
 	}
+	delete(value, FieldAccountId)
 	return orm.TableWithUpdate(ctx, exec, TableAccountName, value, map[string]interface{}{FieldAccountId: id})
 }
 

@@ -68,6 +68,30 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 	return data, nil
 }
 
+func AssetsWithUpdateOneById(ctx context.Context, exec mysql.Exec, assets *Assets, id string) (int64, error) {
+	if assets == nil {
+		return 0, fmt.Errorf("invalid parameter, value is nil")
+	}
+
+	value := map[string]interface{}{
+		FieldAssetsCashPosition: assets.CashPosition,
+		FieldAssetsOpenInterest: assets.OpenInterest,
+	}
+	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsId: id})
+}
+
+func AssetsWithUpdateOneByFundNoUserIdCode(ctx context.Context, exec mysql.Exec, assets *Assets, fundNo, userId, code string) (int64, error) {
+	if assets == nil {
+		return 0, fmt.Errorf("invalid parameter, assets is nil")
+	}
+
+	value := map[string]interface{}{
+		FieldAssetsCashPosition: assets.CashPosition,
+		FieldAssetsOpenInterest: assets.OpenInterest,
+	}
+	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
+}
+
 func AssetsWithDeleteOne(ctx context.Context, exec mysql.Exec, id string) (int64, error) {
 	if id == "" {
 		return 0, fmt.Errorf("invalid parameter, id is nil")

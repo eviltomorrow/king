@@ -64,6 +64,7 @@ func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, no string, value ma
 	if no == "" {
 		return 0, fmt.Errorf("invalid parameter, no is nil")
 	}
+	delete(value, FieldFundFundNo)
 	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: no})
 }
 
