@@ -1,4 +1,4 @@
-package db
+package persistence
 
 import (
 	"github.com/eviltomorrow/king/lib/db/mysql"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
-	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
+
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/opentrace"
@@ -38,7 +38,7 @@ func (g *GRPC) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 	defer span.End()
 
 	span.SetAttributes(attribute.String("req", req.Value))
-	total, ignore, err := synchronize.DataQuick(req.Value)
+	total, ignore, err := service.SynchronizeMetadataQuick(req.Value)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
@@ -54,7 +54,7 @@ func (g *GRPC) StoreMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 	ctx, span := opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
 	defer span.End()
 
-	total, stock, day, week, err := service.StoreMetadataToStorage(ctx, req.Value)
+	total, stock, day, week, err := service.PushMetadataToStorage(ctx, req.Value)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err

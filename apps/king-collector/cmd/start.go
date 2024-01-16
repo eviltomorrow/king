@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-collector/conf"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/event"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/server"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
-	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
@@ -122,14 +122,14 @@ func setGlobalVars() error {
 	middleware.LogDir = filepath.Join(system.Runtime.RootDir, "/var/log")
 	etcd.Endpoints = cfg.Etcd.Endpoints
 	mongodb.DSN = cfg.MongoDB.DSN
-	service.Source = cfg.Collector.Source
-	synchronize.CodeList = cfg.Collector.CodeList
+	event.Source = cfg.Collector.Source
+	service.CodeList = cfg.Collector.CodeList
 	if strings.Count(cfg.Collector.RandomPeriod, ",") == 1 {
 		attrs := strings.Split(cfg.Collector.RandomPeriod, ",")
 		v1, _ := strconv.Atoi(attrs[0])
 		v2, _ := strconv.Atoi(attrs[1])
 		if v1 < v2 && v1 > 0 && v2 < 100 {
-			synchronize.RandomPeriod = [2]int{v1, v2}
+			service.RandomPeriod = [2]int{v1, v2}
 		}
 	}
 	opentrace.OtelDSN = cfg.Otel.DSN
@@ -190,7 +190,7 @@ func runCron() error {
 		ctx, span := opentrace.DefaultTracer().Start(context.Background(), "RunCron")
 		defer span.End()
 
-		if err := service.FetchMetadataEveryWeekDay(ctx); err != nil {
+		if err := event.TriggerFetchMetadataEveryWeekDay(ctx); err != nil {
 			span.SetStatus(codes.Error, "FetchMetadataEveryWeekDay failure")
 			span.RecordError(err)
 			zlog.Error("Crontab run archive metadata every weekday failure", zap.Error(err))

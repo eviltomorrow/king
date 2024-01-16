@@ -1,16 +1,13 @@
-package service
+package event
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-collector/domain/service/db"
-	"github.com/eviltomorrow/king/apps/king-collector/domain/service/synchronize"
-	"github.com/eviltomorrow/king/lib/db/mongodb"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
 	client_grpc "github.com/eviltomorrow/king/lib/grpc/client"
 	pb_notification "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.opentelemetry.io/otel/trace"
@@ -22,7 +19,7 @@ var (
 	lastDay int64 = -1
 )
 
-func FetchMetadataEveryWeekDay(ctx context.Context) error {
+func TriggerFetchMetadataEveryWeekDay(ctx context.Context) error {
 	var span trace.Span
 	ctx, span = opentrace.DefaultTracer().Start(ctx, "FetchMetadataEveryWeekDay")
 	defer span.End()
@@ -53,9 +50,9 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 		}
 	}()
 
-	ctx, span = opentrace.DefaultTracer().Start(ctx, "DataSlow")
+	ctx, span = opentrace.DefaultTracer().Start(ctx, "SynchronizeDataSlow")
 	defer span.End()
-	total, ignore, e = synchronize.DataSlow(Source)
+	total, ignore, e = service.SynchronizeMetadataSlow(Source)
 	if e != nil {
 		span.RecordError(e)
 		return e
@@ -63,7 +60,8 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 
 	ctx, span = opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
 	defer span.End()
-	_, affectedStock, affectedDay, affectedWeek, e = StoreMetadataToStorage(ctx, begin.Format(time.DateOnly))
+
+	_, affectedStock, affectedDay, affectedWeek, e = service.PushMetadataToStorage(ctx, begin.Format(time.DateOnly))
 	if e != nil {
 		span.RecordError(e)
 		return e
@@ -77,63 +75,6 @@ func FetchMetadataEveryWeekDay(ctx context.Context) error {
 	lastDay = total
 	zlog.Info("Store metedata every weekday complete", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Int64("stock-affetced", affectedStock), zap.Int64("day-affected", affectedDay), zap.Int64("week-affected", affectedWeek), zap.Duration("cost", time.Since(begin)))
 	return nil
-}
-
-func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, int64, error) {
-	client, closeFunc, err := client_grpc.NewStorageWithEtcd()
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
-	defer closeFunc()
-
-	stub, err := client.PushMetadata(ctx)
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
-
-	var (
-		offset, limit, total int64 = 0, 100, 0
-		lastID               string
-		timeout              = 20 * time.Second
-	)
-
-	for {
-		metadata, err := db.SelectMetadataRange(mongodb.DB, offset, limit, date, lastID, timeout)
-		if err != nil {
-			return 0, 0, 0, 0, err
-		}
-
-		for _, md := range metadata {
-			if err := stub.Send(&pb.Metadata{
-				Source:          md.Source,
-				Code:            md.Code,
-				Name:            md.Name,
-				Open:            md.Open,
-				YesterdayClosed: md.YesterdayClosed,
-				Latest:          md.Latest,
-				High:            md.High,
-				Low:             md.Low,
-				Volume:          md.Volume,
-				Account:         md.Account,
-				Date:            md.Date,
-				Time:            md.Time,
-				Suspend:         md.Suspend,
-			}); err != nil {
-				return 0, 0, 0, 0, err
-			}
-			total++
-		}
-		if len(metadata) < int(limit) {
-			break
-		}
-		offset += limit
-	}
-
-	resp, err := stub.CloseAndRecv()
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
-	return total, resp.StockAffected, resp.QuoteDayAffected, resp.QuoteWeekAffected, nil
 }
 
 func SendEmail(ctx context.Context, subject, reason string) error {

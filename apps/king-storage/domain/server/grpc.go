@@ -11,8 +11,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/semaphore"
 
-	"github.com/eviltomorrow/king/apps/king-storage/domain/service/db"
-	"github.com/eviltomorrow/king/apps/king-storage/domain/service/storage"
+	"github.com/eviltomorrow/king/apps/king-storage/domain/persistence"
+	"github.com/eviltomorrow/king/apps/king-storage/domain/service"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/grpc/server"
@@ -101,7 +101,7 @@ func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
 
 				// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
 				// defer newspan.End()
-				s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
+				s, d, w, err := service.StoreMetadata(wrapper.Date, ch)
 				if err != nil {
 					zlog.Error("Store metadata failure", zap.Error(err))
 					return
@@ -131,7 +131,7 @@ func (g *GRPC) PushMetadata(ps pb.Storage_PushMetadataServer) error {
 
 			// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
 			// defer newspan.End()
-			s, d, w, err := storage.StoreMetadata(wrapper.Date, ch)
+			s, d, w, err := service.StoreMetadata(wrapper.Date, ch)
 			if err != nil {
 				zlog.Error("Store metadata failure", zap.Error(err))
 				// newspan.RecordError(err)
@@ -160,7 +160,7 @@ func (g *GRPC) GetStockFull(_ *emptypb.Empty, gs pb.Storage_GetStockFullServer) 
 	)
 
 	for {
-		stocks, err := db.StockWithSelectRange(mysql.DB, offset, limit, timeout)
+		stocks, err := persistence.StockWithSelectRange(mysql.DB, offset, limit, timeout)
 		if err != nil {
 			return err
 		}
@@ -191,14 +191,14 @@ func (g *GRPC) GetQuoteLatest(req *pb.QuoteRequest, resp pb.Storage_GetQuoteLate
 
 	switch req.Mode {
 	case pb.QuoteRequest_Day:
-		mode = db.Day
+		mode = persistence.Day
 	case pb.QuoteRequest_Week:
-		mode = db.Week
+		mode = persistence.Week
 	default:
-		mode = db.Day
+		mode = persistence.Day
 	}
 
-	quotes, err := db.QuoteWithSelectManyLatest(mysql.DB, mode, req.Code, req.Date, limit, timeout)
+	quotes, err := persistence.QuoteWithSelectManyLatest(mysql.DB, mode, req.Code, req.Date, limit, timeout)
 	if err != nil {
 		return err
 	}

@@ -1,46 +1,21 @@
-package synchronize
+package service
 
 import (
+	"context"
 	"fmt"
-	"math"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-collector/domain/service/datasource"
-	"github.com/eviltomorrow/king/apps/king-collector/domain/service/db"
+	"github.com/eviltomorrow/king/apps/king-collector/domain/persistence"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
+	client_grpc "github.com/eviltomorrow/king/lib/grpc/client"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/mathutil"
 	"github.com/eviltomorrow/king/lib/model"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.uber.org/zap"
 )
 
-var (
-	inFlightSem = make(chan struct{}, 1)
-	CodeList    = []string{
-		"sh688***",
-		"sh605***",
-		"sh603***",
-		"sh601***",
-		"sh600***",
-		"sz300***",
-		"sz0030**",
-		"sz002***",
-		"sz001***",
-		"sz000***",
-	}
-	FetchFactories = map[string]func([]string) ([]*model.Metadata, error){
-		"sina":   datasource.FetchMetadataFromSina,
-		"net126": datasource.FetchMetadataFromNet126,
-	}
-	Size         = 30
-	Limit        = 3
-	Timeout      = 10 * time.Second
-	RandomPeriod = [2]int{20, 60}
-)
-
-func DataQuick(source string) (int64, int64, error) {
+func SynchronizeMetadataQuick(source string) (int64, int64, error) {
 	select {
 	case inFlightSem <- struct{}{}:
 		defer func() { <-inFlightSem }()
@@ -49,7 +24,7 @@ func DataQuick(source string) (int64, int64, error) {
 	}
 
 	pipe := make(chan *model.Metadata, 128)
-	go storeData(source, pipe)
+	go persistenceMetadata(source, pipe)
 
 	options := []func(*model.Metadata) bool{
 		func(m *model.Metadata) bool {
@@ -59,10 +34,10 @@ func DataQuick(source string) (int64, int64, error) {
 			return false
 		},
 	}
-	return fetchData(source, false, pipe, options)
+	return fetchMetadata(source, false, pipe, options)
 }
 
-func DataSlow(source string) (int64, int64, error) {
+func SynchronizeMetadataSlow(source string) (int64, int64, error) {
 	select {
 	case inFlightSem <- struct{}{}:
 		defer func() { <-inFlightSem }()
@@ -71,7 +46,7 @@ func DataSlow(source string) (int64, int64, error) {
 	}
 
 	pipe := make(chan *model.Metadata, 128)
-	go storeData(source, pipe)
+	go persistenceMetadata(source, pipe)
 
 	today := time.Now().Format(time.DateOnly)
 	options := []func(*model.Metadata) bool{
@@ -88,10 +63,10 @@ func DataSlow(source string) (int64, int64, error) {
 			return false
 		},
 	}
-	return fetchData(source, true, pipe, options)
+	return fetchMetadata(source, true, pipe, options)
 }
 
-func fetchData(source string, slow bool, pipe chan *model.Metadata, options []func(*model.Metadata) bool) (int64, int64, error) {
+func fetchMetadata(source string, slow bool, pipe chan *model.Metadata, options []func(*model.Metadata) bool) (int64, int64, error) {
 	defer func() {
 		close(pipe)
 	}()
@@ -176,15 +151,15 @@ func fetchData(source string, slow bool, pipe chan *model.Metadata, options []fu
 	return totalCount, ignoreCount, nil
 }
 
-func storeData(source string, pipe chan *model.Metadata) {
+func persistenceMetadata(source string, pipe chan *model.Metadata) {
 	dataList := make([]*model.Metadata, 0, Size)
 	for data := range pipe {
-		if _, err := db.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, Timeout); err != nil {
+		if _, err := persistence.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, Timeout); err != nil {
 			zlog.Error("DeleteMetadata by date failure", zap.Error(err), zap.String("data", data.String()))
 		} else {
 			dataList = append(dataList, data)
 			if len(dataList) == Size {
-				if _, err := db.InsertMetadataMany(mongodb.DB, source, dataList, Timeout); err != nil {
+				if _, err := persistence.InsertMetadataMany(mongodb.DB, source, dataList, Timeout); err != nil {
 					for _, d := range dataList {
 						zlog.Error("InsertMetadata many failure", zap.Error(err), zap.String("data", d.String()))
 					}
@@ -197,7 +172,7 @@ func storeData(source string, pipe chan *model.Metadata) {
 	cache := make([]*model.Metadata, 0, len(dataList))
 	if len(dataList) != 0 {
 		for _, data := range dataList {
-			if _, err := db.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, Timeout); err != nil {
+			if _, err := persistence.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, Timeout); err != nil {
 				zlog.Error("DeleteMetadata by date failure", zap.Error(err), zap.String("data", data.String()))
 			} else {
 				cache = append(cache, data)
@@ -206,7 +181,7 @@ func storeData(source string, pipe chan *model.Metadata) {
 	}
 
 	if len(cache) != 0 {
-		if _, err := db.InsertMetadataMany(mongodb.DB, source, cache, Timeout); err != nil {
+		if _, err := persistence.InsertMetadataMany(mongodb.DB, source, cache, Timeout); err != nil {
 			for _, d := range cache {
 				zlog.Error("InsertMetadata many failure", zap.Error(err), zap.String("data", d.String()))
 			}
@@ -214,70 +189,59 @@ func storeData(source string, pipe chan *model.Metadata) {
 	}
 }
 
-func genCode() chan string {
-	data := make(chan string, 64)
-	go func() {
-		for _, code := range CodeList {
-			result, err := buildCode(code)
-			if err != nil {
-				zlog.Error("Build range code failure", zap.Error(err))
-				continue
-			}
-			for _, r := range result {
-				data <- r
-			}
-		}
-		close(data)
-	}()
-	return data
-}
-
-func buildCode(baseCode string) ([]string, error) {
-	if len(baseCode) != 8 {
-		return nil, fmt.Errorf("code length must be 8, code is [%s]", baseCode)
+func PushMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, int64, error) {
+	client, closeFunc, err := client_grpc.NewStorageWithEtcd()
+	if err != nil {
+		return 0, 0, 0, 0, err
 	}
-	if !strings.HasPrefix(baseCode, "sh") && !strings.HasPrefix(baseCode, "sz") {
-		return nil, fmt.Errorf("code must be start with [sh/sz], code is [%s]", baseCode)
-	}
+	defer closeFunc()
 
-	if !strings.Contains(baseCode, "*") {
-		return []string{baseCode}, nil
+	stub, err := client.PushMetadata(ctx)
+	if err != nil {
+		return 0, 0, 0, 0, err
 	}
 
 	var (
-		n      = strings.Index(baseCode, "*")
-		prefix = baseCode[:n]
-		codes  = make([]string, 0, int(math.Pow10(8-n)))
+		offset, limit, total int64 = 0, 100, 0
+		lastID               string
+		timeout              = 20 * time.Second
 	)
 
-	var builder strings.Builder
-	builder.Grow(8)
-
-	next := int(math.Pow10(8-n)) - 1
-	mid := ""
-	count := -1
-	changed := false
-	for i := next; i >= 0; i-- {
-		if i == next && i != 0 {
-			next = i / 10
-			count++
-			changed = true
-			mid = ""
-		} else {
-			changed = false
+	for {
+		metadata, err := persistence.SelectMetadataRange(mongodb.DB, offset, limit, date, lastID, timeout)
+		if err != nil {
+			return 0, 0, 0, 0, err
 		}
 
-		if changed {
-			for j := 0; j < count; j++ {
-				mid += "0"
+		for _, md := range metadata {
+			if err := stub.Send(&pb.Metadata{
+				Source:          md.Source,
+				Code:            md.Code,
+				Name:            md.Name,
+				Open:            md.Open,
+				YesterdayClosed: md.YesterdayClosed,
+				Latest:          md.Latest,
+				High:            md.High,
+				Low:             md.Low,
+				Volume:          md.Volume,
+				Account:         md.Account,
+				Date:            md.Date,
+				Time:            md.Time,
+				Suspend:         md.Suspend,
+			}); err != nil {
+				return 0, 0, 0, 0, err
 			}
+			total++
 		}
-
-		builder.WriteString(prefix)
-		builder.WriteString(mid)
-		builder.WriteString(strconv.Itoa(i))
-		codes = append(codes, builder.String())
-		builder.Reset()
+		if len(metadata) < int(limit) {
+			break
+		}
+		offset += limit
 	}
-	return codes, nil
+
+	resp, err := stub.CloseAndRecv()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return total, resp.StockAffected, resp.QuoteDayAffected, resp.QuoteWeekAffected, nil
 }

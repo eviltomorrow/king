@@ -1,17 +1,17 @@
-package storage
+package service
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-storage/domain/service/db"
+	"github.com/eviltomorrow/king/apps/king-storage/domain/persistence"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/model"
 )
 
 var timeout = 30 * time.Second
 
-func StoreStock(data []*db.Stock) (int64, error) {
+func StoreStock(data []*persistence.Stock) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -20,7 +20,7 @@ func StoreStock(data []*db.Stock) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	affected, err := db.StockWithInsertOrUpdateMany(tx, data, timeout)
+	affected, err := persistence.StockWithInsertOrUpdateMany(tx, data, timeout)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -32,11 +32,11 @@ func StoreStock(data []*db.Stock) (int64, error) {
 	return affected, nil
 }
 
-func StoreQuote(data []*db.Quote, mode string, date time.Time) (int64, error) {
+func StoreQuote(data []*persistence.Quote, mode string, date time.Time) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
-	if mode != db.Day && mode != db.Week {
+	if mode != persistence.Day && mode != persistence.Week {
 		return 0, fmt.Errorf("invalid mode: %v", mode)
 	}
 
@@ -51,12 +51,12 @@ func StoreQuote(data []*db.Quote, mode string, date time.Time) (int64, error) {
 	}
 
 	d := date.Format(time.DateOnly)
-	if _, err := db.QuoteWithDeleteManyByCodesAndDate(tx, mode, codes, d, timeout); err != nil {
+	if _, err := persistence.QuoteWithDeleteManyByCodesAndDate(tx, mode, codes, d, timeout); err != nil {
 		tx.Rollback()
 		return 0, err
 	}
 
-	affected, err := db.QuoteWithInsertMany(tx, mode, data, timeout)
+	affected, err := persistence.QuoteWithInsertMany(tx, mode, data, timeout)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -104,21 +104,21 @@ func StoreMetadata(date time.Time, metadata chan *model.Metadata) (int64, int64,
 
 func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, int64, error) {
 	var (
-		stocks = make([]*db.Stock, 0, len(metadata))
-		days   = make([]*db.Quote, 0, len(metadata))
+		stocks = make([]*persistence.Stock, 0, len(metadata))
+		days   = make([]*persistence.Quote, 0, len(metadata))
 
 		affectedS, affectedD, affectedW int64
 	)
 
 	for _, md := range metadata {
-		stocks = append(stocks, &db.Stock{
+		stocks = append(stocks, &persistence.Stock{
 			Code:            md.Code,
 			Name:            md.Name,
 			Suspend:         md.Suspend,
 			CreateTimestamp: time.Now(),
 		})
 
-		day, err := AssembleQuoteDay(md, date)
+		day, err := BuildQuoteDayWitchMetadata(md, date)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -132,7 +132,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, in
 		}
 		affectedS += affected
 
-		affected, err = StoreQuote(days, db.Day, date)
+		affected, err = StoreQuote(days, persistence.Day, date)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -140,9 +140,9 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, in
 	}
 
 	if date.Weekday() == time.Friday {
-		weeks := make([]*db.Quote, 0, len(stocks))
+		weeks := make([]*persistence.Quote, 0, len(stocks))
 		for _, stock := range stocks {
-			week, err := AssembleQuoteWeek(stock.Code, date)
+			week, err := BuildQuoteWeekWithDatetime(stock.Code, date)
 			if err != nil && err != ErrNoData {
 				return affectedS, affectedD, affectedW, err
 			}
@@ -153,7 +153,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, in
 				weeks = append(weeks, week)
 			}
 		}
-		affected, err := StoreQuote(weeks, db.Week, date)
+		affected, err := StoreQuote(weeks, persistence.Week, date)
 		if err != nil {
 			return affectedS, affectedD, affectedW, err
 		}
