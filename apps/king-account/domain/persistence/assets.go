@@ -68,7 +68,7 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 	return data, nil
 }
 
-func AssetsWithUpdateOneById(ctx context.Context, exec mysql.Exec, assets *Assets, id string) (int64, error) {
+func AssetsWithUpdateOne(ctx context.Context, exec mysql.Exec, assets *Assets, id string) (int64, error) {
 	if assets == nil {
 		return 0, fmt.Errorf("invalid parameter, value is nil")
 	}

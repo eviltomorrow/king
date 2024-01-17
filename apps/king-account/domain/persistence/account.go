@@ -61,11 +61,18 @@ func AccountWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit 
 	return accounts, nil
 }
 
-func AccountWithUpdateOne(ctx context.Context, exec mysql.Exec, id string, value map[string]interface{}) (int64, error) {
-	if value == nil {
-		return 0, fmt.Errorf("invalid parameter, value is nil")
+func AccountWithUpdateOne(ctx context.Context, exec mysql.Exec, account *Account, id string) (int64, error) {
+	if account == nil {
+		return 0, fmt.Errorf("invalid parameter, account is nil")
 	}
-	delete(value, FieldAccountId)
+	value := map[string]interface{}{
+		FieldAccountUsername: account.Username,
+		FieldAccountPassword: account.Password,
+		FieldAccountNickName: account.NickName,
+		FieldAccountPhone:    account.Phone,
+		FieldAccountEmail:    account.Email,
+		FieldAccountStatus:   account.Status,
+	}
 	return orm.TableWithUpdate(ctx, exec, TableAccountName, value, map[string]interface{}{FieldAccountId: id})
 }
 

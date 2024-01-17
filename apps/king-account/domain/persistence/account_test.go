@@ -135,12 +135,7 @@ func TestAccountWithUpdateOne(t *testing.T) {
 	account1.Status = 2
 	account1.Phone = sql.NullString{}
 	account1.Password = "password1"
-	values := map[string]interface{}{
-		"status":   account1.Status,
-		"phone":    account1.Phone,
-		"password": account1.Password,
-	}
-	affected, err = AccountWithUpdateOne(ctx, mysql.DB, id, values)
+	affected, err = AccountWithUpdateOne(ctx, mysql.DB, account1, id)
 	_assert.Nil(err)
 	_assert.Equal(int64(1), affected)
 
@@ -149,7 +144,7 @@ func TestAccountWithUpdateOne(t *testing.T) {
 	_assert.Equal(int8(2), accountUpdated.Status)
 	_assert.Equal(sql.NullString{}, accountUpdated.Phone)
 
-	affected, err = AccountWithUpdateOne(ctx, mysql.DB, id, nil)
+	affected, err = AccountWithUpdateOne(ctx, mysql.DB, nil, id)
 	_assert.NotNil(err)
 	_assert.Equal(int64(0), affected)
 }

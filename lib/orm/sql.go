@@ -156,7 +156,7 @@ func TableWithSelectMany(ctx context.Context, exec mysql.Exec, table string, col
 	if err := f(rows); err != nil {
 		return err
 	}
-	return nil
+	return rows.Err()
 }
 
 func TableWithSelectRange(ctx context.Context, exec mysql.Exec, table string, column []string, where map[string]interface{}, order map[string]string, offset, limit int64, f func(row *sql.Rows) error) error {

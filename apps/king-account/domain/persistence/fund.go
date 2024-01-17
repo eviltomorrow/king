@@ -57,14 +57,19 @@ func FundWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit int
 	return funds, nil
 }
 
-func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, no string, value map[string]interface{}) (int64, error) {
-	if value == nil {
-		return 0, fmt.Errorf("invalid parameter, value is nil")
+func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, no string) (int64, error) {
+	if fund == nil {
+		return 0, fmt.Errorf("invalid parameter, fund is nil")
 	}
 	if no == "" {
 		return 0, fmt.Errorf("invalid parameter, no is nil")
 	}
-	delete(value, FieldFundFundNo)
+
+	value := map[string]interface{}{
+		FieldFundOpeningCash: fund.OpeningCash,
+		FieldFundEndCash:     fund.EndCash,
+		FieldFundStatus:      fund.Status,
+	}
 	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: no})
 }
 
