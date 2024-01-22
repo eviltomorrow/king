@@ -94,6 +94,7 @@ func AccountWithUpdateOne(ctx context.Context, exec mysql.Exec, account *Account
 	value := map[string]interface{}{
 		FieldAccountUsername: account.Username,
 		FieldAccountPassword: account.Password,
+		FieldAccountSalt:     account.Salt,
 		FieldAccountNickName: account.NickName,
 		FieldAccountPhone:    account.Phone,
 		FieldAccountEmail:    account.Email,
@@ -131,6 +132,7 @@ type Account struct {
 	Id               string         `json:"id"`
 	Username         sql.NullString `json:"username"`
 	Password         string         `json:"password"`
+	Salt             string         `json:"salt"`
 	NickName         sql.NullString `json:"nick_name"`
 	Phone            sql.NullString `json:"phone"`
 	Email            sql.NullString `json:"email"`
@@ -146,6 +148,7 @@ const (
 	FieldAccountId               = "id"
 	FieldAccountUsername         = "username"
 	FieldAccountPassword         = "password"
+	FieldAccountSalt             = "salt"
 	FieldAccountNickName         = "nick_name"
 	FieldAccountPhone            = "phone"
 	FieldAccountEmail            = "email"
@@ -159,6 +162,7 @@ var AccountFields = []string{
 	FieldAccountId,
 	FieldAccountUsername,
 	FieldAccountPassword,
+	FieldAccountSalt,
 	FieldAccountNickName,
 	FieldAccountPhone,
 	FieldAccountEmail,

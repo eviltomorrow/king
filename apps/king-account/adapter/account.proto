@@ -12,6 +12,8 @@ service Account {
     rpc Add(User) returns (google.protobuf.StringValue);
     rpc Remove(User) returns (google.protobuf.Empty);
     rpc Modify(User) returns (google.protobuf.Empty);
+    rpc CreateToken(User) returns (google.protobuf.Empty);
+    rpc RevokeToken(google.protobuf.StringValue) returns (google.protobuf.Empty);
 }
 
 message UserReq {

@@ -35,14 +35,13 @@ func AccountWithRegister(ctx context.Context, username, password string) (string
 
 	id := snowflake.GenerateID()
 
-	p, err := encrypt.Key(password)
-	if err != nil {
-		return "", err
-	}
+	s := encrypt.Salt()
+	p := encrypt.Key(s, password)
 	data := &persistence.Account{
 		Id:               id,
 		Username:         sql.NullString{String: username, Valid: true},
 		Password:         p,
+		Salt:             s,
 		Status:           NORMAL,
 		RegisterDatetime: time.Now(),
 	}

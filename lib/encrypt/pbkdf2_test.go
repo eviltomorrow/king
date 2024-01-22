@@ -6,9 +6,7 @@ import (
 )
 
 func TestKey(t *testing.T) {
-	v, err := Key("hello world")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(v)
+	s := Salt()
+	p := Key(s, "Shepard")
+	fmt.Println(s, p, len(s), len(p))
 }

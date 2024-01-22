@@ -60,8 +60,9 @@ DROP TABLE IF EXISTS `king_account`.`account`;
 CREATE TABLE `king_account`.`account` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
     `username` VARCHAR(32) COMMENT '用户名',
-    `password` VARCHAR(32) NOT NULL COMMENT '密码',
-    `nick_name` VARCHAR(32) COMMENT '密码', 
+    `password` VARCHAR(64) NOT NULL COMMENT '密码',
+    `salt` VARCHAR(32) NOT NULL COMMENT '盐',
+    `nick_name` VARCHAR(32) COMMENT '昵称', 
     `phone` VARCHAR(15) COMMENT '电话',
     `email` VARCHAR(32) COMMENT 'email',
     `status` TINYINT NOT NULL COMMENT '状态',
