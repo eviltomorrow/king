@@ -21,22 +21,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Account_FindByUserId_FullMethodName = "/account.Account/FindByUserId"
-	Account_List_FullMethodName         = "/account.Account/List"
-	Account_Add_FullMethodName          = "/account.Account/Add"
-	Account_Remove_FullMethodName       = "/account.Account/Remove"
-	Account_Modify_FullMethodName       = "/account.Account/Modify"
+	Account_Register_FullMethodName = "/account.Account/Register"
+	Account_Login_FullMethodName    = "/account.Account/Login"
+	Account_LogOut_FullMethodName   = "/account.Account/LogOut"
 )
 
 // AccountClient is the client API for Account service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountClient interface {
-	FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error)
-	List(ctx context.Context, in *UserReq, opts ...grpc.CallOption) (*UserResp, error)
-	Add(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	Remove(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Modify(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	Login(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	LogOut(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type accountClient struct {
@@ -47,45 +43,27 @@ func NewAccountClient(cc grpc.ClientConnInterface) AccountClient {
 	return &accountClient{cc}
 }
 
-func (c *accountClient) FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error) {
-	out := new(User)
-	err := c.cc.Invoke(ctx, Account_FindByUserId_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *accountClient) List(ctx context.Context, in *UserReq, opts ...grpc.CallOption) (*UserResp, error) {
-	out := new(UserResp)
-	err := c.cc.Invoke(ctx, Account_List_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *accountClient) Add(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+func (c *accountClient) Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, Account_Add_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Account_Register_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *accountClient) Remove(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Account_Remove_FullMethodName, in, out, opts...)
+func (c *accountClient) Login(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
+	err := c.cc.Invoke(ctx, Account_Login_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *accountClient) Modify(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *accountClient) LogOut(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Account_Modify_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Account_LogOut_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,11 +74,9 @@ func (c *accountClient) Modify(ctx context.Context, in *User, opts ...grpc.CallO
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility
 type AccountServer interface {
-	FindByUserId(context.Context, *wrapperspb.StringValue) (*User, error)
-	List(context.Context, *UserReq) (*UserResp, error)
-	Add(context.Context, *User) (*wrapperspb.StringValue, error)
-	Remove(context.Context, *User) (*emptypb.Empty, error)
-	Modify(context.Context, *User) (*emptypb.Empty, error)
+	Register(context.Context, *User) (*wrapperspb.StringValue, error)
+	Login(context.Context, *Credentials) (*wrapperspb.StringValue, error)
+	LogOut(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAccountServer()
 }
 
@@ -108,20 +84,14 @@ type AccountServer interface {
 type UnimplementedAccountServer struct {
 }
 
-func (UnimplementedAccountServer) FindByUserId(context.Context, *wrapperspb.StringValue) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindByUserId not implemented")
+func (UnimplementedAccountServer) Register(context.Context, *User) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedAccountServer) List(context.Context, *UserReq) (*UserResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+func (UnimplementedAccountServer) Login(context.Context, *Credentials) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAccountServer) Add(context.Context, *User) (*wrapperspb.StringValue, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedAccountServer) Remove(context.Context, *User) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
-}
-func (UnimplementedAccountServer) Modify(context.Context, *User) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Modify not implemented")
+func (UnimplementedAccountServer) LogOut(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogOut not implemented")
 }
 func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 
@@ -136,92 +106,56 @@ func RegisterAccountServer(s grpc.ServiceRegistrar, srv AccountServer) {
 	s.RegisterService(&Account_ServiceDesc, srv)
 }
 
-func _Account_FindByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Register_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Register(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Credentials)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Login(ctx, req.(*Credentials))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_LogOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).FindByUserId(ctx, in)
+		return srv.(AccountServer).LogOut(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Account_FindByUserId_FullMethodName,
+		FullMethod: Account_LogOut_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).FindByUserId(ctx, req.(*wrapperspb.StringValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Account_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AccountServer).List(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Account_List_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).List(ctx, req.(*UserReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Account_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AccountServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Account_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Add(ctx, req.(*User))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Account_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AccountServer).Remove(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Account_Remove_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Remove(ctx, req.(*User))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Account_Modify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AccountServer).Modify(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Account_Modify_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Modify(ctx, req.(*User))
+		return srv.(AccountServer).LogOut(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -234,24 +168,16 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AccountServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FindByUserId",
-			Handler:    _Account_FindByUserId_Handler,
+			MethodName: "Register",
+			Handler:    _Account_Register_Handler,
 		},
 		{
-			MethodName: "List",
-			Handler:    _Account_List_Handler,
+			MethodName: "Login",
+			Handler:    _Account_Login_Handler,
 		},
 		{
-			MethodName: "Add",
-			Handler:    _Account_Add_Handler,
-		},
-		{
-			MethodName: "Remove",
-			Handler:    _Account_Remove_Handler,
-		},
-		{
-			MethodName: "Modify",
-			Handler:    _Account_Modify_Handler,
+			MethodName: "LogOut",
+			Handler:    _Account_LogOut_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

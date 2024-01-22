@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/eviltomorrow/king/apps/king-storage/cmd"
-	"github.com/eviltomorrow/king/apps/king-storage/cmd/metadata"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	libcmd "github.com/eviltomorrow/king/lib/cmd"
 	"github.com/spf13/cobra"
@@ -34,7 +33,6 @@ func init() {
 }
 
 func initCommand() {
-	RootCommand.AddCommand(metadata.RootCommand)
 	RootCommand.AddCommand(cmd.StartCommand)
 	RootCommand.AddCommand(libcmd.StopCommand)
 	RootCommand.AddCommand(libcmd.VersionCommand)

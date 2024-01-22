@@ -131,7 +131,7 @@ type Item struct {
 	Type   Item_AssetsType `protobuf:"varint,4,opt,name=type,proto3,enum=account.Item_AssetsType" json:"type,omitempty"`
 	// 头寸
 	CashPosition float64 `protobuf:"fixed64,5,opt,name=cash_position,json=cashPosition,proto3" json:"cash_position,omitempty"`
-	Code         string  `protobuf:"bytes,6,opt,name=code,proto3" json:"code,omitempty"`
+	Code string `protobuf:"bytes,6,opt,name=code,proto3" json:"code,omitempty"`
 	// 持仓量
 	OpenInterest     int64 `protobuf:"varint,7,opt,name=open_interest,json=openInterest,proto3" json:"open_interest,omitempty"`
 	FirstBuyDatetime int64 `protobuf:"varint,8,opt,name=first_buy_datetime,json=firstBuyDatetime,proto3" json:"first_buy_datetime,omitempty"`

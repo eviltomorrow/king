@@ -105,12 +105,17 @@ func TableWithSelectOne(ctx context.Context, exec mysql.Exec, table string, colu
 		return fmt.Errorf("invalid column")
 	}
 
+	if len(where) == 0 {
+		return fmt.Errorf("invalid where")
+	}
+
 	fields := make([]string, 0, len(where))
 	args := make([]interface{}, 0, len(where))
 	for k, v := range where {
 		fields = append(fields, fmt.Sprintf("%s = ?", k))
 		args = append(args, v)
 	}
+
 	_sql := fmt.Sprintf(`select %s from %s where %s`, strings.Join(column, ", "), table, strings.Join(fields, " and "))
 	row := exec.QueryRowContext(ctx, _sql, args...)
 	if row.Err() != nil {
@@ -132,16 +137,22 @@ func TableWithSelectMany(ctx context.Context, exec mysql.Exec, table string, col
 		return fmt.Errorf("invalid column")
 	}
 
-	fields := make([]string, 0, len(where))
+	_sql := fmt.Sprintf(`select %s from %s`, strings.Join(column, ", "), table)
 	args := make([]interface{}, 0, len(where))
-	for k, v := range where {
-		fields = append(fields, fmt.Sprintf("%s = ?", k))
-		args = append(args, v)
+
+	if len(where) != 0 {
+		fields := make([]string, 0, len(where))
+
+		for k, v := range where {
+			fields = append(fields, fmt.Sprintf("%s = ?", k))
+			args = append(args, v)
+		}
+		_sql = fmt.Sprintf("%s where %s", _sql, strings.Join(fields, " and "))
 	}
-	_sql := fmt.Sprintf(`select %s from %s where %s`, strings.Join(column, ", "), table, strings.Join(fields, " and "))
 
 	if len(order) != 0 {
 		fields := make([]string, 0, len(order))
+
 		for k, v := range order {
 			fields = append(fields, fmt.Sprintf("%s %s", k, v))
 		}
@@ -168,7 +179,7 @@ func TableWithSelectRange(ctx context.Context, exec mysql.Exec, table string, co
 		return fmt.Errorf("invalid column")
 	}
 
-	args := make([]interface{}, 0, len(where)+2)
+	args := make([]interface{}, 0, len(where))
 	_sql := fmt.Sprintf(`select %s from %s`, strings.Join(column, ", "), table)
 
 	if len(where) != 0 {
@@ -200,4 +211,35 @@ func TableWithSelectRange(ctx context.Context, exec mysql.Exec, table string, co
 		return err
 	}
 	return nil
+}
+
+func TableWithCount(ctx context.Context, exec mysql.Exec, table string, where map[string]interface{}) (int64, error) {
+	if table == "" {
+		return 0, fmt.Errorf("invalid table")
+	}
+
+	_sql := fmt.Sprintf(`select count(1) as count from %s`, table)
+	args := make([]interface{}, 0, len(where))
+
+	if len(where) != 0 {
+		fields := make([]string, 0, len(where))
+
+		for k, v := range where {
+			fields = append(fields, fmt.Sprintf("%s = ?", k))
+			args = append(args, v)
+		}
+		_sql = fmt.Sprintf("%s where %s", _sql, strings.Join(fields, " and "))
+	}
+
+	row := exec.QueryRowContext(ctx, _sql, args...)
+
+	var count int64
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	if row.Err() != nil {
+		return 0, row.Err()
+	}
+
+	return count, nil
 }

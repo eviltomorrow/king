@@ -53,6 +53,25 @@ func InitAccount() {
 	TruncateAccount()
 }
 
+func TestAccountWithCount(t *testing.T) {
+	_assert := assert.New(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	InitAccount()
+
+	for _, account := range []*Account{account1, account2, account3} {
+		account.Id = snowflake.GenerateID()
+		affected, err := AccountWithInsertOne(ctx, mysql.DB, account)
+		_assert.Nil(err)
+		_assert.Equal(affected, int64(1))
+	}
+
+	count, err := AccountWithCount(ctx, mysql.DB)
+	_assert.Nil(err)
+	_assert.Equal(int64(3), count)
+}
+
 func TestAccountWithInsertOne(t *testing.T) {
 	_assert := assert.New(t)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -66,7 +85,7 @@ func TestAccountWithInsertOne(t *testing.T) {
 		_assert.Nil(err)
 		_assert.Equal(affected, int64(1))
 
-		accountInserted, err := AccountWithSelectOne(ctx, mysql.DB, account.Id)
+		accountInserted, err := AccountWithSelectOneById(ctx, mysql.DB, account.Id)
 		_assert.Nil(err)
 		_assert.Equal(accountInserted.Id, account.Id)
 		_assert.Equal(accountInserted.Username, account.Username)
@@ -107,7 +126,7 @@ func TestAccountWithDeleteOne(t *testing.T) {
 		_assert.Nil(err)
 		_assert.Equal(int64(1), affected)
 
-		_, err = AccountWithSelectOne(ctx, mysql.DB, id)
+		_, err = AccountWithSelectOneById(ctx, mysql.DB, id)
 		_assert.NotNil(err)
 		_assert.Equal(sql.ErrNoRows, err)
 	}
@@ -139,7 +158,7 @@ func TestAccountWithUpdateOne(t *testing.T) {
 	_assert.Nil(err)
 	_assert.Equal(int64(1), affected)
 
-	accountUpdated, err := AccountWithSelectOne(ctx, mysql.DB, id)
+	accountUpdated, err := AccountWithSelectOneById(ctx, mysql.DB, id)
 	_assert.Nil(err)
 	_assert.Equal(int8(2), accountUpdated.Status)
 	_assert.Equal(sql.NullString{}, accountUpdated.Phone)

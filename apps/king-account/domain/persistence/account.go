@@ -10,7 +10,33 @@ import (
 	"github.com/eviltomorrow/king/lib/orm"
 )
 
-func AccountWithSelectOne(ctx context.Context, exec mysql.Exec, id string) (*Account, error) {
+func AccountWithCount(ctx context.Context, exec mysql.Exec) (int64, error) {
+	return orm.TableWithCount(ctx, exec, TableAccountName, nil)
+}
+
+func AccountWithSelectOneByUniqeKey(ctx context.Context, exec mysql.Exec, fieldName, fieldValue string) (*Account, error) {
+	account := Account{}
+	scan := func(row *sql.Row) error {
+		return row.Scan(
+			&account.Id,
+			&account.Username,
+			&account.Password,
+			&account.NickName,
+			&account.Phone,
+			&account.Email,
+			&account.Status,
+			&account.RegisterDatetime,
+			&account.CreateTimestamp,
+			&account.ModifyTimestamp,
+		)
+	}
+	if err := orm.TableWithSelectOne(ctx, exec, TableAccountName, AccountFields, map[string]interface{}{fieldName: fieldValue}, scan); err != nil {
+		return nil, err
+	}
+	return &account, nil
+}
+
+func AccountWithSelectOneById(ctx context.Context, exec mysql.Exec, id string) (*Account, error) {
 	account := Account{}
 	scan := func(row *sql.Row) error {
 		return row.Scan(

@@ -7,21 +7,26 @@ option go_package = "./;pb";
 package account;
 
 service Account {
-    rpc FindByUserId(google.protobuf.StringValue) returns (User);
-    rpc List(UserReq) returns (UserResp);
-    rpc Add(User) returns (google.protobuf.StringValue);
-    rpc Remove(User) returns (google.protobuf.Empty);
-    rpc Modify(User) returns (google.protobuf.Empty);
+    rpc Register(User) returns (google.protobuf.StringValue);
+
+    rpc Login(Credentials) returns (google.protobuf.StringValue);
+    rpc LogOut(google.protobuf.StringValue) returns (google.protobuf.Empty);
 }
 
-message UserReq {
-    int64 page_no = 1;
-    int64 page_size = 2;
-}
-
-message UserResp {
-    repeated User users = 1;
-    int64 total_count = 2;
+message Credentials {
+    message ID {
+        string Account = 1;
+    }
+    message Auth {
+        enum Method {
+            PASSWORD = 0;
+            SMS = 1;
+        }
+        Method method = 1;
+        string value = 2;
+    }
+    ID id = 1;
+    Auth auth = 2;
 }
 
 message User {
