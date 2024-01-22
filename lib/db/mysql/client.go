@@ -65,7 +65,7 @@ func buildMySQL(dsn string) (*sql.DB, error) {
 	if dsn == "" {
 		return nil, fmt.Errorf("MySQL: no DSN set")
 	}
-	pool, err := sql.Open("mysql", DSN)
+	pool, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
