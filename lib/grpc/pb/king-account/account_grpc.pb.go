@@ -22,6 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Account_Register_FullMethodName = "/account.Account/Register"
+	Account_Bind_FullMethodName     = "/account.Account/Bind"
+	Account_Confirm_FullMethodName  = "/account.Account/Confirm"
+	Account_Get_FullMethodName      = "/account.Account/Get"
 	Account_Login_FullMethodName    = "/account.Account/Login"
 	Account_LogOut_FullMethodName   = "/account.Account/LogOut"
 )
@@ -30,7 +33,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccountClient interface {
-	Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Bind(ctx context.Context, in *BindReq, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	Confirm(ctx context.Context, in *ConfirmReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Get(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error)
 	Login(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	LogOut(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -43,9 +49,36 @@ func NewAccountClient(cc grpc.ClientConnInterface) AccountClient {
 	return &accountClient{cc}
 }
 
-func (c *accountClient) Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
-	out := new(wrapperspb.StringValue)
+func (c *accountClient) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Account_Register_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountClient) Bind(ctx context.Context, in *BindReq, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
+	err := c.cc.Invoke(ctx, Account_Bind_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountClient) Confirm(ctx context.Context, in *ConfirmReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Account_Confirm_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountClient) Get(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, Account_Get_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +107,10 @@ func (c *accountClient) LogOut(ctx context.Context, in *wrapperspb.StringValue, 
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility
 type AccountServer interface {
-	Register(context.Context, *User) (*wrapperspb.StringValue, error)
+	Register(context.Context, *RegisterReq) (*emptypb.Empty, error)
+	Bind(context.Context, *BindReq) (*wrapperspb.StringValue, error)
+	Confirm(context.Context, *ConfirmReq) (*emptypb.Empty, error)
+	Get(context.Context, *wrapperspb.StringValue) (*User, error)
 	Login(context.Context, *Credentials) (*wrapperspb.StringValue, error)
 	LogOut(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAccountServer()
@@ -84,8 +120,17 @@ type AccountServer interface {
 type UnimplementedAccountServer struct {
 }
 
-func (UnimplementedAccountServer) Register(context.Context, *User) (*wrapperspb.StringValue, error) {
+func (UnimplementedAccountServer) Register(context.Context, *RegisterReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedAccountServer) Bind(context.Context, *BindReq) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Bind not implemented")
+}
+func (UnimplementedAccountServer) Confirm(context.Context, *ConfirmReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Confirm not implemented")
+}
+func (UnimplementedAccountServer) Get(context.Context, *wrapperspb.StringValue) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedAccountServer) Login(context.Context, *Credentials) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
@@ -107,7 +152,7 @@ func RegisterAccountServer(s grpc.ServiceRegistrar, srv AccountServer) {
 }
 
 func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
+	in := new(RegisterReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -119,7 +164,61 @@ func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: Account_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Register(ctx, req.(*User))
+		return srv.(AccountServer).Register(ctx, req.(*RegisterReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_Bind_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Bind(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Bind_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Bind(ctx, req.(*BindReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_Confirm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Confirm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Confirm_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Confirm(ctx, req.(*ConfirmReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Get(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -170,6 +269,18 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Register",
 			Handler:    _Account_Register_Handler,
+		},
+		{
+			MethodName: "Bind",
+			Handler:    _Account_Bind_Handler,
+		},
+		{
+			MethodName: "Confirm",
+			Handler:    _Account_Confirm_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _Account_Get_Handler,
 		},
 		{
 			MethodName: "Login",

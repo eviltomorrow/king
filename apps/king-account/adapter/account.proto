@@ -7,10 +7,34 @@ option go_package = "./;pb";
 package account;
 
 service Account {
-    rpc Register(User) returns (google.protobuf.StringValue);
+    rpc Register(RegisterReq) returns (google.protobuf.Empty);
+
+    rpc Bind(BindReq) returns (google.protobuf.StringValue);
+    rpc Confirm(ConfirmReq) returns (google.protobuf.Empty);
+
+    rpc Get(google.protobuf.StringValue) returns (User);
 
     rpc Login(Credentials) returns (google.protobuf.StringValue);
     rpc LogOut(google.protobuf.StringValue) returns (google.protobuf.Empty);
+}
+
+message RegisterReq {
+    string username = 1;
+    string password = 2;
+}
+
+message BindReq {
+    enum Type {
+        EMAIL = 0;
+        PHOME = 1;
+    }
+    Type type = 1;
+    string value = 2;
+}
+
+message ConfirmReq {
+    string bind_request_id = 1;
+    string value = 2;
 }
 
 message Credentials {
@@ -32,7 +56,6 @@ message Credentials {
 message User {
     string id = 1;
     string username = 2;
-    string password = 3;
     string nick_name = 4;
     string phone = 5;
     string email = 6;
