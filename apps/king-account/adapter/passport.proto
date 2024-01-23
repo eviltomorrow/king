@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "./;pb";
+package account;
+
+service Passport {
+    rpc BindThirdPartyAccount(BindThirdPartyAccountReq) returns (google.protobuf.StringValue);
+    rpc ConfirmCode(ConfirmCodeReq) returns (google.protobuf.Empty);
+
+    rpc Register(RegisterReq) returns (google.protobuf.Empty);
+    rpc Auth(AuthReq) returns (google.protobuf.Empty);
+    rpc CreateVerificationCode(CreateVerificationCodeReq) returns (google.protobuf.StringValue);
+
+    rpc Lock(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc Unlock(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc Get(google.protobuf.StringValue) returns (Account);
+    rpc Remove(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc ModifyPassword(ModifyPasswordReq) returns (google.protobuf.Empty);
+}
+
+message Account {
+    string id = 1;
+    string account = 2;
+    string code = 3;
+    string email = 4;
+    string phone = 5;
+    int32 status = 6;
+    int64 register_datetime = 7;
+}
+
+message RegisterReq {
+    string account = 1;
+    string password = 2;
+}
+
+message BindThirdPartyAccountReq {
+    enum Type {
+        EMAIL = 0;
+        PHONE = 1;
+    }
+    Type type = 1;
+    string id = 2;
+    string account = 3;
+}
+
+message ConfirmCodeReq {
+    string bind_request_id = 1;
+    string code = 2;
+}
+
+message AuthReq {
+    enum Method {
+        PASSWORD = 0;
+        SMS = 1;
+    }
+    message Credential {
+        string account = 1;
+        string key = 2;
+    }
+    Method method = 1;
+    Credential credential = 2;
+}
+
+message CreateVerificationCodeReq {
+    enum Type {
+        EMAIL = 0;
+        PHONE = 1;
+    }
+    Type type = 1;
+    string account = 2;
+}
+
+message ModifyPasswordReq {
+    string id = 1;
+    string password = 2;
+}

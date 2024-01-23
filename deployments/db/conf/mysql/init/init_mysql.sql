@@ -55,32 +55,32 @@ CREATE TABLE `king_storage`.`stock` (
 CREATE DATABASE IF NOT EXISTS `king_account` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 GRANT ALL ON king_account.* TO 'admin'@'%';
 
--- CREATE TABLE account
-DROP TABLE IF EXISTS `king_account`.`account`;
-CREATE TABLE `king_account`.`account` (
-    `id` CHAR(19) NOT NULL PRIMARY KEY,
-    `username` VARCHAR(32) COMMENT '用户名',
-    `password` VARCHAR(64) NOT NULL COMMENT '密码',
+-- CREATE TABLE passport
+DROP TABLE IF EXISTS `king_account`.`passport`;
+CREATE TABLE `king_account`.`passport` (
+    `id` CHAR(21) NOT NULL PRIMARY KEY,
+    `account` VARCHAR(32) NOT NULL COMMENT '账户',
+    `code` VARCHAR(32) COMMENT 'code',
     `salt` VARCHAR(32) NOT NULL COMMENT '盐',
-    `nick_name` VARCHAR(32) COMMENT '昵称', 
+    `salt_password` VARCHAR(64) NOT NULL COMMENT '盐_密码',
+    `email` VARCHAR(32) COMMENT '邮箱',
     `phone` VARCHAR(15) COMMENT '电话',
-    `email` VARCHAR(32) COMMENT 'email',
     `status` TINYINT NOT NULL COMMENT '状态',
-    `register_datetime` DATETIME NOT NULL COMMENT '注册时间',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 
-CREATE UNIQUE INDEX idx_username ON `king_account`.`account`(`username`);
-CREATE UNIQUE INDEX idx_phone ON `king_account`.`account`(`phone`);
-CREATE UNIQUE INDEX idx_email ON `king_account`.`account`(`email`);
+CREATE UNIQUE INDEX idx_account ON `king_account`.`passport`(`account`);
+CREATE UNIQUE INDEX idx_code ON `king_account`.`passport`(`code`);
+CREATE UNIQUE INDEX idx_email ON `king_account`.`passport`(`email`);
+CREATE UNIQUE INDEX idx_phone ON `king_account`.`passport`(`phone`);
 
 -- CREATE TABLE assets
 DROP TABLE IF EXISTS `king_account`.`assets`;
 CREATE TABLE `king_account`.`assets` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
+    `account_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
     `fund_no` CHAR(19) NOT NULL COMMENT 'fund no',
-    `user_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
     `type` TINYINT NOT NULL COMMENT '类型', 
     `cash_position` DECIMAL(11,2) NOT NULL COMMENT '头寸',
     `code` VARCHAR(8) NOT NULL COMMENT '代码',
@@ -90,14 +90,14 @@ CREATE TABLE `king_account`.`assets` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_fund_no ON `king_account`.`assets`(`fund_no`);
-CREATE INDEX idx_user_id ON `king_account`.`assets`(`user_id`);
-CREATE UNIQUE INDEX idx_fund_no_user_id_code ON `king_account`.`assets`(`fund_no`, `user_id`, `code`);
+CREATE INDEX idx_account_id ON `king_account`.`assets`(`account_id`);
+CREATE UNIQUE INDEX idx_fund_no_account_id_code ON `king_account`.`assets`(`fund_no`, `account_id`, `code`);
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`fund`;
 CREATE TABLE `king_account`.`fund` (
+    `account_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
     `fund_no` CHAR(19) NOT NULL PRIMARY KEY,
-    `user_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
     `opening_cash` DECIMAL(11,2) NOT NULL COMMENT '初始金额',
     `end_cash` DECIMAL(11,2) COMMENT '结算金额',
     `status` TINYINT NOT NULL COMMENT '状态(1:启用,2:冻结)',
@@ -105,14 +105,14 @@ CREATE TABLE `king_account`.`fund` (
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
-CREATE INDEX idx_user_id ON `king_account`.`fund`(`user_id`);
+CREATE INDEX idx_account_id ON `king_account`.`fund`(`account_id`);
 
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`transaction_record`;
 CREATE TABLE `king_account`.`transaction_record` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
-    `user_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
+    `account_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
     `fund_no` CHAR(19) NOT NULL COMMENT 'fund no',
     `action` TINYINT NOT NULL COMMENT '动作(buy/sell)',
     `assets_type` TINYINT NOT NULL COMMENT '资产类型',
