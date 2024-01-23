@@ -28,9 +28,9 @@ type Account struct {
 	RegisterDatetime time.Time `json:"register_datetime"`
 }
 
-func AccountWithRegister(ctx context.Context, username, password string) (string, error) {
-	if username == "" || password == "" {
-		return "", fmt.Errorf("invalid username or password")
+func AccountWithAdd(ctx context.Context, account *Account) (string, error) {
+	if account == nil {
+		return "", fmt.Errorf("account is nil")
 	}
 
 	id := snowflake.GenerateID()

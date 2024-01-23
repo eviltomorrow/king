@@ -10,8 +10,8 @@ import (
 	"github.com/eviltomorrow/king/lib/orm"
 )
 
-func AccountWithCount(ctx context.Context, exec mysql.Exec) (int64, error) {
-	return orm.TableWithCount(ctx, exec, TableAccountName, nil)
+func AccountWithCount(ctx context.Context, exec mysql.Exec, where map[string]interface{}) (int64, error) {
+	return orm.TableWithCount(ctx, exec, TableAccountName, where)
 }
 
 func AccountWithSelectOneByUniqeKey(ctx context.Context, exec mysql.Exec, fieldName, fieldValue string) (*Account, error) {

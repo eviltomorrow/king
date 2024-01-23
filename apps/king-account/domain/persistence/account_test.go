@@ -67,7 +67,7 @@ func TestAccountWithCount(t *testing.T) {
 		_assert.Equal(affected, int64(1))
 	}
 
-	count, err := AccountWithCount(ctx, mysql.DB)
+	count, err := AccountWithCount(ctx, mysql.DB, nil)
 	_assert.Nil(err)
 	_assert.Equal(int64(3), count)
 }
