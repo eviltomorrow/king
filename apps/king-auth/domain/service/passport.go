@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	PassportStatus     int8
+	PassportStatus     int32
 	PassportAuthMethod int8
 )
 
@@ -36,7 +36,7 @@ type Passport struct {
 	Code            string    `json:"code"`
 	Email           string    `json:"email"`
 	Phone           string    `json:"phone"`
-	Status          int8      `json:"status"`
+	Status          int32     `json:"status"`
 	CreateTimestamp time.Time `json:"create_timestamp"`
 }
 
@@ -78,7 +78,7 @@ func PassportWithRegister(ctx context.Context, account, password string) (string
 		Account:      account,
 		Salt:         s,
 		SaltPassword: p,
-		Status:       int8(NORMAL),
+		Status:       int32(NORMAL),
 	}
 
 	if _, err := persistence.PassportWithInsertOne(ctx, mysql.DB, data); err != nil {
@@ -130,13 +130,25 @@ func authWithPassword(ctx context.Context, account, password string) (*Passport,
 }
 
 func PassportWithChangeStatus(ctx context.Context, status PassportStatus, id string) error {
+	if id == "" {
+		return fmt.Errorf("id is nil")
+	}
+	switch status {
+	case NORMAL:
+	case LOCK:
+	default:
+		return fmt.Errorf("not support status[%v]", status)
+	}
 	_, err := persistence.PassportWithUpdateStatus(ctx, mysql.DB, int8(status), id)
 	return err
 }
 
 func PassportWithChangePassword(ctx context.Context, password string, id string) error {
 	if password == "" {
-		return fmt.Errorf("account/password is nil")
+		return fmt.Errorf("password is nil")
+	}
+	if id == "" {
+		return fmt.Errorf("id is nil")
 	}
 
 	s := encrypt.Salt()
@@ -146,11 +158,17 @@ func PassportWithChangePassword(ctx context.Context, password string, id string)
 }
 
 func PassportWithRemove(ctx context.Context, id string) error {
+	if id == "" {
+		return fmt.Errorf("id is nil")
+	}
 	_, err := persistence.PassportWithDeleteOne(ctx, mysql.DB, id)
 	return err
 }
 
 func PassportWithGet(ctx context.Context, account string) (*Passport, error) {
+	if account == "" {
+		return nil, fmt.Errorf("account is nil")
+	}
 	p, err := persistence.PassportWithSelectOneByAccount(ctx, mysql.DB, account)
 	if err == sql.ErrNoRows {
 		return nil, ErrPassportNoAccount

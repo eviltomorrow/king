@@ -139,7 +139,7 @@ type Passport struct {
 	SaltPassword    string         `json:"salt_password"`
 	Email           sql.NullString `json:"email"`
 	Phone           sql.NullString `json:"phone"`
-	Status          int8           `json:"status"`
+	Status          int32          `json:"status"`
 	CreateTimestamp time.Time      `json:"create_timestamp"`
 	ModifyTimestamp sql.NullTime   `json:"modify_timestamp"`
 }

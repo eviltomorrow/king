@@ -44,7 +44,7 @@ type PassportClient interface {
 	BindThirdPartyAccount(ctx context.Context, in *BindThirdPartyAccountReq, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	ConfirmCode(ctx context.Context, in *ConfirmCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateVerificationCode(ctx context.Context, in *CreateVerificationCodeReq, opts ...grpc.CallOption) (*CreateVerificationCodeResp, error)
-	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	Auth(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*Token, error)
 	RenewToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Token, error)
 	VerifyToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -92,8 +92,8 @@ func (c *passportClient) CreateVerificationCode(ctx context.Context, in *CreateV
 	return out, nil
 }
 
-func (c *passportClient) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *passportClient) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
 	err := c.cc.Invoke(ctx, Passport_Register_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ type PassportServer interface {
 	BindThirdPartyAccount(context.Context, *BindThirdPartyAccountReq) (*wrapperspb.StringValue, error)
 	ConfirmCode(context.Context, *ConfirmCodeReq) (*emptypb.Empty, error)
 	CreateVerificationCode(context.Context, *CreateVerificationCodeReq) (*CreateVerificationCodeResp, error)
-	Register(context.Context, *RegisterReq) (*emptypb.Empty, error)
+	Register(context.Context, *RegisterReq) (*wrapperspb.StringValue, error)
 	Auth(context.Context, *AuthReq) (*Token, error)
 	RenewToken(context.Context, *Token) (*Token, error)
 	VerifyToken(context.Context, *Token) (*emptypb.Empty, error)
@@ -225,7 +225,7 @@ func (UnimplementedPassportServer) ConfirmCode(context.Context, *ConfirmCodeReq)
 func (UnimplementedPassportServer) CreateVerificationCode(context.Context, *CreateVerificationCodeReq) (*CreateVerificationCodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateVerificationCode not implemented")
 }
-func (UnimplementedPassportServer) Register(context.Context, *RegisterReq) (*emptypb.Empty, error) {
+func (UnimplementedPassportServer) Register(context.Context, *RegisterReq) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedPassportServer) Auth(context.Context, *AuthReq) (*Token, error) {

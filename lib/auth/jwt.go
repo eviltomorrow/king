@@ -38,7 +38,7 @@ func JwtWithCreateToken(accountId string, role string, expireIn time.Duration) (
 	return signed, nil
 }
 
-func JwtWithVerifyToken(tokenStr string, f func(string) error) (*JwtClaims, error) {
+func JwtWithParseToken(tokenStr string, f func(string) error) (*JwtClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &JwtClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(SigningKey), nil
 	})

@@ -11,7 +11,7 @@ service Passport {
     rpc ConfirmCode(ConfirmCodeReq) returns (google.protobuf.Empty);
     rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
 
-    rpc Register(RegisterReq) returns (google.protobuf.Empty);
+    rpc Register(RegisterReq) returns (google.protobuf.StringValue);
     rpc Auth(AuthReq) returns (Token);
     rpc RenewToken(Token) returns (Token);
     rpc VerifyToken(Token) returns (google.protobuf.Empty);

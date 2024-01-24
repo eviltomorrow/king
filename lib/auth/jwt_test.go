@@ -16,7 +16,7 @@ func TestJwtWithCreateToken(t *testing.T) {
 
 	// time.Sleep(10 * time.Second)
 	token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoic2hlcGFyZCIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTcwNjA3NDM5MiwibmJmIjoxNzA2MDc0Mzg5LCJpYXQiOjE3MDYwNzQzODl9.6gazgKo4zy2Y90vf6K1oxaRvS7Qcdo5U_DCYaFotbrI`
-	c, err := JwtWithVerifyToken(token, nil)
+	c, err := JwtWithParseToken(token, nil)
 	_assert.Nil(err)
 	t.Logf("%s\r\n", c)
 }
