@@ -17,6 +17,7 @@ service Passport {
     rpc RevokeToken(Token) returns (google.protobuf.Empty);
     rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
 
+    rpc Exist(google.protobuf.StringValue) returns (google.protobuf.BoolValue);
     rpc Lock(google.protobuf.StringValue) returns (google.protobuf.Empty);
     rpc Unlock(google.protobuf.StringValue) returns (google.protobuf.Empty);
     rpc Get(google.protobuf.StringValue) returns (User);

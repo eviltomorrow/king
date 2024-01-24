@@ -11,7 +11,7 @@ import (
 
 var tokenPrefix = "token_"
 
-func SwithJwtTokenToStateToken(jwtToken string) (string, error) {
+func SwitchJwtTokenToStateToken(jwtToken string) (string, error) {
 	h := sha256.New()
 	if _, err := h.Write([]byte(jwtToken)); err != nil {
 		return "", fmt.Errorf("panic: write sha256 failure, nest error: %v", err)

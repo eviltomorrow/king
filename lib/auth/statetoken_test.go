@@ -25,7 +25,7 @@ func TestRenewStateToken(t *testing.T) {
 	_assert.Nil(err)
 	t.Logf("%s\r\n", token)
 
-	stateToken, err := SwithJwtTokenToStateToken(token)
+	stateToken, err := SwitchJwtTokenToStateToken(token)
 	_assert.Nil(err)
 	t.Logf("%s\r\n", stateToken)
 

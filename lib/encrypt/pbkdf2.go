@@ -12,7 +12,7 @@ import (
 )
 
 func Salt() string {
-	hash := md5.Sum([]byte(randomStr(32)))
+	hash := md5.Sum([]byte(RandomStr(32)))
 	return hex.EncodeToString(hash[:])
 }
 
@@ -33,7 +33,7 @@ const (
 	letterIdMax  = 63 / letterIdBits
 )
 
-func randomStr(n int) string {
+func RandomStr(n int) string {
 	b := make([]byte, n)
 	// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!
 	for i, cache, remain := n-1, src.Int63(), letterIdMax; i >= 0; {
