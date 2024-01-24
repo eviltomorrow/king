@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	redis.DSN = "redis://:admin123@localhost:6379/1?protocol=3"
+	redis.DSN = "redis://:admin123@localhost:6379/0?protocol=3"
 	if err := redis.Connect(); err != nil {
 		log.Fatal(err)
 	}

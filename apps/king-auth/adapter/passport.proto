@@ -9,13 +9,13 @@ package auth;
 service Passport {
     rpc BindThirdPartyAccount(BindThirdPartyAccountReq) returns (google.protobuf.StringValue);
     rpc ConfirmCode(ConfirmCodeReq) returns (google.protobuf.Empty);
+    rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
 
     rpc Register(RegisterReq) returns (google.protobuf.Empty);
     rpc Auth(AuthReq) returns (Token);
     rpc RenewToken(Token) returns (Token);
     rpc VerifyToken(Token) returns (google.protobuf.Empty);
     rpc RevokeToken(Token) returns (google.protobuf.Empty);
-    rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
 
     rpc Exist(google.protobuf.StringValue) returns (google.protobuf.BoolValue);
     rpc Lock(google.protobuf.StringValue) returns (google.protobuf.Empty);

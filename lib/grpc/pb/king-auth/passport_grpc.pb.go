@@ -23,12 +23,13 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Passport_BindThirdPartyAccount_FullMethodName  = "/auth.Passport/BindThirdPartyAccount"
 	Passport_ConfirmCode_FullMethodName            = "/auth.Passport/ConfirmCode"
+	Passport_CreateVerificationCode_FullMethodName = "/auth.Passport/CreateVerificationCode"
 	Passport_Register_FullMethodName               = "/auth.Passport/Register"
 	Passport_Auth_FullMethodName                   = "/auth.Passport/Auth"
 	Passport_RenewToken_FullMethodName             = "/auth.Passport/RenewToken"
 	Passport_VerifyToken_FullMethodName            = "/auth.Passport/VerifyToken"
 	Passport_RevokeToken_FullMethodName            = "/auth.Passport/RevokeToken"
-	Passport_CreateVerificationCode_FullMethodName = "/auth.Passport/CreateVerificationCode"
+	Passport_Exist_FullMethodName                  = "/auth.Passport/Exist"
 	Passport_Lock_FullMethodName                   = "/auth.Passport/Lock"
 	Passport_Unlock_FullMethodName                 = "/auth.Passport/Unlock"
 	Passport_Get_FullMethodName                    = "/auth.Passport/Get"
@@ -42,12 +43,13 @@ const (
 type PassportClient interface {
 	BindThirdPartyAccount(ctx context.Context, in *BindThirdPartyAccountReq, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	ConfirmCode(ctx context.Context, in *ConfirmCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateVerificationCode(ctx context.Context, in *CreateVerificationCodeReq, opts ...grpc.CallOption) (*CreateVerificationCodeResp, error)
 	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Auth(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*Token, error)
 	RenewToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Token, error)
 	VerifyToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RevokeToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateVerificationCode(ctx context.Context, in *CreateVerificationCodeReq, opts ...grpc.CallOption) (*CreateVerificationCodeResp, error)
+	Exist(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 	Lock(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Unlock(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Get(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error)
@@ -75,6 +77,15 @@ func (c *passportClient) BindThirdPartyAccount(ctx context.Context, in *BindThir
 func (c *passportClient) ConfirmCode(ctx context.Context, in *ConfirmCodeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Passport_ConfirmCode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passportClient) CreateVerificationCode(ctx context.Context, in *CreateVerificationCodeReq, opts ...grpc.CallOption) (*CreateVerificationCodeResp, error) {
+	out := new(CreateVerificationCodeResp)
+	err := c.cc.Invoke(ctx, Passport_CreateVerificationCode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -126,9 +137,9 @@ func (c *passportClient) RevokeToken(ctx context.Context, in *Token, opts ...grp
 	return out, nil
 }
 
-func (c *passportClient) CreateVerificationCode(ctx context.Context, in *CreateVerificationCodeReq, opts ...grpc.CallOption) (*CreateVerificationCodeResp, error) {
-	out := new(CreateVerificationCodeResp)
-	err := c.cc.Invoke(ctx, Passport_CreateVerificationCode_FullMethodName, in, out, opts...)
+func (c *passportClient) Exist(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
+	out := new(wrapperspb.BoolValue)
+	err := c.cc.Invoke(ctx, Passport_Exist_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -186,12 +197,13 @@ func (c *passportClient) ModifyPassword(ctx context.Context, in *ModifyPasswordR
 type PassportServer interface {
 	BindThirdPartyAccount(context.Context, *BindThirdPartyAccountReq) (*wrapperspb.StringValue, error)
 	ConfirmCode(context.Context, *ConfirmCodeReq) (*emptypb.Empty, error)
+	CreateVerificationCode(context.Context, *CreateVerificationCodeReq) (*CreateVerificationCodeResp, error)
 	Register(context.Context, *RegisterReq) (*emptypb.Empty, error)
 	Auth(context.Context, *AuthReq) (*Token, error)
 	RenewToken(context.Context, *Token) (*Token, error)
 	VerifyToken(context.Context, *Token) (*emptypb.Empty, error)
 	RevokeToken(context.Context, *Token) (*emptypb.Empty, error)
-	CreateVerificationCode(context.Context, *CreateVerificationCodeReq) (*CreateVerificationCodeResp, error)
+	Exist(context.Context, *wrapperspb.StringValue) (*wrapperspb.BoolValue, error)
 	Lock(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	Unlock(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	Get(context.Context, *wrapperspb.StringValue) (*User, error)
@@ -210,6 +222,9 @@ func (UnimplementedPassportServer) BindThirdPartyAccount(context.Context, *BindT
 func (UnimplementedPassportServer) ConfirmCode(context.Context, *ConfirmCodeReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmCode not implemented")
 }
+func (UnimplementedPassportServer) CreateVerificationCode(context.Context, *CreateVerificationCodeReq) (*CreateVerificationCodeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateVerificationCode not implemented")
+}
 func (UnimplementedPassportServer) Register(context.Context, *RegisterReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
@@ -225,8 +240,8 @@ func (UnimplementedPassportServer) VerifyToken(context.Context, *Token) (*emptyp
 func (UnimplementedPassportServer) RevokeToken(context.Context, *Token) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RevokeToken not implemented")
 }
-func (UnimplementedPassportServer) CreateVerificationCode(context.Context, *CreateVerificationCodeReq) (*CreateVerificationCodeResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateVerificationCode not implemented")
+func (UnimplementedPassportServer) Exist(context.Context, *wrapperspb.StringValue) (*wrapperspb.BoolValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Exist not implemented")
 }
 func (UnimplementedPassportServer) Lock(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Lock not implemented")
@@ -288,6 +303,24 @@ func _Passport_ConfirmCode_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PassportServer).ConfirmCode(ctx, req.(*ConfirmCodeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Passport_CreateVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVerificationCodeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassportServer).CreateVerificationCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Passport_CreateVerificationCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassportServer).CreateVerificationCode(ctx, req.(*CreateVerificationCodeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -382,20 +415,20 @@ func _Passport_RevokeToken_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Passport_CreateVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateVerificationCodeReq)
+func _Passport_Exist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PassportServer).CreateVerificationCode(ctx, in)
+		return srv.(PassportServer).Exist(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Passport_CreateVerificationCode_FullMethodName,
+		FullMethod: Passport_Exist_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassportServer).CreateVerificationCode(ctx, req.(*CreateVerificationCodeReq))
+		return srv.(PassportServer).Exist(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -506,6 +539,10 @@ var Passport_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Passport_ConfirmCode_Handler,
 		},
 		{
+			MethodName: "CreateVerificationCode",
+			Handler:    _Passport_CreateVerificationCode_Handler,
+		},
+		{
 			MethodName: "Register",
 			Handler:    _Passport_Register_Handler,
 		},
@@ -526,8 +563,8 @@ var Passport_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Passport_RevokeToken_Handler,
 		},
 		{
-			MethodName: "CreateVerificationCode",
-			Handler:    _Passport_CreateVerificationCode_Handler,
+			MethodName: "Exist",
+			Handler:    _Passport_Exist_Handler,
 		},
 		{
 			MethodName: "Lock",
