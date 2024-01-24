@@ -9,15 +9,15 @@ import (
 )
 
 var (
-	DefaultAccessTokenExpiresIn  = 5 * time.Minute
-	DefaultRefreshTokenExpiresIn = 120 * time.Minute
+	DefaultAccessTokenExpiresIn  = 10 * time.Minute
+	DefaultRefreshTokenExpiresIn = 720 * time.Minute
 )
 
 func TokenWithApply(ctx context.Context, id, role string, accessTokenExpiresIn, refreshTokenExpiresIn time.Duration) (Token, string, error) {
 	if id == "" || role == "" {
 		return Token{}, "", fmt.Errorf("id/role is nil")
 	}
-	if accessTokenExpiresIn < 5*time.Minute || accessTokenExpiresIn > refreshTokenExpiresIn {
+	if accessTokenExpiresIn < DefaultAccessTokenExpiresIn || accessTokenExpiresIn > refreshTokenExpiresIn {
 		return Token{}, "", fmt.Errorf("expires_in is wrong")
 	}
 
