@@ -1,13 +1,17 @@
 package redis
 
 import (
+	"context"
 	"log"
 	"testing"
 )
 
 func TestConnect(t *testing.T) {
-	DSN = "redis://:admin123@localhost:6379/1?protocol=3"
+	DSN = "redis://:admin123@localhost:6379/0?protocol=3"
 	if err := Connect(); err != nil {
 		log.Fatal(err)
 	}
+
+	s := RDB.Set(context.Background(), "k", "v", 0)
+	t.Log(s.Err())
 }

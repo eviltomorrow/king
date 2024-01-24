@@ -4,24 +4,34 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "./;pb";
-package account;
+package auth;
 
 service Passport {
     rpc BindThirdPartyAccount(BindThirdPartyAccountReq) returns (google.protobuf.StringValue);
     rpc ConfirmCode(ConfirmCodeReq) returns (google.protobuf.Empty);
 
     rpc Register(RegisterReq) returns (google.protobuf.Empty);
-    rpc Auth(AuthReq) returns (google.protobuf.Empty);
-    rpc CreateVerificationCode(CreateVerificationCodeReq) returns (google.protobuf.StringValue);
+    rpc Auth(AuthReq) returns (Token);
+    rpc RenewToken(Token) returns (Token);
+    rpc VerifyToken(Token) returns (google.protobuf.Empty);
+    rpc RevokeToken(Token) returns (google.protobuf.Empty);
+    rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
 
     rpc Lock(google.protobuf.StringValue) returns (google.protobuf.Empty);
     rpc Unlock(google.protobuf.StringValue) returns (google.protobuf.Empty);
-    rpc Get(google.protobuf.StringValue) returns (Account);
+    rpc Get(google.protobuf.StringValue) returns (User);
     rpc Remove(google.protobuf.StringValue) returns (google.protobuf.Empty);
     rpc ModifyPassword(ModifyPasswordReq) returns (google.protobuf.Empty);
 }
 
-message Account {
+message Token {
+    string access_token = 1;
+    string token_type = 2;
+    string refresh_token = 3;
+    int64 expires_in = 4;
+}
+
+message User {
     string id = 1;
     string account = 2;
     string code = 3;
@@ -71,6 +81,11 @@ message CreateVerificationCodeReq {
     }
     Type type = 1;
     string account = 2;
+}
+
+message CreateVerificationCodeResp {
+    string code = 1;
+    int64 expires_in = 2;
 }
 
 message ModifyPasswordReq {

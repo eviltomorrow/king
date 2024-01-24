@@ -17,7 +17,7 @@ func Salt() string {
 }
 
 func Key(salt, password string) string {
-	key := pbkdf2.Key([]byte(password), []byte(salt), 10000, 32, sha256.New)
+	key := pbkdf2.Key([]byte(password), []byte(salt), 128, 32, sha256.New)
 	return hex.EncodeToString(key)
 }
 
