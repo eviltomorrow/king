@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	DefaultAccessTokenExpiresIn  = 10 * time.Minute
-	DefaultRefreshTokenExpiresIn = 720 * time.Minute
+	AccessTokenExpiresIn  = 10 * time.Minute
+	RefreshTokenExpiresIn = 120 * time.Minute
 )
 
 func TokenWithTryApply(ctx context.Context, id string) (bool, error) {
@@ -26,7 +26,7 @@ func TokenWithApply(ctx context.Context, id, role string, accessTokenExpiresIn, 
 	if id == "" || role == "" {
 		return Token{}, "", fmt.Errorf("id/role is nil")
 	}
-	if accessTokenExpiresIn < DefaultAccessTokenExpiresIn || accessTokenExpiresIn > refreshTokenExpiresIn {
+	if accessTokenExpiresIn < AccessTokenExpiresIn || accessTokenExpiresIn > refreshTokenExpiresIn {
 		return Token{}, "", fmt.Errorf("expires_in is wrong")
 	}
 
@@ -68,7 +68,7 @@ func TokenWithRenew(ctx context.Context, token Token) (Token, string, error) {
 		return Token{}, "", fmt.Errorf("parse refresh_token failure, nest error: %v", err)
 	}
 
-	return TokenWithApply(ctx, cliams.AccountId, cliams.Role, DefaultAccessTokenExpiresIn, DefaultRefreshTokenExpiresIn)
+	return TokenWithApply(ctx, cliams.AccountId, cliams.Role, AccessTokenExpiresIn, RefreshTokenExpiresIn)
 }
 
 func TokenWithVerify(ctx context.Context, token Token) error {

@@ -1,3 +1,9 @@
+[global]
+access-token-expires-in = "10m"
+refresh-token-expires-in = "120m"
+
+token-limit-per-account = 10
+
 [server]
     host = "0.0.0.0"
     port = 5277

@@ -61,7 +61,7 @@ func (g *GRPC) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Token, error) {
 		return nil, err
 	}
 
-	token, _, err := service.TokenWithApply(ctx, passport.Id, "admin", service.DefaultAccessTokenExpiresIn, service.DefaultRefreshTokenExpiresIn)
+	token, _, err := service.TokenWithApply(ctx, passport.Id, "admin", service.AccessTokenExpiresIn, service.RefreshTokenExpiresIn)
 	if err != nil {
 		return nil, err
 	}

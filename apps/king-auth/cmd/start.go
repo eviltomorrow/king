@@ -10,9 +10,12 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-auth/conf"
 	"github.com/eviltomorrow/king/apps/king-auth/domain/server"
+	"github.com/eviltomorrow/king/apps/king-auth/domain/service"
+	"github.com/eviltomorrow/king/lib/auth"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"
+	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/db/redis"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/fs"
@@ -110,6 +113,15 @@ func loadConfig() error {
 func setGlobalVars() error {
 	middleware.LogDir = filepath.Join(system.Runtime.RootDir, "/var/log")
 	etcd.Endpoints = cfg.Etcd.Endpoints
+	redis.DSN = cfg.Redis.DSN
+	mysql.DSN = cfg.MySQL.DSN
+	mysql.MinOpen = cfg.MySQL.MinOpen
+	mysql.MaxOpen = cfg.MySQL.MaxOpen
+	opentrace.OtelDSN = cfg.Otel.DSN
+
+	service.AccessTokenExpiresIn = cfg.Global.AccessTokenExpiresIn
+	service.RefreshTokenExpiresIn = cfg.Global.RefreshTokenExpiresIn
+	auth.TokenLimitPerAccount = cfg.Global.TokenLimitPerAccount
 	return nil
 }
 
@@ -128,6 +140,10 @@ func runDB() error {
 	}
 	cleanup.RegisterCleanupFuncs(redis.Close)
 
+	if err := mysql.Connect(); err != nil {
+		return err
+	}
+	cleanup.RegisterCleanupFuncs(mysql.Close)
 	return nil
 }
 
