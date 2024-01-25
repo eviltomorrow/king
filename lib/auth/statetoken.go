@@ -42,6 +42,25 @@ func StateTokenWithSearch(ctx context.Context, token string) (string, error) {
 	return c.Result()
 }
 
+func StateTokenWithSearchList(ctx context.Context, id string) ([]string, error) {
+	key := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
+	c := redis.RDB.HGetAll(ctx, key)
+	if err := c.Err(); err != nil {
+		return nil, err
+	}
+	data, err := c.Result()
+	if err != nil {
+		return nil, err
+	}
+
+	tokens := make([]string, 0, len(data))
+	for k := range data {
+		tokens = append(tokens, k)
+	}
+
+	return tokens, nil
+}
+
 func StateTokenWithRenew(ctx context.Context, oldToken, newToken string, id string, expiresIn time.Duration) error {
 	if newToken == "" || id == "" {
 		return fmt.Errorf("new_token/id is nil")
@@ -85,6 +104,28 @@ func StateTokenWithRenew(ctx context.Context, oldToken, newToken string, id stri
 		}
 	}
 
+	return nil
+}
+
+func StateTokenWithRevokeAll(ctx context.Context, id string) error {
+	tokens, err := StateTokenWithSearchList(ctx, id)
+	if err != nil {
+		return err
+	}
+	keys := make([]string, 0, len(tokens))
+	for _, token := range tokens {
+		key := fmt.Sprintf("%s%s", tokenPrefix, token)
+		keys = append(keys, key)
+	}
+	i := redis.RDB.Del(ctx, keys...)
+	if err := i.Err(); err != nil {
+		return err
+	}
+	key := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
+	i = redis.RDB.Del(ctx, key)
+	if err := i.Err(); err != nil {
+		return err
+	}
 	return nil
 }
 

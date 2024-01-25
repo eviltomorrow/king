@@ -82,7 +82,7 @@ func TokenWithVerify(ctx context.Context, token Token) error {
 	return nil
 }
 
-func TokenWithRevoke(ctx context.Context, token Token) error {
+func TokenWithRevokeByToken(ctx context.Context, token Token) error {
 	if token.RefreshToken == "" {
 		return fmt.Errorf("refresh_token is nil")
 	}
@@ -93,4 +93,12 @@ func TokenWithRevoke(ctx context.Context, token Token) error {
 	}
 
 	return auth.StateTokenWithRevoke(ctx, stateRefreshToken)
+}
+
+func TokenWithRevokeByAccountId(ctx context.Context, id string) error {
+	if id == "" {
+		return fmt.Errorf("id is nil")
+	}
+
+	return auth.StateTokenWithRevokeAll(ctx, id)
 }

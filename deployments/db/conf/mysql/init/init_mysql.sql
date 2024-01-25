@@ -52,11 +52,11 @@ CREATE TABLE `king_storage`.`stock` (
      PRIMARY KEY(`code`)
 );
 
-CREATE DATABASE IF NOT EXISTS `king_account` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-GRANT ALL ON king_account.* TO 'admin'@'%';
+CREATE DATABASE IF NOT EXISTS `king_auth` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON king_auth.* TO 'admin'@'%';
 
 -- CREATE TABLE passport
-DROP TABLE IF EXISTS `king_account`.`passport`;
+DROP TABLE IF EXISTS `king_auth`.`passport`;
 CREATE TABLE `king_account`.`passport` (
     `id` CHAR(21) NOT NULL PRIMARY KEY,
     `account` VARCHAR(32) NOT NULL COMMENT '账户',
@@ -70,10 +70,13 @@ CREATE TABLE `king_account`.`passport` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 
-CREATE UNIQUE INDEX idx_account ON `king_account`.`passport`(`account`);
-CREATE UNIQUE INDEX idx_code ON `king_account`.`passport`(`code`);
-CREATE UNIQUE INDEX idx_email ON `king_account`.`passport`(`email`);
-CREATE UNIQUE INDEX idx_phone ON `king_account`.`passport`(`phone`);
+CREATE UNIQUE INDEX idx_account ON `king_auth`.`passport`(`account`);
+CREATE UNIQUE INDEX idx_code ON `king_auth`.`passport`(`code`);
+CREATE UNIQUE INDEX idx_email ON `king_auth`.`passport`(`email`);
+CREATE UNIQUE INDEX idx_phone ON `king_auth`.`passport`(`phone`);
+
+CREATE DATABASE IF NOT EXISTS `king_account` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON king_account.* TO 'admin'@'%';
 
 -- CREATE TABLE assets
 DROP TABLE IF EXISTS `king_account`.`assets`;

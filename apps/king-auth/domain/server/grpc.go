@@ -42,7 +42,7 @@ func (g *GRPC) Register(ctx context.Context, req *pb.RegisterReq) (*wrapperspb.S
 
 func (g *GRPC) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Token, error) {
 	if req == nil || req.Credential == nil {
-		return nil, fmt.Errorf("req is nil")
+		return nil, fmt.Errorf("req/credential is nil")
 	}
 
 	var authMethod service.PassportAuthMethod
@@ -69,50 +69,29 @@ func (g *GRPC) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Token, error) {
 	return &pb.Token{AccessToken: token.AccessToken, TokenType: token.TokenType, RefreshToken: token.RefreshToken, ExpiresIn: token.ExpiresIn}, nil
 }
 
-func (g *GRPC) RenewToken(ctx context.Context, req *pb.Token) (resp *pb.Token, err error) {
+func (g *GRPC) RenewToken(ctx context.Context, req *pb.Token) (*pb.Token, error) {
 	if req == nil {
 		return nil, fmt.Errorf("req is nil")
 	}
 
-	// token := service.Token{
-	// 	AccessToken:  req.AccessToken,
-	// 	TokenType:    req.TokenType,
-	// 	RefreshToken: req.RefreshToken,
-	// 	ExpiresIn:    req.ExpiresIn,
-	// }
+	token := service.Token{
+		AccessToken:  req.AccessToken,
+		TokenType:    req.TokenType,
+		RefreshToken: req.RefreshToken,
+		ExpiresIn:    req.ExpiresIn,
+	}
 
-	// newToken, accountId, e := service.TokenWithRenew(ctx, token)
-	// if e != nil {
-	// 	return nil, e
-	// }
-	// resp = &pb.Token{
-	// 	AccessToken:  newToken.AccessToken,
-	// 	TokenType:    newToken.TokenType,
-	// 	RefreshToken: newToken.RefreshToken,
-	// 	ExpiresIn:    newToken.ExpiresIn,
-	// }
+	newToken, _, err := service.TokenWithRenew(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pb.Token{
+		AccessToken:  newToken.AccessToken,
+		TokenType:    newToken.TokenType,
+		RefreshToken: newToken.RefreshToken,
+		ExpiresIn:    newToken.ExpiresIn,
+	}
 
-	// var stateRefreshToken string
-	// stateRefreshToken, err = auth.SwitchJwtTokenToStateToken(newToken.RefreshToken)
-	// if err != nil {
-	// 	zlog.Warn("SwitchJwtTokenToStateToken failure", zap.Error(err), zap.String("account_id", accountId))
-	// 	return
-	// }
-
-	// var ok bool
-	// ok, err = auth.SearchStateToken(ctx, stateRefreshToken)
-	// if err != nil {
-	// 	zlog.Warn("SearchStateToken failure", zap.Error(err), zap.String("account_id", accountId))
-	// 	return
-	// }
-	// if !ok {
-	// 	return nil, fmt.Errorf("state_token is not found")
-	// }
-
-	// if err = auth.RevokeStateToken(ctx, stateRefreshToken); err != nil {
-	// 	zlog.Warn("revoke state_token failure", zap.Error(err), zap.String("account_id", accountId))
-	// 	return
-	// }
 	return resp, nil
 }
 
@@ -140,7 +119,7 @@ func (g *GRPC) RevokeToken(ctx context.Context, req *pb.Token) (*emptypb.Empty, 
 		RefreshToken: req.RefreshToken,
 		ExpiresIn:    req.ExpiresIn,
 	}
-	return &emptypb.Empty{}, service.TokenWithRevoke(ctx, token)
+	return &emptypb.Empty{}, service.TokenWithRevokeByToken(ctx, token)
 }
 
 func (g *GRPC) Exist(ctx context.Context, req *wrapperspb.StringValue) (*wrapperspb.BoolValue, error) {
