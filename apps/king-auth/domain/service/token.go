@@ -6,12 +6,21 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/auth"
+	"github.com/eviltomorrow/king/lib/zlog"
+	"go.uber.org/zap"
 )
 
 var (
 	DefaultAccessTokenExpiresIn  = 10 * time.Minute
 	DefaultRefreshTokenExpiresIn = 720 * time.Minute
 )
+
+func TokenWithTryApply(ctx context.Context, id string) (bool, error) {
+	if id == "" {
+		return false, fmt.Errorf("id is nil")
+	}
+	return false, nil
+}
 
 func TokenWithApply(ctx context.Context, id, role string, accessTokenExpiresIn, refreshTokenExpiresIn time.Duration) (Token, string, error) {
 	if id == "" || role == "" {
@@ -35,6 +44,15 @@ func TokenWithApply(ctx context.Context, id, role string, accessTokenExpiresIn, 
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int64(accessTokenExpiresIn.Seconds()),
+	}
+
+	stateRefreshToken, err := auth.StateTokenWithParseJwtToken(token.RefreshToken)
+	if err != nil {
+		zlog.Warn("StateTokenWithParseJwtToken failure", zap.Error(err), zap.String("accountId", id))
+	} else {
+		if err := auth.StateTokenWithRenew(ctx, "", stateRefreshToken, id, refreshTokenExpiresIn); err != nil {
+			zlog.Warn("RenewStateToken failure", zap.Error(err), zap.String("accountId", id))
+		}
 	}
 
 	return token, id, nil
@@ -69,10 +87,10 @@ func TokenWithRevoke(ctx context.Context, token Token) error {
 		return fmt.Errorf("refresh_token is nil")
 	}
 
-	stateRefreshToken, err := auth.SwitchJwtTokenToStateToken(token.RefreshToken)
+	stateRefreshToken, err := auth.StateTokenWithParseJwtToken(token.RefreshToken)
 	if err != nil {
 		return fmt.Errorf("switch refresh_token to state_token failure, nest error: %v", err)
 	}
 
-	return auth.RevokeStateToken(ctx, stateRefreshToken)
+	return auth.StateTokenWithRevoke(ctx, stateRefreshToken)
 }

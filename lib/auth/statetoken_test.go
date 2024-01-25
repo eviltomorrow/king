@@ -25,14 +25,14 @@ func TestRenewStateToken(t *testing.T) {
 	_assert.Nil(err)
 	t.Logf("%s\r\n", token)
 
-	stateToken, err := SwitchJwtTokenToStateToken(token)
+	stateToken, err := StateTokenWithParseJwtToken(token)
 	_assert.Nil(err)
 	t.Logf("%s\r\n", stateToken)
 
-	err = RenewStateToken(context.Background(), "", stateToken, "shepard", expiresIn)
+	err = StateTokenWithRenew(context.Background(), "", stateToken, "shepard", expiresIn)
 	_assert.Nil(err)
 
-	ok, err := SearchStateToken(context.Background(), stateToken)
+	v, err := StateTokenWithSearch(context.Background(), stateToken)
 	_assert.Nil(err)
-	_assert.Equal(true, ok)
+	_assert.Equal("shepard", v)
 }

@@ -14,4 +14,12 @@ func TestConnect(t *testing.T) {
 
 	s := RDB.Set(context.Background(), "k", "v", 0)
 	t.Log(s.Err())
+
+	r := RDB.Get(context.Background(), "k")
+	t.Log(r.Err())
+	t.Log(r.Result())
+
+	r = RDB.Get(context.Background(), "w")
+	t.Log(r.Err())
+	t.Log(r.Result())
 }

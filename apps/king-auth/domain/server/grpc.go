@@ -5,12 +5,9 @@ import (
 	"fmt"
 
 	"github.com/eviltomorrow/king/apps/king-auth/domain/service"
-	"github.com/eviltomorrow/king/lib/auth"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-auth"
 	"github.com/eviltomorrow/king/lib/grpc/server"
-	"github.com/eviltomorrow/king/lib/zlog"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -69,15 +66,6 @@ func (g *GRPC) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Token, error) {
 		return nil, err
 	}
 
-	stateRefreshToken, err := auth.SwitchJwtTokenToStateToken(token.RefreshToken)
-	if err != nil {
-		zlog.Warn("switch refresh_token to state_token failure", zap.Error(err), zap.String("accountId", passport.Id))
-	} else {
-		if err := auth.RenewStateToken(ctx, "", stateRefreshToken, passport.Id, service.DefaultRefreshTokenExpiresIn); err != nil {
-			zlog.Warn("RenewStateToken failure", zap.Error(err), zap.String("accountId", passport.Id))
-		}
-	}
-
 	return &pb.Token{AccessToken: token.AccessToken, TokenType: token.TokenType, RefreshToken: token.RefreshToken, ExpiresIn: token.ExpiresIn}, nil
 }
 
@@ -86,45 +74,45 @@ func (g *GRPC) RenewToken(ctx context.Context, req *pb.Token) (resp *pb.Token, e
 		return nil, fmt.Errorf("req is nil")
 	}
 
-	token := service.Token{
-		AccessToken:  req.AccessToken,
-		TokenType:    req.TokenType,
-		RefreshToken: req.RefreshToken,
-		ExpiresIn:    req.ExpiresIn,
-	}
+	// token := service.Token{
+	// 	AccessToken:  req.AccessToken,
+	// 	TokenType:    req.TokenType,
+	// 	RefreshToken: req.RefreshToken,
+	// 	ExpiresIn:    req.ExpiresIn,
+	// }
 
-	newToken, accountId, e := service.TokenWithRenew(ctx, token)
-	if e != nil {
-		return nil, e
-	}
-	resp = &pb.Token{
-		AccessToken:  newToken.AccessToken,
-		TokenType:    newToken.TokenType,
-		RefreshToken: newToken.RefreshToken,
-		ExpiresIn:    newToken.ExpiresIn,
-	}
+	// newToken, accountId, e := service.TokenWithRenew(ctx, token)
+	// if e != nil {
+	// 	return nil, e
+	// }
+	// resp = &pb.Token{
+	// 	AccessToken:  newToken.AccessToken,
+	// 	TokenType:    newToken.TokenType,
+	// 	RefreshToken: newToken.RefreshToken,
+	// 	ExpiresIn:    newToken.ExpiresIn,
+	// }
 
-	var stateRefreshToken string
-	stateRefreshToken, err = auth.SwitchJwtTokenToStateToken(newToken.RefreshToken)
-	if err != nil {
-		zlog.Warn("SwitchJwtTokenToStateToken failure", zap.Error(err), zap.String("account_id", accountId))
-		return
-	}
+	// var stateRefreshToken string
+	// stateRefreshToken, err = auth.SwitchJwtTokenToStateToken(newToken.RefreshToken)
+	// if err != nil {
+	// 	zlog.Warn("SwitchJwtTokenToStateToken failure", zap.Error(err), zap.String("account_id", accountId))
+	// 	return
+	// }
 
-	var ok bool
-	ok, err = auth.SearchStateToken(ctx, stateRefreshToken)
-	if err != nil {
-		zlog.Warn("SearchStateToken failure", zap.Error(err), zap.String("account_id", accountId))
-		return
-	}
-	if !ok {
-		return nil, fmt.Errorf("state_token is not found")
-	}
+	// var ok bool
+	// ok, err = auth.SearchStateToken(ctx, stateRefreshToken)
+	// if err != nil {
+	// 	zlog.Warn("SearchStateToken failure", zap.Error(err), zap.String("account_id", accountId))
+	// 	return
+	// }
+	// if !ok {
+	// 	return nil, fmt.Errorf("state_token is not found")
+	// }
 
-	if err = auth.RevokeStateToken(ctx, stateRefreshToken); err != nil {
-		zlog.Warn("revoke state_token failure", zap.Error(err), zap.String("account_id", accountId))
-		return
-	}
+	// if err = auth.RevokeStateToken(ctx, stateRefreshToken); err != nil {
+	// 	zlog.Warn("revoke state_token failure", zap.Error(err), zap.String("account_id", accountId))
+	// 	return
+	// }
 	return resp, nil
 }
 
