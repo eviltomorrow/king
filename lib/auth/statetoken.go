@@ -106,6 +106,21 @@ func StateTokenWithRenew(ctx context.Context, oldToken, newToken string, id stri
 		return fmt.Errorf("new_token/id is nil")
 	}
 
+	if oldToken != "" {
+		key := fmt.Sprintf("%s%s", tokenPrefix, oldToken)
+		c := redis.RDB.Exists(ctx, key)
+		if err := c.Err(); err != nil {
+			return err
+		}
+		ok, err := c.Result()
+		if err != nil {
+			return err
+		}
+		if ok != 1 {
+			return fmt.Errorf("please login again")
+		}
+	}
+
 	count, err := StateTokenWithCount(ctx, id)
 	if err != nil {
 		return err
