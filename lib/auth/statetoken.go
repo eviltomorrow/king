@@ -16,6 +16,11 @@ var (
 	TokenLimitPerAccount int64 = 10
 )
 
+/*
+  TODO:
+	LUA 改造
+*/
+
 func StateTokenWithParseJwtToken(jwtToken string) (string, error) {
 	h := sha256.New()
 	if _, err := h.Write([]byte(jwtToken)); err != nil {
@@ -24,25 +29,60 @@ func StateTokenWithParseJwtToken(jwtToken string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+func stateTokenWithCleanExpires(ctx context.Context, id string) error {
+	key := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
+	c := redis.RDB.HGetAll(ctx, key)
+	if err := c.Err(); err != nil {
+		return err
+	}
+	data, err := c.Result()
+	if err != nil {
+		return err
+	}
+
+	exists := make([]string, 0, len(data))
+	for k := range data {
+		i := redis.RDB.Exists(ctx, fmt.Sprintf("%s%s", tokenPrefix, k))
+		if err := i.Err(); err != nil {
+			continue
+		}
+		if v, err := i.Result(); err != nil {
+			continue
+		} else {
+			if v == 0 {
+				exists = append(exists, k)
+			}
+		}
+	}
+	if len(exists) != 0 {
+		d := redis.RDB.Del(ctx, exists...)
+		if err := d.Err(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func StateTokenWithCount(ctx context.Context, id string) (int64, error) {
+	if err := stateTokenWithCleanExpires(ctx, id); err != nil {
+		return 0, err
+	}
+
 	key := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
 	c := redis.RDB.HLen(ctx, key)
 	if err := c.Err(); err != nil {
 		return 0, err
 	}
-	return c.Result()
-}
 
-func StateTokenWithSearch(ctx context.Context, token string) (string, error) {
-	key := fmt.Sprintf("%s%s", tokenPrefix, token)
-	c := redis.RDB.Get(ctx, key)
-	if err := c.Err(); err != nil {
-		return "", err
-	}
 	return c.Result()
 }
 
 func StateTokenWithSearchList(ctx context.Context, id string) ([]string, error) {
+	if err := stateTokenWithCleanExpires(ctx, id); err != nil {
+		return nil, err
+	}
+
 	key := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
 	c := redis.RDB.HGetAll(ctx, key)
 	if err := c.Err(); err != nil {
@@ -83,10 +123,6 @@ func StateTokenWithRenew(ctx context.Context, oldToken, newToken string, id stri
 	accountKey := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
 	i := redis.RDB.HSet(ctx, accountKey, newToken, 0)
 	if err := i.Err(); err != nil {
-		return err
-	}
-	b := redis.RDB.Expire(ctx, fmt.Sprintf("%s:%s", accountKey, newToken), expiresIn)
-	if err := b.Err(); err != nil {
 		return err
 	}
 
@@ -130,20 +166,25 @@ func StateTokenWithRevokeAll(ctx context.Context, id string) error {
 }
 
 func StateTokenWithRevoke(ctx context.Context, token string) error {
-	id, err := StateTokenWithSearch(ctx, token)
-	if err != nil {
-		return err
-	}
-	if id == "" {
+	if token == "" {
 		return nil
 	}
 
 	tokenKey := fmt.Sprintf("%s%s", tokenPrefix, token)
+	g := redis.RDB.Get(ctx, tokenKey)
+	if err := g.Err(); err != nil {
+		return err
+	}
+
 	c := redis.RDB.Del(ctx, tokenKey)
 	if err := c.Err(); err != nil {
 		return err
 	}
 
+	id, err := g.Result()
+	if err != nil {
+		return err
+	}
 	accountKey := fmt.Sprintf("%s%s", tokenAccountPrefix, id)
 	i := redis.RDB.HDel(ctx, accountKey, tokenKey)
 	if err := i.Err(); err != nil {

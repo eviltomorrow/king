@@ -31,8 +31,4 @@ func TestRenewStateToken(t *testing.T) {
 
 	err = StateTokenWithRenew(context.Background(), "", stateToken, "shepard", expiresIn)
 	_assert.Nil(err)
-
-	v, err := StateTokenWithSearch(context.Background(), stateToken)
-	_assert.Nil(err)
-	_assert.Equal("shepard", v)
 }
