@@ -9,6 +9,8 @@ import (
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -61,7 +63,7 @@ func (g *GRPC) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Token, error) {
 		return nil, err
 	}
 
-	token, _, err := service.TokenWithApply(ctx, passport.Id, "admin", service.AccessTokenExpiresIn, service.RefreshTokenExpiresIn)
+	token, _, err := service.TokenWithApply(ctx, passport.Id, "admin", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -135,8 +137,10 @@ func (g *GRPC) Lock(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.
 		return nil, fmt.Errorf("req is nil")
 	}
 
-	// TODO:
-	// 删除 state_token
+	if err := service.TokenWithRevokeByAccountId(ctx, req.Value); err != nil {
+		return &emptypb.Empty{}, err
+	}
+
 	return &emptypb.Empty{}, service.PassportWithChangeStatus(ctx, service.LOCK, req.Value)
 }
 
@@ -158,17 +162,25 @@ func (g *GRPC) Get(ctx context.Context, req *wrapperspb.StringValue) (*pb.User, 
 	return &pb.User{Id: passport.Id, Account: passport.Account, Code: passport.Code, Email: passport.Email, Phone: passport.Phone, Status: passport.Status, RegisterDatetime: passport.CreateTimestamp.Unix()}, nil
 }
 
-// Remove(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
+func (g *GRPC) Remove(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	if req == nil {
+		return nil, fmt.Errorf("req is nil")
+	}
+	return &emptypb.Empty{}, status.Error(codes.Unimplemented, "unimplemented")
+}
+
 func (g *GRPC) ModifyPassword(ctx context.Context, req *pb.ModifyPasswordReq) (*emptypb.Empty, error) {
 	if req == nil {
 		return nil, fmt.Errorf("req is nil")
 	}
+	if err := service.TokenWithRevokeByAccountId(ctx, req.Id); err != nil {
+		return &emptypb.Empty{}, err
+	}
+
 	if err := service.PassportWithChangePassword(ctx, req.Password, req.Id); err != nil {
 		return nil, err
 	}
 
-	// TODO:
-	// 删除 state_token
 	return &emptypb.Empty{}, nil
 }
 

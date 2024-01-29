@@ -86,6 +86,7 @@ export cassandra_version="4.1.3"
 export king_collector_version="latest"
 export king_notification_version="latest"
 export king_storage_version="latest"
+export king_auth_version="latest"
 export ntfy_version="latest"
 
 name=""

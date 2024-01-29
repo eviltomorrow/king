@@ -57,7 +57,7 @@ GRANT ALL ON king_auth.* TO 'admin'@'%';
 
 -- CREATE TABLE passport
 DROP TABLE IF EXISTS `king_auth`.`passport`;
-CREATE TABLE `king_account`.`passport` (
+CREATE TABLE `king_auth`.`passport` (
     `id` CHAR(21) NOT NULL PRIMARY KEY,
     `account` VARCHAR(32) NOT NULL COMMENT '账户',
     `code` VARCHAR(32) COMMENT 'code',

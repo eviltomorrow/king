@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"time"
 
@@ -16,10 +17,7 @@ var (
 	TokenLimitPerAccount int64 = 10
 )
 
-/*
-  TODO:
-	LUA 改造
-*/
+var ErrorNoAuth = errors.New("no auth")
 
 func StateTokenWithParseJwtToken(jwtToken string) (string, error) {
 	h := sha256.New()
@@ -44,10 +42,10 @@ func stateTokenWithCleanExpires(ctx context.Context, id string) error {
 	for k := range data {
 		i := redis.RDB.Exists(ctx, fmt.Sprintf("%s%s", tokenPrefix, k))
 		if err := i.Err(); err != nil {
-			continue
+			return err
 		}
 		if v, err := i.Result(); err != nil {
-			continue
+			return err
 		} else {
 			if v == 0 {
 				exists = append(exists, k)
@@ -55,7 +53,7 @@ func stateTokenWithCleanExpires(ctx context.Context, id string) error {
 		}
 	}
 	if len(exists) != 0 {
-		d := redis.RDB.Del(ctx, exists...)
+		d := redis.RDB.HDel(ctx, key, exists...)
 		if err := d.Err(); err != nil {
 			return err
 		}
@@ -64,6 +62,11 @@ func stateTokenWithCleanExpires(ctx context.Context, id string) error {
 	return nil
 }
 
+/*
+TODO:
+
+	LUA 改造
+*/
 func StateTokenWithCount(ctx context.Context, id string) (int64, error) {
 	if err := stateTokenWithCleanExpires(ctx, id); err != nil {
 		return 0, err
@@ -117,7 +120,7 @@ func StateTokenWithRenew(ctx context.Context, oldToken, newToken string, id stri
 			return err
 		}
 		if ok != 1 {
-			return fmt.Errorf("please login again")
+			return ErrorNoAuth
 		}
 	}
 

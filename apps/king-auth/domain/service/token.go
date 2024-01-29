@@ -22,19 +22,16 @@ func TokenWithTryApply(ctx context.Context, id string) (bool, error) {
 	return false, nil
 }
 
-func TokenWithApply(ctx context.Context, id, role string, accessTokenExpiresIn, refreshTokenExpiresIn time.Duration) (Token, string, error) {
+func TokenWithApply(ctx context.Context, id, role string, expired *Token) (Token, string, error) {
 	if id == "" || role == "" {
 		return Token{}, "", fmt.Errorf("id/role is nil")
 	}
-	if accessTokenExpiresIn < AccessTokenExpiresIn || accessTokenExpiresIn > refreshTokenExpiresIn {
-		return Token{}, "", fmt.Errorf("expires_in is wrong")
-	}
 
-	accessToken, err := auth.JwtWithCreateToken(id, role, accessTokenExpiresIn)
+	accessToken, err := auth.JwtWithCreateToken(id, role, AccessTokenExpiresIn)
 	if err != nil {
 		return Token{}, "", fmt.Errorf("create access_token failure, nest error: %v", err)
 	}
-	refreshToken, err := auth.JwtWithCreateToken(id, role, refreshTokenExpiresIn)
+	refreshToken, err := auth.JwtWithCreateToken(id, role, RefreshTokenExpiresIn)
 	if err != nil {
 		return Token{}, "", fmt.Errorf("create refresh_token failure, nest error: %v", err)
 	}
@@ -43,32 +40,34 @@ func TokenWithApply(ctx context.Context, id, role string, accessTokenExpiresIn, 
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
-		ExpiresIn:    int64(accessTokenExpiresIn.Seconds()),
+		ExpiresIn:    int64(AccessTokenExpiresIn.Seconds()),
 	}
 
 	stateRefreshToken, err := auth.StateTokenWithParseJwtToken(token.RefreshToken)
 	if err != nil {
 		zlog.Warn("StateTokenWithParseJwtToken failure", zap.Error(err), zap.String("accountId", id))
 	} else {
-		if err := auth.StateTokenWithRenew(ctx, "", stateRefreshToken, id, refreshTokenExpiresIn); err != nil {
-			zlog.Warn("RenewStateToken failure", zap.Error(err), zap.String("accountId", id))
+		if expired != nil {
+			if err := auth.StateTokenWithRenew(ctx, expired.RefreshToken, stateRefreshToken, id, RefreshTokenExpiresIn); err != nil {
+				zlog.Warn("RenewStateToken failure", zap.Error(err), zap.String("accountId", id))
+			}
 		}
 	}
 
 	return token, id, nil
 }
 
-func TokenWithRenew(ctx context.Context, token Token) (Token, string, error) {
-	if token.RefreshToken == "" {
+func TokenWithRenew(ctx context.Context, expired Token) (Token, string, error) {
+	if expired.RefreshToken == "" {
 		return Token{}, "", fmt.Errorf("refresh_token is nil")
 	}
 
-	cliams, err := auth.JwtWithParseToken(token.RefreshToken, nil)
+	cliams, err := auth.JwtWithParseToken(expired.RefreshToken, nil)
 	if err != nil {
 		return Token{}, "", fmt.Errorf("parse refresh_token failure, nest error: %v", err)
 	}
 
-	return TokenWithApply(ctx, cliams.AccountId, cliams.Role, AccessTokenExpiresIn, RefreshTokenExpiresIn)
+	return TokenWithApply(ctx, cliams.AccountId, cliams.Role, &expired)
 }
 
 func TokenWithVerify(ctx context.Context, token Token) error {
