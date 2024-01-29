@@ -13,61 +13,54 @@ var (
 	RefreshTokenExpiresIn = 120 * time.Minute
 )
 
-func TokenWithTryApply(ctx context.Context, id string) (bool, error) {
-	if id == "" {
-		return false, fmt.Errorf("id is nil")
-	}
-	return false, nil
-}
-
-func TokenWithApply(ctx context.Context, id, role string, expired *Token) (Token, string, error) {
-	if id == "" || role == "" {
-		return Token{}, "", fmt.Errorf("id/role is nil")
+func TokenWithApply(ctx context.Context, accountId, role string, expired *Token) (*Token, error) {
+	if accountId == "" || role == "" {
+		return nil, fmt.Errorf("accountId/role is nil")
 	}
 
-	accessToken, err := auth.JwtWithCreateToken(id, role, AccessTokenExpiresIn)
+	accessToken, err := auth.JwtWithCreateToken(accountId, role, AccessTokenExpiresIn)
 	if err != nil {
-		return Token{}, "", fmt.Errorf("create access_token failure, nest error: %v", err)
+		return nil, fmt.Errorf("create access_token failure, nest error: %v", err)
 	}
-	refreshToken, err := auth.JwtWithCreateToken(id, role, RefreshTokenExpiresIn)
+	refreshToken, err := auth.JwtWithCreateToken(accountId, role, RefreshTokenExpiresIn)
 	if err != nil {
-		return Token{}, "", fmt.Errorf("create refresh_token failure, nest error: %v", err)
+		return nil, fmt.Errorf("create refresh_token failure, nest error: %v", err)
 	}
 
-	token := Token{
+	token := &Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int64(AccessTokenExpiresIn.Seconds()),
+
+		AccountId: accountId,
+		Role:      role,
+	}
+	if err := token.Parse(); err != nil {
+		return nil, fmt.Errorf("parse state_token failure, nest error: %v", err)
 	}
 
-	stateRefreshToken, err := auth.StateTokenWithParseJwtToken(token.RefreshToken)
-	if err != nil {
-		return token, id, err
-	} else {
-		var expiredToken string
-		if expired != nil {
-			expiredToken = expired.RefreshToken
-		}
-		if err := auth.StateTokenWithRenew(ctx, expiredToken, stateRefreshToken, id, RefreshTokenExpiresIn); err != nil {
-			return token, id, err
-		}
+	expiredStateToken := ""
+	if expired != nil {
+		expiredStateToken = expired.StateRefreshToken
+	}
+	if err := auth.StateTokenWithRenew(ctx, expiredStateToken, token.StateRefreshToken, accountId, RefreshTokenExpiresIn); err != nil {
+		return token, err
 	}
 
-	return token, id, nil
+	return token, nil
 }
 
-func TokenWithRenew(ctx context.Context, expired Token) (Token, string, error) {
-	if expired.RefreshToken == "" {
-		return Token{}, "", fmt.Errorf("refresh_token is nil")
+func TokenWithRenew(ctx context.Context, expired *Token) (*Token, error) {
+	if expired == nil || expired.RefreshToken == "" {
+		return nil, fmt.Errorf("refresh_token is nil")
 	}
 
-	cliams, err := auth.JwtWithParseToken(expired.RefreshToken, nil)
-	if err != nil {
-		return Token{}, "", fmt.Errorf("parse refresh_token failure, nest error: %v", err)
+	if err := expired.Parse(); err != nil {
+		return nil, err
 	}
 
-	return TokenWithApply(ctx, cliams.AccountId, cliams.Role, &expired)
+	return TokenWithApply(ctx, expired.AccountId, expired.Role, expired)
 }
 
 func TokenWithVerify(ctx context.Context, token Token) error {
@@ -100,4 +93,40 @@ func TokenWithRevokeByAccountId(ctx context.Context, id string) error {
 	}
 
 	return auth.StateTokenWithRevokeAll(ctx, id)
+}
+
+type Token struct {
+	AccessToken  string
+	TokenType    string
+	RefreshToken string
+	ExpiresIn    int64
+
+	AccountId         string
+	Role              string
+	StateRefreshToken string
+}
+
+func (t *Token) Parse() error {
+	if t == nil {
+		return nil
+	}
+
+	if t.AccountId == "" || t.Role == "" {
+		claims, err := auth.JwtWithParseToken(t.AccessToken, nil)
+		if err != nil {
+			return err
+		}
+		t.Role = claims.Role
+		t.AccountId = claims.AccountId
+	}
+
+	if t.StateRefreshToken == "" {
+		token, err := auth.StateTokenWithParseJwtToken(t.RefreshToken)
+		if err != nil {
+			return err
+		}
+		t.StateRefreshToken = token
+	}
+
+	return nil
 }

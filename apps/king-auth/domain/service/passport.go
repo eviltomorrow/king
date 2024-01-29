@@ -40,15 +40,6 @@ type Passport struct {
 	CreateTimestamp time.Time `json:"create_timestamp"`
 }
 
-type Token struct {
-	AccessToken  string
-	TokenType    string
-	RefreshToken string
-	ExpiresIn    int64
-
-	AccountId string
-}
-
 func PassportWithExist(ctx context.Context, account string) (bool, error) {
 	if account == "" {
 		return false, fmt.Errorf("account is nil")
@@ -129,9 +120,9 @@ func authWithPassword(ctx context.Context, account, password string) (*Passport,
 	}, nil
 }
 
-func PassportWithChangeStatus(ctx context.Context, status PassportStatus, id string) error {
-	if id == "" {
-		return fmt.Errorf("id is nil")
+func PassportWithChangeStatus(ctx context.Context, status PassportStatus, accountId string) error {
+	if accountId == "" {
+		return fmt.Errorf("accountId is nil")
 	}
 	switch status {
 	case NORMAL:
@@ -139,29 +130,29 @@ func PassportWithChangeStatus(ctx context.Context, status PassportStatus, id str
 	default:
 		return fmt.Errorf("not support status[%v]", status)
 	}
-	_, err := persistence.PassportWithUpdateStatus(ctx, mysql.DB, int8(status), id)
+	_, err := persistence.PassportWithUpdateStatus(ctx, mysql.DB, int8(status), accountId)
 	return err
 }
 
-func PassportWithChangePassword(ctx context.Context, password string, id string) error {
+func PassportWithChangePassword(ctx context.Context, password string, accountId string) error {
 	if password == "" {
 		return fmt.Errorf("password is nil")
 	}
-	if id == "" {
-		return fmt.Errorf("id is nil")
+	if accountId == "" {
+		return fmt.Errorf("accountId is nil")
 	}
 
 	s := encrypt.Salt()
 	p := encrypt.Key(s, password)
-	_, err := persistence.PassportWithUpdatePassword(ctx, mysql.DB, s, p, id)
+	_, err := persistence.PassportWithUpdatePassword(ctx, mysql.DB, s, p, accountId)
 	return err
 }
 
-func PassportWithRemove(ctx context.Context, id string) error {
-	if id == "" {
+func PassportWithRemove(ctx context.Context, accountId string) error {
+	if accountId == "" {
 		return fmt.Errorf("id is nil")
 	}
-	_, err := persistence.PassportWithDeleteOne(ctx, mysql.DB, id)
+	_, err := persistence.PassportWithDeleteOne(ctx, mysql.DB, accountId)
 	return err
 }
 
