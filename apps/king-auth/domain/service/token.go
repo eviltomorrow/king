@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/auth"
-	"github.com/eviltomorrow/king/lib/zlog"
-	"go.uber.org/zap"
 )
 
 var (
@@ -45,12 +43,14 @@ func TokenWithApply(ctx context.Context, id, role string, expired *Token) (Token
 
 	stateRefreshToken, err := auth.StateTokenWithParseJwtToken(token.RefreshToken)
 	if err != nil {
-		zlog.Warn("StateTokenWithParseJwtToken failure", zap.Error(err), zap.String("accountId", id))
+		return token, id, err
 	} else {
+		var expiredToken string
 		if expired != nil {
-			if err := auth.StateTokenWithRenew(ctx, expired.RefreshToken, stateRefreshToken, id, RefreshTokenExpiresIn); err != nil {
-				zlog.Warn("RenewStateToken failure", zap.Error(err), zap.String("accountId", id))
-			}
+			expiredToken = expired.RefreshToken
+		}
+		if err := auth.StateTokenWithRenew(ctx, expiredToken, stateRefreshToken, id, RefreshTokenExpiresIn); err != nil {
+			return token, id, err
 		}
 	}
 
