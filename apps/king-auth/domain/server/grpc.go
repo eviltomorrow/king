@@ -63,7 +63,7 @@ func (g *GRPC) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Token, error) {
 		return nil, err
 	}
 
-	token, err := service.TokenWithApply(ctx, passport.Id, "admin", nil)
+	token, err := service.TokenWithApply(ctx, passport.Id, "admin")
 	if err != nil {
 		return nil, err
 	}
@@ -76,14 +76,7 @@ func (g *GRPC) RenewToken(ctx context.Context, req *pb.Token) (*pb.Token, error)
 		return nil, fmt.Errorf("req is nil")
 	}
 
-	token := &service.Token{
-		AccessToken:  req.AccessToken,
-		TokenType:    req.TokenType,
-		RefreshToken: req.RefreshToken,
-		ExpiresIn:    req.ExpiresIn,
-	}
-
-	newToken, err := service.TokenWithRenew(ctx, token)
+	newToken, err := service.TokenWithRenew(ctx, req.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
