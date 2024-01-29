@@ -26,7 +26,7 @@ func TokenWithApply(ctx context.Context, accountId, role string) (*Token, error)
 		return nil, fmt.Errorf("accountId/role is nil")
 	}
 
-	accessToken, refreshToken, err := tokenWithApplyTwo(accountId, role)
+	accessToken, refreshToken, err := tokenWithGenerateTwo(accountId, role)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func TokenWithRenew(ctx context.Context, token string) (*Token, error) {
 		return nil, fmt.Errorf("parse refresh_token failure, nest error: %v", err)
 	}
 
-	accessToken, refreshToken, err := tokenWithApplyTwo(claims.AccountId, claims.Role)
+	accessToken, refreshToken, err := tokenWithGenerateTwo(claims.AccountId, claims.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func TokenWithRevokeByAccountId(ctx context.Context, id string) error {
 	return auth.StateTokenWithRevokeAll(ctx, id)
 }
 
-func tokenWithApplyTwo(accountId, role string) (string, string, error) {
+func tokenWithGenerateTwo(accountId, role string) (string, string, error) {
 	accessToken, err := auth.JwtWithCreateToken(accountId, role, AccessTokenExpiresIn)
 	if err != nil {
 		return "", "", fmt.Errorf("create access_token failure, nest error: %v", err)
