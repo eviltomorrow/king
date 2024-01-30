@@ -112,7 +112,6 @@ func StateTokenWithRenew(ctx context.Context, oldToken, newToken string, id stri
 	if oldToken != "" {
 		key := fmt.Sprintf("%s%s", tokenPrefix, oldToken)
 
-		fmt.Println(key)
 		c := redis.RDB.Exists(ctx, key)
 		if err := c.Err(); err != nil {
 			return err
