@@ -1,6 +1,8 @@
 package server
 
 import (
+	"github.com/eviltomorrow/king/apps/king-account/domain/server/impl"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-account"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
@@ -12,9 +14,9 @@ type GRPC struct {
 	Port       int
 	AppName    string
 
-	helper *server.GrpcHelper
+	AssetsServer *impl.AssetsServer
 
-	// pb.UnimplementedPassportServer
+	helper *server.GrpcHelper
 }
 
 func (g *GRPC) Startup() error {
@@ -24,7 +26,7 @@ func (g *GRPC) Startup() error {
 		server.WithAppName(g.AppName),
 		server.WithEtcdClient(g.EtcdClient),
 		server.WithRegisterServerFunc(func(s *grpc.Server) {
-			// pb.RegisterPassportServer(s, g)
+			pb.RegisterAssetsServer(s, g.AssetsServer)
 		}),
 	)
 	return g.helper.Init()

@@ -65,7 +65,7 @@ func (x BindThirdPartyAccountReq_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use BindThirdPartyAccountReq_Type.Descriptor instead.
 func (BindThirdPartyAccountReq_Type) EnumDescriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{3, 0}
+	return file_passport_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type AuthReq_Method int32
@@ -111,7 +111,7 @@ func (x AuthReq_Method) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AuthReq_Method.Descriptor instead.
 func (AuthReq_Method) EnumDescriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{5, 0}
+	return file_passport_proto_rawDescGZIP(), []int{7, 0}
 }
 
 type CreateVerificationCodeReq_Type int32
@@ -157,7 +157,117 @@ func (x CreateVerificationCodeReq_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CreateVerificationCodeReq_Type.Descriptor instead.
 func (CreateVerificationCodeReq_Type) EnumDescriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{6, 0}
+	return file_passport_proto_rawDescGZIP(), []int{8, 0}
+}
+
+type UserReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PageNo   int64 `protobuf:"varint,1,opt,name=page_no,json=pageNo,proto3" json:"page_no,omitempty"`
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+}
+
+func (x *UserReq) Reset() {
+	*x = UserReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_passport_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserReq) ProtoMessage() {}
+
+func (x *UserReq) ProtoReflect() protoreflect.Message {
+	mi := &file_passport_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserReq.ProtoReflect.Descriptor instead.
+func (*UserReq) Descriptor() ([]byte, []int) {
+	return file_passport_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *UserReq) GetPageNo() int64 {
+	if x != nil {
+		return x.PageNo
+	}
+	return 0
+}
+
+func (x *UserReq) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+type UserResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Users      []*User `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
+	TotalCount int64   `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+}
+
+func (x *UserResp) Reset() {
+	*x = UserResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_passport_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserResp) ProtoMessage() {}
+
+func (x *UserResp) ProtoReflect() protoreflect.Message {
+	mi := &file_passport_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserResp.ProtoReflect.Descriptor instead.
+func (*UserResp) Descriptor() ([]byte, []int) {
+	return file_passport_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UserResp) GetUsers() []*User {
+	if x != nil {
+		return x.Users
+	}
+	return nil
+}
+
+func (x *UserResp) GetTotalCount() int64 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
 }
 
 type Token struct {
@@ -174,7 +284,7 @@ type Token struct {
 func (x *Token) Reset() {
 	*x = Token{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[0]
+		mi := &file_passport_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -187,7 +297,7 @@ func (x *Token) String() string {
 func (*Token) ProtoMessage() {}
 
 func (x *Token) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[0]
+	mi := &file_passport_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -200,7 +310,7 @@ func (x *Token) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Token.ProtoReflect.Descriptor instead.
 func (*Token) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{0}
+	return file_passport_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Token) GetAccessToken() string {
@@ -248,7 +358,7 @@ type User struct {
 func (x *User) Reset() {
 	*x = User{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[1]
+		mi := &file_passport_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -261,7 +371,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[1]
+	mi := &file_passport_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -274,7 +384,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{1}
+	return file_passport_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *User) GetId() string {
@@ -338,7 +448,7 @@ type RegisterReq struct {
 func (x *RegisterReq) Reset() {
 	*x = RegisterReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[2]
+		mi := &file_passport_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -351,7 +461,7 @@ func (x *RegisterReq) String() string {
 func (*RegisterReq) ProtoMessage() {}
 
 func (x *RegisterReq) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[2]
+	mi := &file_passport_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +474,7 @@ func (x *RegisterReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterReq.ProtoReflect.Descriptor instead.
 func (*RegisterReq) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{2}
+	return file_passport_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RegisterReq) GetAccount() string {
@@ -394,7 +504,7 @@ type BindThirdPartyAccountReq struct {
 func (x *BindThirdPartyAccountReq) Reset() {
 	*x = BindThirdPartyAccountReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[3]
+		mi := &file_passport_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -407,7 +517,7 @@ func (x *BindThirdPartyAccountReq) String() string {
 func (*BindThirdPartyAccountReq) ProtoMessage() {}
 
 func (x *BindThirdPartyAccountReq) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[3]
+	mi := &file_passport_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -420,7 +530,7 @@ func (x *BindThirdPartyAccountReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindThirdPartyAccountReq.ProtoReflect.Descriptor instead.
 func (*BindThirdPartyAccountReq) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{3}
+	return file_passport_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BindThirdPartyAccountReq) GetType() BindThirdPartyAccountReq_Type {
@@ -456,7 +566,7 @@ type ConfirmCodeReq struct {
 func (x *ConfirmCodeReq) Reset() {
 	*x = ConfirmCodeReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[4]
+		mi := &file_passport_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -469,7 +579,7 @@ func (x *ConfirmCodeReq) String() string {
 func (*ConfirmCodeReq) ProtoMessage() {}
 
 func (x *ConfirmCodeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[4]
+	mi := &file_passport_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -482,7 +592,7 @@ func (x *ConfirmCodeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmCodeReq.ProtoReflect.Descriptor instead.
 func (*ConfirmCodeReq) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{4}
+	return file_passport_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ConfirmCodeReq) GetBindRequestId() string {
@@ -511,7 +621,7 @@ type AuthReq struct {
 func (x *AuthReq) Reset() {
 	*x = AuthReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[5]
+		mi := &file_passport_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -524,7 +634,7 @@ func (x *AuthReq) String() string {
 func (*AuthReq) ProtoMessage() {}
 
 func (x *AuthReq) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[5]
+	mi := &file_passport_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,7 +647,7 @@ func (x *AuthReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthReq.ProtoReflect.Descriptor instead.
 func (*AuthReq) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{5}
+	return file_passport_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AuthReq) GetMethod() AuthReq_Method {
@@ -566,7 +676,7 @@ type CreateVerificationCodeReq struct {
 func (x *CreateVerificationCodeReq) Reset() {
 	*x = CreateVerificationCodeReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[6]
+		mi := &file_passport_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -579,7 +689,7 @@ func (x *CreateVerificationCodeReq) String() string {
 func (*CreateVerificationCodeReq) ProtoMessage() {}
 
 func (x *CreateVerificationCodeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[6]
+	mi := &file_passport_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -592,7 +702,7 @@ func (x *CreateVerificationCodeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVerificationCodeReq.ProtoReflect.Descriptor instead.
 func (*CreateVerificationCodeReq) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{6}
+	return file_passport_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateVerificationCodeReq) GetType() CreateVerificationCodeReq_Type {
@@ -621,7 +731,7 @@ type CreateVerificationCodeResp struct {
 func (x *CreateVerificationCodeResp) Reset() {
 	*x = CreateVerificationCodeResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[7]
+		mi := &file_passport_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -634,7 +744,7 @@ func (x *CreateVerificationCodeResp) String() string {
 func (*CreateVerificationCodeResp) ProtoMessage() {}
 
 func (x *CreateVerificationCodeResp) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[7]
+	mi := &file_passport_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -647,7 +757,7 @@ func (x *CreateVerificationCodeResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVerificationCodeResp.ProtoReflect.Descriptor instead.
 func (*CreateVerificationCodeResp) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{7}
+	return file_passport_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateVerificationCodeResp) GetCode() string {
@@ -676,7 +786,7 @@ type ModifyPasswordReq struct {
 func (x *ModifyPasswordReq) Reset() {
 	*x = ModifyPasswordReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[8]
+		mi := &file_passport_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -689,7 +799,7 @@ func (x *ModifyPasswordReq) String() string {
 func (*ModifyPasswordReq) ProtoMessage() {}
 
 func (x *ModifyPasswordReq) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[8]
+	mi := &file_passport_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +812,7 @@ func (x *ModifyPasswordReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyPasswordReq.ProtoReflect.Descriptor instead.
 func (*ModifyPasswordReq) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{8}
+	return file_passport_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ModifyPasswordReq) GetId() string {
@@ -731,7 +841,7 @@ type AuthReq_Credential struct {
 func (x *AuthReq_Credential) Reset() {
 	*x = AuthReq_Credential{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_passport_proto_msgTypes[9]
+		mi := &file_passport_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -744,7 +854,7 @@ func (x *AuthReq_Credential) String() string {
 func (*AuthReq_Credential) ProtoMessage() {}
 
 func (x *AuthReq_Credential) ProtoReflect() protoreflect.Message {
-	mi := &file_passport_proto_msgTypes[9]
+	mi := &file_passport_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -757,7 +867,7 @@ func (x *AuthReq_Credential) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthReq_Credential.ProtoReflect.Descriptor instead.
 func (*AuthReq_Credential) Descriptor() ([]byte, []int) {
-	return file_passport_proto_rawDescGZIP(), []int{5, 0}
+	return file_passport_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *AuthReq_Credential) GetAccount() string {
@@ -782,7 +892,16 @@ var file_passport_proto_rawDesc = []byte{
 	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x77, 0x72, 0x61, 0x70, 0x70, 0x65, 0x72, 0x73,
 	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x22, 0x8d, 0x01, 0x0a, 0x05, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x21, 0x0a,
+	0x6f, 0x74, 0x6f, 0x22, 0x3f, 0x0a, 0x07, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x71, 0x12, 0x17,
+	0x0a, 0x07, 0x70, 0x61, 0x67, 0x65, 0x5f, 0x6e, 0x6f, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52,
+	0x06, 0x70, 0x61, 0x67, 0x65, 0x4e, 0x6f, 0x12, 0x1b, 0x0a, 0x09, 0x70, 0x61, 0x67, 0x65, 0x5f,
+	0x73, 0x69, 0x7a, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x70, 0x61, 0x67, 0x65,
+	0x53, 0x69, 0x7a, 0x65, 0x22, 0x4d, 0x0a, 0x08, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70,
+	0x12, 0x20, 0x0a, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x0a, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x05, 0x75, 0x73, 0x65,
+	0x72, 0x73, 0x12, 0x1f, 0x0a, 0x0b, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x5f, 0x63, 0x6f, 0x75, 0x6e,
+	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x43, 0x6f,
+	0x75, 0x6e, 0x74, 0x22, 0x8d, 0x01, 0x0a, 0x05, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x21, 0x0a,
 	0x0c, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x0b, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e,
 	0x12, 0x1d, 0x0a, 0x0a, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02,
@@ -852,7 +971,7 @@ var file_passport_proto_rawDesc = []byte{
 	0x4d, 0x6f, 0x64, 0x69, 0x66, 0x79, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65,
 	0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69,
 	0x64, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x32, 0xe1, 0x06,
+	0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x32, 0x88, 0x07,
 	0x0a, 0x08, 0x50, 0x61, 0x73, 0x73, 0x70, 0x6f, 0x72, 0x74, 0x12, 0x55, 0x0a, 0x15, 0x42, 0x69,
 	0x6e, 0x64, 0x54, 0x68, 0x69, 0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x41, 0x63, 0x63, 0x6f,
 	0x75, 0x6e, 0x74, 0x12, 0x1e, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x42, 0x69, 0x6e, 0x64, 0x54,
@@ -895,20 +1014,22 @@ var file_passport_proto_rawDesc = []byte{
 	0x06, 0x55, 0x6e, 0x6c, 0x6f, 0x63, 0x6b, 0x12, 0x1c, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
 	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67,
 	0x56, 0x61, 0x6c, 0x75, 0x65, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x2f, 0x0a,
-	0x03, 0x47, 0x65, 0x74, 0x12, 0x1c, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c,
-	0x75, 0x65, 0x1a, 0x0a, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x12, 0x3e,
-	0x0a, 0x06, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x12, 0x1c, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
-	0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e,
-	0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x41,
-	0x0a, 0x0e, 0x4d, 0x6f, 0x64, 0x69, 0x66, 0x79, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
-	0x12, 0x17, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x4d, 0x6f, 0x64, 0x69, 0x66, 0x79, 0x50, 0x61,
-	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67,
-	0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74,
-	0x79, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2f, 0x3b, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x25, 0x0a,
+	0x04, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x0d, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x55, 0x73, 0x65,
+	0x72, 0x52, 0x65, 0x71, 0x1a, 0x0e, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x55, 0x73, 0x65, 0x72,
+	0x52, 0x65, 0x73, 0x70, 0x12, 0x2f, 0x0a, 0x03, 0x47, 0x65, 0x74, 0x12, 0x1c, 0x2e, 0x67, 0x6f,
+	0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x53, 0x74,
+	0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x1a, 0x0a, 0x2e, 0x61, 0x75, 0x74, 0x68,
+	0x2e, 0x55, 0x73, 0x65, 0x72, 0x12, 0x3e, 0x0a, 0x06, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x12,
+	0x1c, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
+	0x66, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x1a, 0x16, 0x2e,
+	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
+	0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x41, 0x0a, 0x0e, 0x4d, 0x6f, 0x64, 0x69, 0x66, 0x79, 0x50,
+	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x17, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x4d,
+	0x6f, 0x64, 0x69, 0x66, 0x79, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x52, 0x65, 0x71,
+	0x1a, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2f, 0x3b, 0x70,
+	0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -924,63 +1045,68 @@ func file_passport_proto_rawDescGZIP() []byte {
 }
 
 var file_passport_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_passport_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_passport_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_passport_proto_goTypes = []interface{}{
 	(BindThirdPartyAccountReq_Type)(0),  // 0: auth.BindThirdPartyAccountReq.Type
 	(AuthReq_Method)(0),                 // 1: auth.AuthReq.Method
 	(CreateVerificationCodeReq_Type)(0), // 2: auth.CreateVerificationCodeReq.Type
-	(*Token)(nil),                       // 3: auth.Token
-	(*User)(nil),                        // 4: auth.User
-	(*RegisterReq)(nil),                 // 5: auth.RegisterReq
-	(*BindThirdPartyAccountReq)(nil),    // 6: auth.BindThirdPartyAccountReq
-	(*ConfirmCodeReq)(nil),              // 7: auth.ConfirmCodeReq
-	(*AuthReq)(nil),                     // 8: auth.AuthReq
-	(*CreateVerificationCodeReq)(nil),   // 9: auth.CreateVerificationCodeReq
-	(*CreateVerificationCodeResp)(nil),  // 10: auth.CreateVerificationCodeResp
-	(*ModifyPasswordReq)(nil),           // 11: auth.ModifyPasswordReq
-	(*AuthReq_Credential)(nil),          // 12: auth.AuthReq.Credential
-	(*wrapperspb.StringValue)(nil),      // 13: google.protobuf.StringValue
-	(*emptypb.Empty)(nil),               // 14: google.protobuf.Empty
-	(*wrapperspb.BoolValue)(nil),        // 15: google.protobuf.BoolValue
+	(*UserReq)(nil),                     // 3: auth.UserReq
+	(*UserResp)(nil),                    // 4: auth.UserResp
+	(*Token)(nil),                       // 5: auth.Token
+	(*User)(nil),                        // 6: auth.User
+	(*RegisterReq)(nil),                 // 7: auth.RegisterReq
+	(*BindThirdPartyAccountReq)(nil),    // 8: auth.BindThirdPartyAccountReq
+	(*ConfirmCodeReq)(nil),              // 9: auth.ConfirmCodeReq
+	(*AuthReq)(nil),                     // 10: auth.AuthReq
+	(*CreateVerificationCodeReq)(nil),   // 11: auth.CreateVerificationCodeReq
+	(*CreateVerificationCodeResp)(nil),  // 12: auth.CreateVerificationCodeResp
+	(*ModifyPasswordReq)(nil),           // 13: auth.ModifyPasswordReq
+	(*AuthReq_Credential)(nil),          // 14: auth.AuthReq.Credential
+	(*wrapperspb.StringValue)(nil),      // 15: google.protobuf.StringValue
+	(*emptypb.Empty)(nil),               // 16: google.protobuf.Empty
+	(*wrapperspb.BoolValue)(nil),        // 17: google.protobuf.BoolValue
 }
 var file_passport_proto_depIdxs = []int32{
-	0,  // 0: auth.BindThirdPartyAccountReq.type:type_name -> auth.BindThirdPartyAccountReq.Type
-	1,  // 1: auth.AuthReq.method:type_name -> auth.AuthReq.Method
-	12, // 2: auth.AuthReq.credential:type_name -> auth.AuthReq.Credential
-	2,  // 3: auth.CreateVerificationCodeReq.type:type_name -> auth.CreateVerificationCodeReq.Type
-	6,  // 4: auth.Passport.BindThirdPartyAccount:input_type -> auth.BindThirdPartyAccountReq
-	7,  // 5: auth.Passport.ConfirmCode:input_type -> auth.ConfirmCodeReq
-	9,  // 6: auth.Passport.CreateVerificationCode:input_type -> auth.CreateVerificationCodeReq
-	5,  // 7: auth.Passport.Register:input_type -> auth.RegisterReq
-	8,  // 8: auth.Passport.Auth:input_type -> auth.AuthReq
-	3,  // 9: auth.Passport.RenewToken:input_type -> auth.Token
-	3,  // 10: auth.Passport.VerifyToken:input_type -> auth.Token
-	3,  // 11: auth.Passport.RevokeToken:input_type -> auth.Token
-	13, // 12: auth.Passport.Exist:input_type -> google.protobuf.StringValue
-	13, // 13: auth.Passport.Lock:input_type -> google.protobuf.StringValue
-	13, // 14: auth.Passport.Unlock:input_type -> google.protobuf.StringValue
-	13, // 15: auth.Passport.Get:input_type -> google.protobuf.StringValue
-	13, // 16: auth.Passport.Remove:input_type -> google.protobuf.StringValue
-	11, // 17: auth.Passport.ModifyPassword:input_type -> auth.ModifyPasswordReq
-	13, // 18: auth.Passport.BindThirdPartyAccount:output_type -> google.protobuf.StringValue
-	14, // 19: auth.Passport.ConfirmCode:output_type -> google.protobuf.Empty
-	10, // 20: auth.Passport.CreateVerificationCode:output_type -> auth.CreateVerificationCodeResp
-	13, // 21: auth.Passport.Register:output_type -> google.protobuf.StringValue
-	3,  // 22: auth.Passport.Auth:output_type -> auth.Token
-	3,  // 23: auth.Passport.RenewToken:output_type -> auth.Token
-	14, // 24: auth.Passport.VerifyToken:output_type -> google.protobuf.Empty
-	14, // 25: auth.Passport.RevokeToken:output_type -> google.protobuf.Empty
-	15, // 26: auth.Passport.Exist:output_type -> google.protobuf.BoolValue
-	14, // 27: auth.Passport.Lock:output_type -> google.protobuf.Empty
-	14, // 28: auth.Passport.Unlock:output_type -> google.protobuf.Empty
-	4,  // 29: auth.Passport.Get:output_type -> auth.User
-	14, // 30: auth.Passport.Remove:output_type -> google.protobuf.Empty
-	14, // 31: auth.Passport.ModifyPassword:output_type -> google.protobuf.Empty
-	18, // [18:32] is the sub-list for method output_type
-	4,  // [4:18] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	6,  // 0: auth.UserResp.users:type_name -> auth.User
+	0,  // 1: auth.BindThirdPartyAccountReq.type:type_name -> auth.BindThirdPartyAccountReq.Type
+	1,  // 2: auth.AuthReq.method:type_name -> auth.AuthReq.Method
+	14, // 3: auth.AuthReq.credential:type_name -> auth.AuthReq.Credential
+	2,  // 4: auth.CreateVerificationCodeReq.type:type_name -> auth.CreateVerificationCodeReq.Type
+	8,  // 5: auth.Passport.BindThirdPartyAccount:input_type -> auth.BindThirdPartyAccountReq
+	9,  // 6: auth.Passport.ConfirmCode:input_type -> auth.ConfirmCodeReq
+	11, // 7: auth.Passport.CreateVerificationCode:input_type -> auth.CreateVerificationCodeReq
+	7,  // 8: auth.Passport.Register:input_type -> auth.RegisterReq
+	10, // 9: auth.Passport.Auth:input_type -> auth.AuthReq
+	5,  // 10: auth.Passport.RenewToken:input_type -> auth.Token
+	5,  // 11: auth.Passport.VerifyToken:input_type -> auth.Token
+	5,  // 12: auth.Passport.RevokeToken:input_type -> auth.Token
+	15, // 13: auth.Passport.Exist:input_type -> google.protobuf.StringValue
+	15, // 14: auth.Passport.Lock:input_type -> google.protobuf.StringValue
+	15, // 15: auth.Passport.Unlock:input_type -> google.protobuf.StringValue
+	3,  // 16: auth.Passport.List:input_type -> auth.UserReq
+	15, // 17: auth.Passport.Get:input_type -> google.protobuf.StringValue
+	15, // 18: auth.Passport.Remove:input_type -> google.protobuf.StringValue
+	13, // 19: auth.Passport.ModifyPassword:input_type -> auth.ModifyPasswordReq
+	15, // 20: auth.Passport.BindThirdPartyAccount:output_type -> google.protobuf.StringValue
+	16, // 21: auth.Passport.ConfirmCode:output_type -> google.protobuf.Empty
+	12, // 22: auth.Passport.CreateVerificationCode:output_type -> auth.CreateVerificationCodeResp
+	15, // 23: auth.Passport.Register:output_type -> google.protobuf.StringValue
+	5,  // 24: auth.Passport.Auth:output_type -> auth.Token
+	5,  // 25: auth.Passport.RenewToken:output_type -> auth.Token
+	16, // 26: auth.Passport.VerifyToken:output_type -> google.protobuf.Empty
+	16, // 27: auth.Passport.RevokeToken:output_type -> google.protobuf.Empty
+	17, // 28: auth.Passport.Exist:output_type -> google.protobuf.BoolValue
+	16, // 29: auth.Passport.Lock:output_type -> google.protobuf.Empty
+	16, // 30: auth.Passport.Unlock:output_type -> google.protobuf.Empty
+	4,  // 31: auth.Passport.List:output_type -> auth.UserResp
+	6,  // 32: auth.Passport.Get:output_type -> auth.User
+	16, // 33: auth.Passport.Remove:output_type -> google.protobuf.Empty
+	16, // 34: auth.Passport.ModifyPassword:output_type -> google.protobuf.Empty
+	20, // [20:35] is the sub-list for method output_type
+	5,  // [5:20] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_passport_proto_init() }
@@ -990,7 +1116,7 @@ func file_passport_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_passport_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Token); i {
+			switch v := v.(*UserReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1002,7 +1128,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*User); i {
+			switch v := v.(*UserResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1014,7 +1140,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisterReq); i {
+			switch v := v.(*Token); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1026,7 +1152,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BindThirdPartyAccountReq); i {
+			switch v := v.(*User); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1038,7 +1164,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ConfirmCodeReq); i {
+			switch v := v.(*RegisterReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1050,7 +1176,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AuthReq); i {
+			switch v := v.(*BindThirdPartyAccountReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1062,7 +1188,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateVerificationCodeReq); i {
+			switch v := v.(*ConfirmCodeReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1074,7 +1200,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateVerificationCodeResp); i {
+			switch v := v.(*AuthReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1086,7 +1212,7 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ModifyPasswordReq); i {
+			switch v := v.(*CreateVerificationCodeReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1098,6 +1224,30 @@ func file_passport_proto_init() {
 			}
 		}
 		file_passport_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateVerificationCodeResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_passport_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ModifyPasswordReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_passport_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthReq_Credential); i {
 			case 0:
 				return &v.state
@@ -1116,7 +1266,7 @@ func file_passport_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_passport_proto_rawDesc,
 			NumEnums:      3,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

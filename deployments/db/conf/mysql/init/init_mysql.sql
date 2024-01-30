@@ -82,7 +82,7 @@ GRANT ALL ON king_account.* TO 'admin'@'%';
 DROP TABLE IF EXISTS `king_account`.`assets`;
 CREATE TABLE `king_account`.`assets` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
-    `account_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
+    `user_id` CHAR(19) NOT NULL COMMENT 'passport 表 id',
     `fund_no` CHAR(19) NOT NULL COMMENT 'fund no',
     `type` TINYINT NOT NULL COMMENT '类型', 
     `cash_position` DECIMAL(11,2) NOT NULL COMMENT '头寸',
@@ -93,13 +93,13 @@ CREATE TABLE `king_account`.`assets` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_fund_no ON `king_account`.`assets`(`fund_no`);
-CREATE INDEX idx_account_id ON `king_account`.`assets`(`account_id`);
-CREATE UNIQUE INDEX idx_fund_no_account_id_code ON `king_account`.`assets`(`fund_no`, `account_id`, `code`);
+CREATE INDEX idx_user_id ON `king_account`.`assets`(`user_id`);
+CREATE UNIQUE INDEX idx_user_id_fund_no_code ON `king_account`.`assets`(`user_id`, `fund_no`, `code`);
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`fund`;
 CREATE TABLE `king_account`.`fund` (
-    `account_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
+    `user_id` CHAR(19) NOT NULL COMMENT 'passport 表 id',
     `fund_no` CHAR(19) NOT NULL PRIMARY KEY,
     `opening_cash` DECIMAL(11,2) NOT NULL COMMENT '初始金额',
     `end_cash` DECIMAL(11,2) COMMENT '结算金额',
@@ -108,14 +108,14 @@ CREATE TABLE `king_account`.`fund` (
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
-CREATE INDEX idx_account_id ON `king_account`.`fund`(`account_id`);
+CREATE INDEX idx_user_id ON `king_account`.`fund`(`user_id`);
 
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`transaction_record`;
 CREATE TABLE `king_account`.`transaction_record` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
-    `account_id` CHAR(19) NOT NULL COMMENT 'account 表 id',
+    `user_id` CHAR(19) NOT NULL COMMENT 'passport 表 id',
     `fund_no` CHAR(19) NOT NULL COMMENT 'fund no',
     `action` TINYINT NOT NULL COMMENT '动作(buy/sell)',
     `assets_type` TINYINT NOT NULL COMMENT '资产类型',

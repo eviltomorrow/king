@@ -10,6 +10,28 @@ import (
 	"github.com/eviltomorrow/king/lib/orm"
 )
 
+func AssetsWithSelectOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, userId, fundNo, code string) (*Assets, error) {
+	assets := Assets{}
+	scan := func(row *sql.Row) error {
+		return row.Scan(
+			&assets.Id,
+			&assets.FundNo,
+			&assets.UserId,
+			&assets.Type,
+			&assets.CashPosition,
+			&assets.Code,
+			&assets.OpenInterest,
+			&assets.FirstBuyDatetime,
+			&assets.CreateTimestamp,
+			&assets.ModifyTimestamp,
+		)
+	}
+	if err := orm.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code}, scan); err != nil {
+		return nil, err
+	}
+	return &assets, nil
+}
+
 func AssetsWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId string) ([]*Assets, error) {
 	data := make([]*Assets, 0, 16)
 	scan := func(rows *sql.Rows) error {
@@ -80,7 +102,7 @@ func AssetsWithUpdateOne(ctx context.Context, exec mysql.Exec, assets *Assets, i
 	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsId: id})
 }
 
-func AssetsWithUpdateOneByFundNoUserIdCode(ctx context.Context, exec mysql.Exec, assets *Assets, fundNo, userId, code string) (int64, error) {
+func AssetsWithUpdateOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, assets *Assets, userId, fundNo, code string) (int64, error) {
 	if assets == nil {
 		return 0, fmt.Errorf("invalid parameter, assets is nil")
 	}
@@ -90,6 +112,14 @@ func AssetsWithUpdateOneByFundNoUserIdCode(ctx context.Context, exec mysql.Exec,
 		FieldAssetsOpenInterest: assets.OpenInterest,
 	}
 	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
+}
+
+func AssetsWithDeleteOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, assets *Assets, userId, fundNo, code string) (int64, error) {
+	if assets == nil {
+		return 0, fmt.Errorf("invalid parameter, assets is nil")
+	}
+
+	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
 }
 
 func AssetsWithDeleteOne(ctx context.Context, exec mysql.Exec, id string) (int64, error) {
@@ -119,12 +149,12 @@ func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (
 
 type Assets struct {
 	Id               string       `json:"id"`
-	FundNo           string       `json:"fund_no"`
 	UserId           string       `json:"user_id"`
+	FundNo           string       `json:"fund_no"`
 	Type             int8         `json:"type"`
 	CashPosition     float64      `json:"cash_position"`
 	Code             string       `json:"code"`
-	OpenInterest     float64      `json:"open_interest"`
+	OpenInterest     int64        `json:"open_interest"`
 	FirstBuyDatetime time.Time    `json:"first_buy_datetime"`
 	CreateTimestamp  time.Time    `json:"create_timestamp"`
 	ModifyTimestamp  sql.NullTime `json:"modify_timestamp"`

@@ -9,8 +9,8 @@ package auth;
 service Passport {
     rpc BindThirdPartyAccount(BindThirdPartyAccountReq) returns (google.protobuf.StringValue);
     rpc ConfirmCode(ConfirmCodeReq) returns (google.protobuf.Empty);
+    
     rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
-
     rpc Register(RegisterReq) returns (google.protobuf.StringValue);
     rpc Auth(AuthReq) returns (Token);
     rpc RenewToken(Token) returns (Token);
@@ -20,9 +20,20 @@ service Passport {
     rpc Exist(google.protobuf.StringValue) returns (google.protobuf.BoolValue);
     rpc Lock(google.protobuf.StringValue) returns (google.protobuf.Empty);
     rpc Unlock(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc List(UserReq) returns (UserResp);
     rpc Get(google.protobuf.StringValue) returns (User);
     rpc Remove(google.protobuf.StringValue) returns (google.protobuf.Empty);
     rpc ModifyPassword(ModifyPasswordReq) returns (google.protobuf.Empty);
+}
+
+message UserReq {
+    int64 page_no = 1;
+    int64 page_size = 2;
+}
+
+message UserResp {
+    repeated User users = 1;
+    int64 total_count = 2;
 }
 
 message Token {

@@ -32,6 +32,7 @@ const (
 	Passport_Exist_FullMethodName                  = "/auth.Passport/Exist"
 	Passport_Lock_FullMethodName                   = "/auth.Passport/Lock"
 	Passport_Unlock_FullMethodName                 = "/auth.Passport/Unlock"
+	Passport_List_FullMethodName                   = "/auth.Passport/List"
 	Passport_Get_FullMethodName                    = "/auth.Passport/Get"
 	Passport_Remove_FullMethodName                 = "/auth.Passport/Remove"
 	Passport_ModifyPassword_FullMethodName         = "/auth.Passport/ModifyPassword"
@@ -52,6 +53,7 @@ type PassportClient interface {
 	Exist(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 	Lock(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Unlock(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	List(ctx context.Context, in *UserReq, opts ...grpc.CallOption) (*UserResp, error)
 	Get(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error)
 	Remove(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ModifyPassword(ctx context.Context, in *ModifyPasswordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -164,6 +166,15 @@ func (c *passportClient) Unlock(ctx context.Context, in *wrapperspb.StringValue,
 	return out, nil
 }
 
+func (c *passportClient) List(ctx context.Context, in *UserReq, opts ...grpc.CallOption) (*UserResp, error) {
+	out := new(UserResp)
+	err := c.cc.Invoke(ctx, Passport_List_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *passportClient) Get(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
 	err := c.cc.Invoke(ctx, Passport_Get_FullMethodName, in, out, opts...)
@@ -206,6 +217,7 @@ type PassportServer interface {
 	Exist(context.Context, *wrapperspb.StringValue) (*wrapperspb.BoolValue, error)
 	Lock(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	Unlock(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
+	List(context.Context, *UserReq) (*UserResp, error)
 	Get(context.Context, *wrapperspb.StringValue) (*User, error)
 	Remove(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	ModifyPassword(context.Context, *ModifyPasswordReq) (*emptypb.Empty, error)
@@ -248,6 +260,9 @@ func (UnimplementedPassportServer) Lock(context.Context, *wrapperspb.StringValue
 }
 func (UnimplementedPassportServer) Unlock(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unlock not implemented")
+}
+func (UnimplementedPassportServer) List(context.Context, *UserReq) (*UserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedPassportServer) Get(context.Context, *wrapperspb.StringValue) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
@@ -469,6 +484,24 @@ func _Passport_Unlock_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Passport_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassportServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Passport_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassportServer).List(ctx, req.(*UserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Passport_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
@@ -573,6 +606,10 @@ var Passport_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Unlock",
 			Handler:    _Passport_Unlock_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _Passport_List_Handler,
 		},
 		{
 			MethodName: "Get",
