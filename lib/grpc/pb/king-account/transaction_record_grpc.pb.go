@@ -20,126 +20,89 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Transaction_Write_FullMethodName          = "/account.Transaction/Write"
-	Transaction_FindByUserFund_FullMethodName = "/account.Transaction/FindByUserFund"
+	TransactionRecord_ListByUserId_FullMethodName = "/account.TransactionRecord/ListByUserId"
 )
 
-// TransactionClient is the client API for Transaction service.
+// TransactionRecordClient is the client API for TransactionRecord service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TransactionClient interface {
-	Write(ctx context.Context, in *Record, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	FindByUserFund(ctx context.Context, in *UserFundReq, opts ...grpc.CallOption) (*RecordResp, error)
+type TransactionRecordClient interface {
+	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*RecordResp, error)
 }
 
-type transactionClient struct {
+type transactionRecordClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTransactionClient(cc grpc.ClientConnInterface) TransactionClient {
-	return &transactionClient{cc}
+func NewTransactionRecordClient(cc grpc.ClientConnInterface) TransactionRecordClient {
+	return &transactionRecordClient{cc}
 }
 
-func (c *transactionClient) Write(ctx context.Context, in *Record, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
-	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, Transaction_Write_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *transactionClient) FindByUserFund(ctx context.Context, in *UserFundReq, opts ...grpc.CallOption) (*RecordResp, error) {
+func (c *transactionRecordClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*RecordResp, error) {
 	out := new(RecordResp)
-	err := c.cc.Invoke(ctx, Transaction_FindByUserFund_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TransactionRecord_ListByUserId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TransactionServer is the server API for Transaction service.
-// All implementations must embed UnimplementedTransactionServer
+// TransactionRecordServer is the server API for TransactionRecord service.
+// All implementations must embed UnimplementedTransactionRecordServer
 // for forward compatibility
-type TransactionServer interface {
-	Write(context.Context, *Record) (*wrapperspb.StringValue, error)
-	FindByUserFund(context.Context, *UserFundReq) (*RecordResp, error)
-	mustEmbedUnimplementedTransactionServer()
+type TransactionRecordServer interface {
+	ListByUserId(context.Context, *wrapperspb.StringValue) (*RecordResp, error)
+	mustEmbedUnimplementedTransactionRecordServer()
 }
 
-// UnimplementedTransactionServer must be embedded to have forward compatible implementations.
-type UnimplementedTransactionServer struct {
+// UnimplementedTransactionRecordServer must be embedded to have forward compatible implementations.
+type UnimplementedTransactionRecordServer struct {
 }
 
-func (UnimplementedTransactionServer) Write(context.Context, *Record) (*wrapperspb.StringValue, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
+func (UnimplementedTransactionRecordServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*RecordResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListByUserId not implemented")
 }
-func (UnimplementedTransactionServer) FindByUserFund(context.Context, *UserFundReq) (*RecordResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindByUserFund not implemented")
-}
-func (UnimplementedTransactionServer) mustEmbedUnimplementedTransactionServer() {}
+func (UnimplementedTransactionRecordServer) mustEmbedUnimplementedTransactionRecordServer() {}
 
-// UnsafeTransactionServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TransactionServer will
+// UnsafeTransactionRecordServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TransactionRecordServer will
 // result in compilation errors.
-type UnsafeTransactionServer interface {
-	mustEmbedUnimplementedTransactionServer()
+type UnsafeTransactionRecordServer interface {
+	mustEmbedUnimplementedTransactionRecordServer()
 }
 
-func RegisterTransactionServer(s grpc.ServiceRegistrar, srv TransactionServer) {
-	s.RegisterService(&Transaction_ServiceDesc, srv)
+func RegisterTransactionRecordServer(s grpc.ServiceRegistrar, srv TransactionRecordServer) {
+	s.RegisterService(&TransactionRecord_ServiceDesc, srv)
 }
 
-func _Transaction_Write_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Record)
+func _TransactionRecord_ListByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransactionServer).Write(ctx, in)
+		return srv.(TransactionRecordServer).ListByUserId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Transaction_Write_FullMethodName,
+		FullMethod: TransactionRecord_ListByUserId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServer).Write(ctx, req.(*Record))
+		return srv.(TransactionRecordServer).ListByUserId(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Transaction_FindByUserFund_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserFundReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransactionServer).FindByUserFund(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Transaction_FindByUserFund_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServer).FindByUserFund(ctx, req.(*UserFundReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// Transaction_ServiceDesc is the grpc.ServiceDesc for Transaction service.
+// TransactionRecord_ServiceDesc is the grpc.ServiceDesc for TransactionRecord service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Transaction_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "account.Transaction",
-	HandlerType: (*TransactionServer)(nil),
+var TransactionRecord_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "account.TransactionRecord",
+	HandlerType: (*TransactionRecordServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Write",
-			Handler:    _Transaction_Write_Handler,
-		},
-		{
-			MethodName: "FindByUserFund",
-			Handler:    _Transaction_FindByUserFund_Handler,
+			MethodName: "ListByUserId",
+			Handler:    _TransactionRecord_ListByUserId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

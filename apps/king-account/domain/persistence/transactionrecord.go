@@ -17,8 +17,8 @@ func TransactionRecordWithSelectManyByUserId(ctx context.Context, exec mysql.Exe
 			record := &TransactionRecord{}
 			if err := rows.Scan(
 				&record.Id,
-				&record.FundNo,
 				&record.UserId,
+				&record.FundNo,
 				&record.Action,
 				&record.AssetsType,
 				&record.AssetsCode,
@@ -47,8 +47,8 @@ func TransactionRecordWithSelectManyByFundNo(ctx context.Context, exec mysql.Exe
 			record := &TransactionRecord{}
 			if err := rows.Scan(
 				&record.Id,
-				&record.FundNo,
 				&record.UserId,
+				&record.FundNo,
 				&record.Action,
 				&record.AssetsType,
 				&record.AssetsCode,
@@ -77,8 +77,8 @@ func TransactionRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record
 
 	value := map[string]interface{}{
 		FieldTransactionRecordId:         record.Id,
-		FieldTransactionRecordFundNo:     record.FundNo,
 		FieldTransactionRecordUserId:     record.UserId,
+		FieldTransactionRecordFundNo:     record.FundNo,
 		FieldTransactionRecordAction:     record.Action,
 		FieldTransactionRecordAssetsType: record.AssetsType,
 		FieldTransactionRecordAssetsCode: record.AssetsCode,
@@ -91,8 +91,8 @@ func TransactionRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record
 
 type TransactionRecord struct {
 	Id              string       `json:"id"`
-	FundNo          string       `json:"fund_no"`
 	UserId          string       `json:"user_id"`
+	FundNo          string       `json:"fund_no"`
 	Action          int8         `json:"action"`
 	AssetsType      int8         `json:"assets_type"`
 	AssetsCode      string       `json:"assets_code"`
@@ -107,8 +107,8 @@ const (
 	TableTransactionRecordName = "TransactionRecord"
 
 	FieldTransactionRecordId              = "id"
-	FieldTransactionRecordFundNo          = "fund_no"
 	FieldTransactionRecordUserId          = "user_id"
+	FieldTransactionRecordFundNo          = "fund_no"
 	FieldTransactionRecordAction          = "action"
 	FieldTransactionRecordAssetsType      = "assets_type"
 	FieldTransactionRecordAssetsCode      = "assets_code"
@@ -121,8 +121,8 @@ const (
 
 var TransactionRecordFields = []string{
 	FieldTransactionRecordId,
-	FieldTransactionRecordFundNo,
 	FieldTransactionRecordUserId,
+	FieldTransactionRecordFundNo,
 	FieldTransactionRecordAction,
 	FieldTransactionRecordAssetsType,
 	FieldTransactionRecordAssetsCode,

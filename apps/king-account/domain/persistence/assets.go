@@ -14,12 +14,12 @@ func AssetsWithSelectOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 	assets := Assets{}
 	scan := func(row *sql.Row) error {
 		return row.Scan(
-			&assets.Id,
-			&assets.FundNo,
 			&assets.UserId,
+			&assets.FundNo,
 			&assets.Type,
 			&assets.CashPosition,
 			&assets.Code,
+			&assets.Name,
 			&assets.OpenInterest,
 			&assets.FirstBuyDatetime,
 			&assets.CreateTimestamp,
@@ -38,12 +38,12 @@ func AssetsWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId s
 		for rows.Next() {
 			assets := Assets{}
 			if err := rows.Scan(
-				&assets.Id,
-				&assets.FundNo,
 				&assets.UserId,
+				&assets.FundNo,
 				&assets.Type,
 				&assets.CashPosition,
 				&assets.Code,
+				&assets.Name,
 				&assets.OpenInterest,
 				&assets.FirstBuyDatetime,
 				&assets.CreateTimestamp,
@@ -67,12 +67,12 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 		for rows.Next() {
 			assets := Assets{}
 			if err := rows.Scan(
-				&assets.Id,
-				&assets.FundNo,
 				&assets.UserId,
+				&assets.FundNo,
 				&assets.Type,
 				&assets.CashPosition,
 				&assets.Code,
+				&assets.Name,
 				&assets.OpenInterest,
 				&assets.FirstBuyDatetime,
 				&assets.CreateTimestamp,
@@ -90,24 +90,13 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 	return data, nil
 }
 
-func AssetsWithUpdateOne(ctx context.Context, exec mysql.Exec, assets *Assets, id string) (int64, error) {
-	if assets == nil {
-		return 0, fmt.Errorf("invalid parameter, value is nil")
-	}
-
-	value := map[string]interface{}{
-		FieldAssetsCashPosition: assets.CashPosition,
-		FieldAssetsOpenInterest: assets.OpenInterest,
-	}
-	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsId: id})
-}
-
 func AssetsWithUpdateOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, assets *Assets, userId, fundNo, code string) (int64, error) {
 	if assets == nil {
 		return 0, fmt.Errorf("invalid parameter, assets is nil")
 	}
 
 	value := map[string]interface{}{
+		FieldAssetsName:         assets.Name,
 		FieldAssetsCashPosition: assets.CashPosition,
 		FieldAssetsOpenInterest: assets.OpenInterest,
 	}
@@ -122,25 +111,18 @@ func AssetsWithDeleteOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
 }
 
-func AssetsWithDeleteOne(ctx context.Context, exec mysql.Exec, id string) (int64, error) {
-	if id == "" {
-		return 0, fmt.Errorf("invalid parameter, id is nil")
-	}
-	return orm.TableWithDelete(ctx, exec, TableAssetsName, map[string]interface{}{FieldAssetsId: id})
-}
-
 func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (int64, error) {
 	if assets == nil {
 		return 0, fmt.Errorf("invalid parameter, assets is nil")
 	}
 
 	value := map[string]interface{}{
-		FieldAssetsId:               assets.Id,
-		FieldAssetsFundNo:           assets.FundNo,
 		FieldAssetsUserId:           assets.UserId,
+		FieldAssetsFundNo:           assets.FundNo,
 		FieldAssetsType:             assets.Type,
 		FieldAssetsCashPosition:     assets.CashPosition,
 		FieldAssetsCode:             assets.Code,
+		FieldAssetsName:             assets.Name,
 		FieldAssetsOpenInterest:     assets.OpenInterest,
 		FieldAssetsFirstBuyDatetime: assets.FirstBuyDatetime,
 	}
@@ -148,12 +130,12 @@ func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (
 }
 
 type Assets struct {
-	Id               string       `json:"id"`
 	UserId           string       `json:"user_id"`
 	FundNo           string       `json:"fund_no"`
 	Type             int8         `json:"type"`
 	CashPosition     float64      `json:"cash_position"`
 	Code             string       `json:"code"`
+	Name             string       `json:"name"`
 	OpenInterest     int64        `json:"open_interest"`
 	FirstBuyDatetime time.Time    `json:"first_buy_datetime"`
 	CreateTimestamp  time.Time    `json:"create_timestamp"`
@@ -163,12 +145,12 @@ type Assets struct {
 const (
 	TableAssetsName = "assets"
 
-	FieldAssetsId               = "id"
-	FieldAssetsFundNo           = "fund_no"
 	FieldAssetsUserId           = "user_id"
+	FieldAssetsFundNo           = "fund_no"
 	FieldAssetsType             = "type"
 	FieldAssetsCashPosition     = "cash_position"
 	FieldAssetsCode             = "code"
+	FieldAssetsName             = "name"
 	FieldAssetsOpenInterest     = "open_interest"
 	FieldAssetsFirstBuyDatetime = "first_buy_datetime"
 	FieldAssetsCreateTimestamp  = "create_timestamp"
@@ -176,12 +158,12 @@ const (
 )
 
 var AssetsFields = []string{
-	FieldAssetsId,
-	FieldAssetsFundNo,
 	FieldAssetsUserId,
+	FieldAssetsFundNo,
 	FieldAssetsType,
 	FieldAssetsCashPosition,
 	FieldAssetsCode,
+	FieldAssetsName,
 	FieldAssetsOpenInterest,
 	FieldAssetsFirstBuyDatetime,
 	FieldAssetsCreateTimestamp,

@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -21,18 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Assets_FindByUserId_FullMethodName = "/account.Assets/FindByUserId"
-	Assets_Buy_FullMethodName          = "/account.Assets/Buy"
-	Assets_Sell_FullMethodName         = "/account.Assets/Sell"
+	Assets_ListByUserId_FullMethodName = "/account.Assets/ListByUserId"
 )
 
 // AssetsClient is the client API for Assets service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AssetsClient interface {
-	FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error)
-	Buy(ctx context.Context, in *Item, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Sell(ctx context.Context, in *Item, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error)
 }
 
 type assetsClient struct {
@@ -43,27 +38,9 @@ func NewAssetsClient(cc grpc.ClientConnInterface) AssetsClient {
 	return &assetsClient{cc}
 }
 
-func (c *assetsClient) FindByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error) {
+func (c *assetsClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error) {
 	out := new(ItemResp)
-	err := c.cc.Invoke(ctx, Assets_FindByUserId_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *assetsClient) Buy(ctx context.Context, in *Item, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Assets_Buy_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *assetsClient) Sell(ctx context.Context, in *Item, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Assets_Sell_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Assets_ListByUserId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,9 +51,7 @@ func (c *assetsClient) Sell(ctx context.Context, in *Item, opts ...grpc.CallOpti
 // All implementations must embed UnimplementedAssetsServer
 // for forward compatibility
 type AssetsServer interface {
-	FindByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error)
-	Buy(context.Context, *Item) (*emptypb.Empty, error)
-	Sell(context.Context, *Item) (*emptypb.Empty, error)
+	ListByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error)
 	mustEmbedUnimplementedAssetsServer()
 }
 
@@ -84,14 +59,8 @@ type AssetsServer interface {
 type UnimplementedAssetsServer struct {
 }
 
-func (UnimplementedAssetsServer) FindByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindByUserId not implemented")
-}
-func (UnimplementedAssetsServer) Buy(context.Context, *Item) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Buy not implemented")
-}
-func (UnimplementedAssetsServer) Sell(context.Context, *Item) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Sell not implemented")
+func (UnimplementedAssetsServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListByUserId not implemented")
 }
 func (UnimplementedAssetsServer) mustEmbedUnimplementedAssetsServer() {}
 
@@ -106,56 +75,20 @@ func RegisterAssetsServer(s grpc.ServiceRegistrar, srv AssetsServer) {
 	s.RegisterService(&Assets_ServiceDesc, srv)
 }
 
-func _Assets_FindByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Assets_ListByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AssetsServer).FindByUserId(ctx, in)
+		return srv.(AssetsServer).ListByUserId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Assets_FindByUserId_FullMethodName,
+		FullMethod: Assets_ListByUserId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssetsServer).FindByUserId(ctx, req.(*wrapperspb.StringValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Assets_Buy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Item)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AssetsServer).Buy(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Assets_Buy_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssetsServer).Buy(ctx, req.(*Item))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Assets_Sell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Item)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AssetsServer).Sell(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Assets_Sell_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssetsServer).Sell(ctx, req.(*Item))
+		return srv.(AssetsServer).ListByUserId(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,16 +101,8 @@ var Assets_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AssetsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FindByUserId",
-			Handler:    _Assets_FindByUserId_Handler,
-		},
-		{
-			MethodName: "Buy",
-			Handler:    _Assets_Buy_Handler,
-		},
-		{
-			MethodName: "Sell",
-			Handler:    _Assets_Sell_Handler,
+			MethodName: "ListByUserId",
+			Handler:    _Assets_ListByUserId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

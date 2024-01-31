@@ -1,15 +1,12 @@
 syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/empty.proto";
 
 option go_package = "./;pb";
 package account;
 
 service Assets {
-    rpc FindByUserId(google.protobuf.StringValue) returns (ItemResp);
-    rpc Buy(Item) returns (google.protobuf.Empty);
-    rpc Sell(Item) returns (google.protobuf.Empty);
+    rpc ListByUserId(google.protobuf.StringValue) returns (ItemResp);
 }
 
 message ItemResp {
@@ -18,18 +15,16 @@ message ItemResp {
 }
 
 message Item {
-    string id = 1;
+    string user_id = 1;
     string fund_no = 2;
-    string user_id = 3;
-    enum AssetsType {
+    enum Type {
         STOCK = 0;
+        ETF = 1;
     }
-    AssetsType type = 4;
-    // 头寸
-    double cash_position = 5;
-    // 
-    string code = 6;
-    // 持仓量
+    Type type = 3;
+    double cash_position = 4;
+    string code = 5;
+    string name = 6;
     int64 open_interest = 7;
     int64 first_buy_datetime = 8;
 }

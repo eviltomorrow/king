@@ -10,12 +10,12 @@ import (
 	"github.com/eviltomorrow/king/lib/orm"
 )
 
-func FundWithSelectOne(ctx context.Context, exec mysql.Exec, no string) (*Fund, error) {
+func FundWithSelectOne(ctx context.Context, exec mysql.Exec, fundNo string) (*Fund, error) {
 	fund := Fund{}
 	scan := func(row *sql.Row) error {
 		return row.Scan(
-			&fund.FundNo,
 			&fund.UserId,
+			&fund.FundNo,
 			&fund.OpeningCash,
 			&fund.EndCash,
 			&fund.Status,
@@ -24,20 +24,20 @@ func FundWithSelectOne(ctx context.Context, exec mysql.Exec, no string) (*Fund, 
 			&fund.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundFundNo: no}, scan); err != nil {
+	if err := orm.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundFundNo: fundNo}, scan); err != nil {
 		return nil, err
 	}
 	return &fund, nil
 }
 
-func FundWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit int64) ([]*Fund, error) {
+func FundWithSelectRangeByUserId(ctx context.Context, exec mysql.Exec, userId string, offset, limit int64) ([]*Fund, error) {
 	funds := make([]*Fund, 0, limit)
 	scan := func(rows *sql.Rows) error {
 		for rows.Next() {
 			fund := Fund{}
 			if err := rows.Scan(
-				&fund.FundNo,
 				&fund.UserId,
+				&fund.FundNo,
 				&fund.OpeningCash,
 				&fund.EndCash,
 				&fund.Status,
@@ -51,18 +51,18 @@ func FundWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit int
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectRange(ctx, exec, TableFundName, FundFields, nil, nil, offset, limit, scan); err != nil {
+	if err := orm.TableWithSelectRange(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundUserId: userId}, nil, offset, limit, scan); err != nil {
 		return nil, err
 	}
 	return funds, nil
 }
 
-func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, no string) (int64, error) {
+func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, fundNo string) (int64, error) {
 	if fund == nil {
 		return 0, fmt.Errorf("invalid parameter, fund is nil")
 	}
-	if no == "" {
-		return 0, fmt.Errorf("invalid parameter, no is nil")
+	if fundNo == "" {
+		return 0, fmt.Errorf("invalid parameter, fund_no is nil")
 	}
 
 	value := map[string]interface{}{
@@ -70,14 +70,14 @@ func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, no stri
 		FieldFundEndCash:     fund.EndCash,
 		FieldFundStatus:      fund.Status,
 	}
-	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: no})
+	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo})
 }
 
-func FundWithDeleteOne(ctx context.Context, exec mysql.Exec, no string) (int64, error) {
-	if no == "" {
-		return 0, fmt.Errorf("invalid parameter, no is nil")
+func FundWithDeleteOne(ctx context.Context, exec mysql.Exec, fundNo string) (int64, error) {
+	if fundNo == "" {
+		return 0, fmt.Errorf("invalid parameter, fund_no is nil")
 	}
-	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldFundFundNo: no})
+	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldFundFundNo: fundNo})
 }
 
 func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64, error) {
@@ -86,8 +86,8 @@ func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64,
 	}
 
 	value := map[string]interface{}{
-		FieldFundFundNo:       fund.FundNo,
 		FieldFundUserId:       fund.UserId,
+		FieldFundFundNo:       fund.FundNo,
 		FieldFundOpeningCash:  fund.OpeningCash,
 		FieldFundEndCash:      fund.EndCash,
 		FieldFundStatus:       fund.Status,
@@ -97,8 +97,8 @@ func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64,
 }
 
 type Fund struct {
-	FundNo          string       `json:"fund_no"`
 	UserId          string       `json:"user_id"`
+	FundNo          string       `json:"fund_no"`
 	OpeningCash     float64      `json:"opening_cash"`
 	EndCash         float64      `json:"end_cash"`
 	Status          int8         `json:"status"`
@@ -110,8 +110,8 @@ type Fund struct {
 const (
 	TableFundName = "fund"
 
-	FieldFundFundNo          = "fund_no"
 	FieldFundUserId          = "user_id"
+	FieldFundFundNo          = "fund_no"
 	FieldFundOpeningCash     = "opening_cash"
 	FieldFundEndCash         = "end_cash"
 	FieldFundStatus          = "status"
@@ -121,8 +121,8 @@ const (
 )
 
 var FundFields = []string{
-	FieldFundFundNo,
 	FieldFundUserId,
+	FieldFundFundNo,
 	FieldFundOpeningCash,
 	FieldFundEndCash,
 	FieldFundStatus,

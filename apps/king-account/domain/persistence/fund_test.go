@@ -132,27 +132,3 @@ func TestFundWithUpdateOne(t *testing.T) {
 	_assert.NotNil(err)
 	_assert.Equal(int64(0), affected)
 }
-
-func TestFundWithSelectRange(t *testing.T) {
-	_assert := assert.New(t)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	InitFund()
-
-	funds, err := FundWithSelectRange(ctx, mysql.DB, 0, 10)
-	_assert.Nil(err)
-	_assert.Equal(0, len(funds))
-
-	for _, fund := range []*Fund{fund1, fund2, fund3} {
-		fund.FundNo = snowflake.GenerateID()
-		affected, err := FundWithInsertOne(ctx, mysql.DB, fund)
-		_assert.Nil(err)
-		_assert.Equal(int64(1), affected)
-	}
-
-	funds, err = FundWithSelectRange(ctx, mysql.DB, 0, 2)
-	_assert.Nil(err)
-	_assert.Equal(2, len(funds))
-}

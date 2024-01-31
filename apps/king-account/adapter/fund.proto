@@ -7,23 +7,21 @@ option go_package = "./;pb";
 package account;
 
 service Fund {
-    rpc InitAccount(Account) returns (google.protobuf.StringValue);
-    rpc Remove(Account) returns (google.protobuf.Empty);
-    rpc Rebalance(Account) returns (google.protobuf.Empty);
-    rpc FindByUserId(google.protobuf.StringValue) returns (AccountResp);
+    rpc InitAccount(Account) returns (google.protobuf.Empty);
+    rpc Reblance(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc ListByUserId(google.protobuf.StringValue) returns (AccountResp);
 }
 
 message AccountResp {
     repeated Account accounts = 1;
     int64 total_count = 2;
 }
-
+    
 message Account {
-    string fund_no = 1;
-    string user_id = 2;
+    string user_id = 1;
+    string fund_no = 2;
     double opening_cash = 3;
     double end_cash = 4;
-    string fund_type = 5;
-    int32 status = 6;
-    int64 init_datetime = 7;
+    int32 status = 5;
+    int64 init_datetime = 6;
 }

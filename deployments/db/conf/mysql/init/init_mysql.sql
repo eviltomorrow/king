@@ -75,18 +75,19 @@ CREATE UNIQUE INDEX idx_code ON `king_auth`.`passport`(`code`);
 CREATE UNIQUE INDEX idx_email ON `king_auth`.`passport`(`email`);
 CREATE UNIQUE INDEX idx_phone ON `king_auth`.`passport`(`phone`);
 
+
 CREATE DATABASE IF NOT EXISTS `king_account` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 GRANT ALL ON king_account.* TO 'admin'@'%';
 
 -- CREATE TABLE assets
 DROP TABLE IF EXISTS `king_account`.`assets`;
 CREATE TABLE `king_account`.`assets` (
-    `id` CHAR(19) NOT NULL PRIMARY KEY,
     `user_id` CHAR(19) NOT NULL COMMENT 'passport 表 id',
     `fund_no` CHAR(19) NOT NULL COMMENT 'fund no',
     `type` TINYINT NOT NULL COMMENT '类型', 
     `cash_position` DECIMAL(11,2) NOT NULL COMMENT '头寸',
     `code` VARCHAR(8) NOT NULL COMMENT '代码',
+    `name` VARCHAR(32) NOT NULL COMMENT '名称',
     `open_interest` INT NOT NULL COMMENT '持仓量',
     `first_buy_datetime` DATETIME NOT NULL COMMENT '第一次购买时间',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -102,13 +103,13 @@ CREATE TABLE `king_account`.`fund` (
     `user_id` CHAR(19) NOT NULL COMMENT 'passport 表 id',
     `fund_no` CHAR(19) NOT NULL PRIMARY KEY,
     `opening_cash` DECIMAL(11,2) NOT NULL COMMENT '初始金额',
-    `end_cash` DECIMAL(11,2) COMMENT '结算金额',
+    `end_cash` DECIMAL(11,2) COMMENT '剩余金额',
     `status` TINYINT NOT NULL COMMENT '状态(1:启用,2:冻结)',
     `init_datetime` DATETIME NOT NULL COMMENT '初始化时间',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
-CREATE INDEX idx_user_id ON `king_account`.`fund`(`user_id`);
+CREATE INDEX idx_user_id_fund_no ON `king_account`.`fund`(`user_id`, `fund_no`);
 
 
 -- CREATE TABLE fund
@@ -120,21 +121,23 @@ CREATE TABLE `king_account`.`transaction_record` (
     `action` TINYINT NOT NULL COMMENT '动作(buy/sell)',
     `assets_type` TINYINT NOT NULL COMMENT '资产类型',
     `assets_code` CHAR(8) NOT NULL COMMENT '资产代码',
+    `assets_name` VARCHAR(32) NOT NULL COMMENT '资产名称',
     `close_price` DECIMAL(11,2) NOT NULL COMMENT '成交价',
     `volume` INT NOT NULL COMMENT '成交量',
     `datetime` DATETIME NOT NULL COMMENT '成交时间',
+    `status` TINYINT NOT NULL COMMENT '状态',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_datetime ON `king_account`.`transaction_record`(`datetime`);
-CREATE INDEX idx_assets_code ON `king_account`.`transaction_record`(`assets_code`);
+CREATE INDEX idx_user_id_fund_no ON `king_account`.`transaction_record`(`user_id`, `fund_no`);
 
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`transaction_fee`;
 CREATE TABLE `king_account`.`transaction_fee` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
     `record_id` CHAR(19) NOT NULL COMMENT '交易 id',
-    `item` VARCHAR(16) NOT NULL COMMENT '项目(费用)',
+    `item` VARCHAR(16) NOT NULL COMMENT '项目(费用)名称',
     `money` DECIMAL(11,2) NOT NULL COMMENT '金额',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'

@@ -5,23 +5,15 @@ import "google/protobuf/wrappers.proto";
 option go_package = "./;pb";
 package account;
 
-service Transaction {
-    rpc Write(Record) returns (google.protobuf.StringValue);
-    rpc FindByUserFund(UserFundReq) returns (RecordResp);
-}
-
-message UserFundReq {
-    string user_id = 1;
-    string fund_no = 2;
-    int64 page_no = 3;
-    int64 page_size = 4;
+service TransactionRecord {
+    rpc ListByUserId(google.protobuf.StringValue) returns (RecordResp);
 }
 
 message RecordResp {
     repeated Record records = 1;
     int64 total_count = 2;
 }
-
+    
 message Record {
     string id = 1;
     string user_id = 2;
@@ -31,16 +23,21 @@ message Record {
         SELL = 1;
     }
     Action action = 4;
-    enum AssetsType {
+
+    enum Type {
         STOCK = 0;
+        ETF = 1;
     }
-    AssetsType assets_type = 5;
-    string assets_code = 6;
-    double close_price = 7;
+    Type type = 5;
+
+    string code = 6;
+    string name = 7;
     int64 volume = 8;
-    string datetime = 9;
+    double close_price = 9;
+    
     repeated Fee fee = 10;
 }
+    
 
 message Fee {
     string id = 1;
@@ -48,3 +45,4 @@ message Fee {
     string item = 3;
     double money = 4;
 }
+        

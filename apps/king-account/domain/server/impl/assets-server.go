@@ -19,7 +19,7 @@ func (s *AssetsServer) FindByUserId(ctx context.Context, req *wrapperspb.StringV
 		return nil, fmt.Errorf("req is nil")
 	}
 
-	assets, err := service.AssetsWithFindByUserId(ctx, req.Value)
+	assets, err := service.AssetsWithFindManyByUserId(ctx, req.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,6 @@ func (s *AssetsServer) FindByUserId(ctx context.Context, req *wrapperspb.StringV
 		assetType := pb.Item_STOCK
 
 		data = append(data, &pb.Item{
-			Id:               asset.Id,
 			FundNo:           asset.FundNo,
 			UserId:           asset.UserId,
 			Type:             assetType,
