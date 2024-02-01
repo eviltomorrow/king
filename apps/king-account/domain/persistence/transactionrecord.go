@@ -128,7 +128,7 @@ func TransactionRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record
 		FieldTransactionRecordStatus:     record.Status,
 		FieldAssetsOpenId:                record.OpenId,
 	}
-	return orm.TableWithInsert(ctx, exec, TableTransactionRecordName, value)
+	return orm.TableWithInsertOne(ctx, exec, TableTransactionRecordName, value)
 }
 
 type TransactionRecord struct {

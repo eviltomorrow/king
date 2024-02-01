@@ -130,7 +130,7 @@ func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (
 		FieldAssetsOpenId:           assets.OpenId,
 		FieldAssetsFirstBuyDatetime: assets.FirstBuyDatetime,
 	}
-	return orm.TableWithInsert(ctx, exec, TableAssetsName, value)
+	return orm.TableWithInsertOne(ctx, exec, TableAssetsName, value)
 }
 
 type Assets struct {

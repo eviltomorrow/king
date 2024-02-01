@@ -123,7 +123,7 @@ func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64,
 		FieldFundStatus:           fund.Status,
 		FieldFundInitDatetime:     fund.InitDatetime,
 	}
-	return orm.TableWithInsert(ctx, exec, TableFundName, value)
+	return orm.TableWithInsertOne(ctx, exec, TableFundName, value)
 }
 
 type Fund struct {

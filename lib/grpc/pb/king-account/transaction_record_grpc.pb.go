@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	TransactionRecord_ListByUserId_FullMethodName = "/account.TransactionRecord/ListByUserId"
+	TransactionRecord_ListByOpenID_FullMethodName = "/account.TransactionRecord/ListByOpenID"
 )
 
 // TransactionRecordClient is the client API for TransactionRecord service.
@@ -28,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionRecordClient interface {
 	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*RecordResp, error)
+	ListByOpenID(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*RecordResp, error)
 }
 
 type transactionRecordClient struct {
@@ -47,11 +49,21 @@ func (c *transactionRecordClient) ListByUserId(ctx context.Context, in *wrappers
 	return out, nil
 }
 
+func (c *transactionRecordClient) ListByOpenID(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*RecordResp, error) {
+	out := new(RecordResp)
+	err := c.cc.Invoke(ctx, TransactionRecord_ListByOpenID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionRecordServer is the server API for TransactionRecord service.
 // All implementations must embed UnimplementedTransactionRecordServer
 // for forward compatibility
 type TransactionRecordServer interface {
 	ListByUserId(context.Context, *wrapperspb.StringValue) (*RecordResp, error)
+	ListByOpenID(context.Context, *wrapperspb.StringValue) (*RecordResp, error)
 	mustEmbedUnimplementedTransactionRecordServer()
 }
 
@@ -61,6 +73,9 @@ type UnimplementedTransactionRecordServer struct {
 
 func (UnimplementedTransactionRecordServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*RecordResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListByUserId not implemented")
+}
+func (UnimplementedTransactionRecordServer) ListByOpenID(context.Context, *wrapperspb.StringValue) (*RecordResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListByOpenID not implemented")
 }
 func (UnimplementedTransactionRecordServer) mustEmbedUnimplementedTransactionRecordServer() {}
 
@@ -93,6 +108,24 @@ func _TransactionRecord_ListByUserId_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionRecord_ListByOpenID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionRecordServer).ListByOpenID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransactionRecord_ListByOpenID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionRecordServer).ListByOpenID(ctx, req.(*wrapperspb.StringValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransactionRecord_ServiceDesc is the grpc.ServiceDesc for TransactionRecord service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -103,6 +136,10 @@ var TransactionRecord_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListByUserId",
 			Handler:    _TransactionRecord_ListByUserId_Handler,
+		},
+		{
+			MethodName: "ListByOpenID",
+			Handler:    _TransactionRecord_ListByOpenID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

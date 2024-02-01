@@ -39,7 +39,7 @@ func TransactionFeeWithInsertOne(ctx context.Context, exec mysql.Exec, fee *Tran
 		FieldTransactionFeeItem:     fee.Item,
 		FieldTransactionFeeMoney:    fee.Money,
 	}
-	return orm.TableWithInsert(ctx, exec, TableTransactionFeeName, value)
+	return orm.TableWithInsertOne(ctx, exec, TableTransactionFeeName, value)
 }
 
 type TransactionFee struct {

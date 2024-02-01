@@ -69,7 +69,33 @@ func TableWithUpdate(ctx context.Context, exec mysql.Exec, table string, value, 
 	return result.RowsAffected()
 }
 
-func TableWithInsert(ctx context.Context, exec mysql.Exec, table string, value map[string]interface{}) (int64, error) {
+func TableWithInsertMany(ctx context.Context, exec mysql.Exec, table string, columns []string, values []map[string]interface{}) (int64, error) {
+	if table == "" {
+		return 0, fmt.Errorf("invalid table")
+	}
+	if len(columns) == 0 {
+		return 0, fmt.Errorf("invalid columns")
+	}
+	if len(values) == 0 {
+		return 0, fmt.Errorf("invalid values")
+	}
+
+	fields := make([]string, 0, len(columns))
+	for range columns {
+		fields = append(fields, "?")
+	}
+	field := fmt.Sprintf("(%s)", strings.Join(fields, ", "))
+
+	fields = make([]string, 0, len(values))
+	args := make([]interface{}, 0, len(columns)*len(values))
+	for _, value := range values {
+		for _, column := range columns {
+			fields = append(fields, field)
+		}
+	}
+}
+
+func TableWithInsertOne(ctx context.Context, exec mysql.Exec, table string, value map[string]interface{}) (int64, error) {
 	if table == "" {
 		return 0, fmt.Errorf("invalid table")
 	}

@@ -128,7 +128,7 @@ func PassportWithInsertOne(ctx context.Context, exec mysql.Exec, passport *Passp
 		FieldPassportPhone:        passport.Phone,
 		FieldPassportStatus:       passport.Status,
 	}
-	return orm.TableWithInsert(ctx, exec, TablePassportName, value)
+	return orm.TableWithInsertOne(ctx, exec, TablePassportName, value)
 }
 
 type Passport struct {

@@ -7,6 +7,7 @@ package account;
 
 service TransactionRecord {
     rpc ListByUserId(google.protobuf.StringValue) returns (RecordResp);
+    rpc ListByOpenID(google.protobuf.StringValue) returns (RecordResp);
 }
 
 message RecordResp {
