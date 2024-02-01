@@ -28,4 +28,4 @@
     ]
     crontab = "25 18 * * MON,TUE,WED,THU,FRI"
     source = "sina"
-    random-period = "20,50" # unit: s 
+    random-period = "5,30" # unit: s 

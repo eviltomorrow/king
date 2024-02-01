@@ -89,10 +89,22 @@ func TableWithInsertMany(ctx context.Context, exec mysql.Exec, table string, col
 	fields = make([]string, 0, len(values))
 	args := make([]interface{}, 0, len(columns)*len(values))
 	for _, value := range values {
+		fields = append(fields, field)
 		for _, column := range columns {
-			fields = append(fields, field)
+			arg, ok := value[column]
+			if !ok {
+				return 0, fmt.Errorf("not found column with [%s]", column)
+			}
+			args = append(args, arg)
 		}
 	}
+
+	_sql := fmt.Sprintf("insert into %s (%s) values %s", table, strings.Join(columns, ","), strings.Join(fields, ","))
+	result, err := exec.ExecContext(ctx, _sql, args...)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 func TableWithInsertOne(ctx context.Context, exec mysql.Exec, table string, value map[string]interface{}) (int64, error) {
