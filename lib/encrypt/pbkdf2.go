@@ -23,8 +23,6 @@ func Key(salt, password string) string {
 
 const letters = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-var src = rand.NewSource(time.Now().UnixNano())
-
 const (
 	// 6 bits to represent a letter index
 	letterIdBits = 6
@@ -35,6 +33,8 @@ const (
 
 func RandomStr(n int) string {
 	b := make([]byte, n)
+	src := rand.NewSource(time.Now().UnixNano())
+
 	// A rand.Int63() generates 63 random bits, enough for letterIdMax letters!
 	for i, cache, remain := n-1, src.Int63(), letterIdMax; i >= 0; {
 		if remain == 0 {

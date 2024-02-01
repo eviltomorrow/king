@@ -6,7 +6,6 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-account/domain/service"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-account"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -14,7 +13,7 @@ type AssetsServer struct {
 	pb.UnimplementedAssetsServer
 }
 
-func (s *AssetsServer) FindByUserId(ctx context.Context, req *wrapperspb.StringValue) (*pb.ItemResp, error) {
+func (s *AssetsServer) ListByUserId(ctx context.Context, req *wrapperspb.StringValue) (*pb.ItemListResp, error) {
 	if req == nil {
 		return nil, fmt.Errorf("req is nil")
 	}
@@ -39,15 +38,5 @@ func (s *AssetsServer) FindByUserId(ctx context.Context, req *wrapperspb.StringV
 			FirstBuyDatetime: asset.FirstBuyDatetime.Unix(),
 		})
 	}
-	return &pb.ItemResp{TotalCount: int64(count), Items: data}, nil
+	return &pb.ItemListResp{TotalCount: int64(count), Items: data}, nil
 }
-
-func (s *AssetsServer) Buy(ctx context.Context, req *pb.Item) (*emptypb.Empty, error) {
-	if req == nil {
-		return nil, fmt.Errorf("req is nil")
-	}
-
-	return nil, nil
-}
-
-// Sell(context.Context, *Item) (*emptypb.Empty, error)

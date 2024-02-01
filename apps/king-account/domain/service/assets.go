@@ -18,7 +18,35 @@ type Assets struct {
 	Code             string          `json:"code"`
 	Name             string          `json:"name"`
 	OpenInterest     int64           `json:"open_interest"`
+	OpenId           string          `json:"open_id"`
 	FirstBuyDatetime time.Time       `json:"first_buy_datetime"`
+}
+
+func AssetsWithFindManyByFundNo(ctx context.Context, fundNo string) ([]*Assets, error) {
+	if fundNo == "" {
+		return nil, fmt.Errorf("fund_no is nil")
+	}
+	assets, err := persistence.AssetsWithSelectManyByFundNo(ctx, mysql.DB, fundNo)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]*Assets, 0, len(assets))
+	for _, asset := range assets {
+		d := decimal.NewFromFloat(asset.CashPosition)
+
+		data = append(data, &Assets{
+			FundNo:           asset.FundNo,
+			UserId:           asset.UserId,
+			Type:             asset.Type,
+			CashPosition:     d,
+			Code:             asset.Code,
+			OpenInterest:     asset.OpenInterest,
+			OpenId:           asset.OpenId,
+			FirstBuyDatetime: asset.FirstBuyDatetime,
+		})
+	}
+	return data, nil
 }
 
 func AssetsWithFindManyByUserId(ctx context.Context, userId string) ([]*Assets, error) {
@@ -41,6 +69,7 @@ func AssetsWithFindManyByUserId(ctx context.Context, userId string) ([]*Assets, 
 			CashPosition:     d,
 			Code:             asset.Code,
 			OpenInterest:     asset.OpenInterest,
+			OpenId:           asset.OpenId,
 			FirstBuyDatetime: asset.FirstBuyDatetime,
 		})
 	}
@@ -66,6 +95,7 @@ func AssetsWithFindOneByUserIdFundNoCode(ctx context.Context, userId, fundNo, co
 		Code:             assets.Code,
 		Name:             assets.Name,
 		OpenInterest:     assets.OpenInterest,
+		OpenId:           assets.OpenId,
 		FirstBuyDatetime: assets.FirstBuyDatetime,
 	}
 	return data, nil

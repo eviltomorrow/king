@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AssetsClient interface {
-	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error)
+	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemListResp, error)
 }
 
 type assetsClient struct {
@@ -38,8 +38,8 @@ func NewAssetsClient(cc grpc.ClientConnInterface) AssetsClient {
 	return &assetsClient{cc}
 }
 
-func (c *assetsClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemResp, error) {
-	out := new(ItemResp)
+func (c *assetsClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ItemListResp, error) {
+	out := new(ItemListResp)
 	err := c.cc.Invoke(ctx, Assets_ListByUserId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *assetsClient) ListByUserId(ctx context.Context, in *wrapperspb.StringVa
 // All implementations must embed UnimplementedAssetsServer
 // for forward compatibility
 type AssetsServer interface {
-	ListByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error)
+	ListByUserId(context.Context, *wrapperspb.StringValue) (*ItemListResp, error)
 	mustEmbedUnimplementedAssetsServer()
 }
 
@@ -59,7 +59,7 @@ type AssetsServer interface {
 type UnimplementedAssetsServer struct {
 }
 
-func (UnimplementedAssetsServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*ItemResp, error) {
+func (UnimplementedAssetsServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*ItemListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListByUserId not implemented")
 }
 func (UnimplementedAssetsServer) mustEmbedUnimplementedAssetsServer() {}

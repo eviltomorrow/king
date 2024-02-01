@@ -21,6 +21,7 @@ func AssetsWithSelectOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 			&assets.Code,
 			&assets.Name,
 			&assets.OpenInterest,
+			&assets.OpenId,
 			&assets.FirstBuyDatetime,
 			&assets.CreateTimestamp,
 			&assets.ModifyTimestamp,
@@ -45,6 +46,7 @@ func AssetsWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId s
 				&assets.Code,
 				&assets.Name,
 				&assets.OpenInterest,
+				&assets.OpenId,
 				&assets.FirstBuyDatetime,
 				&assets.CreateTimestamp,
 				&assets.ModifyTimestamp,
@@ -74,6 +76,7 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 				&assets.Code,
 				&assets.Name,
 				&assets.OpenInterest,
+				&assets.OpenId,
 				&assets.FirstBuyDatetime,
 				&assets.CreateTimestamp,
 				&assets.ModifyTimestamp,
@@ -124,6 +127,7 @@ func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (
 		FieldAssetsCode:             assets.Code,
 		FieldAssetsName:             assets.Name,
 		FieldAssetsOpenInterest:     assets.OpenInterest,
+		FieldAssetsOpenId:           assets.OpenId,
 		FieldAssetsFirstBuyDatetime: assets.FirstBuyDatetime,
 	}
 	return orm.TableWithInsert(ctx, exec, TableAssetsName, value)
@@ -137,6 +141,7 @@ type Assets struct {
 	Code             string       `json:"code"`
 	Name             string       `json:"name"`
 	OpenInterest     int64        `json:"open_interest"`
+	OpenId           string       `json:"open_id"`
 	FirstBuyDatetime time.Time    `json:"first_buy_datetime"`
 	CreateTimestamp  time.Time    `json:"create_timestamp"`
 	ModifyTimestamp  sql.NullTime `json:"modify_timestamp"`
@@ -152,6 +157,7 @@ const (
 	FieldAssetsCode             = "code"
 	FieldAssetsName             = "name"
 	FieldAssetsOpenInterest     = "open_interest"
+	FieldAssetsOpenId           = "open_id"
 	FieldAssetsFirstBuyDatetime = "first_buy_datetime"
 	FieldAssetsCreateTimestamp  = "create_timestamp"
 	FieldAssetsModifyTimestamp  = "modify_timestamp"
@@ -165,6 +171,7 @@ var AssetsFields = []string{
 	FieldAssetsCode,
 	FieldAssetsName,
 	FieldAssetsOpenInterest,
+	FieldAssetsOpenId,
 	FieldAssetsFirstBuyDatetime,
 	FieldAssetsCreateTimestamp,
 	FieldAssetsModifyTimestamp,

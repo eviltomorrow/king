@@ -6,10 +6,10 @@ option go_package = "./;pb";
 package account;
 
 service Assets {
-    rpc ListByUserId(google.protobuf.StringValue) returns (ItemResp);
+    rpc ListByUserId(google.protobuf.StringValue) returns (ItemListResp);
 }
 
-message ItemResp {
+message ItemListResp {
     repeated Item items = 1;
     int64 total_count = 2;
 }
@@ -26,5 +26,6 @@ message Item {
     string code = 5;
     string name = 6;
     int64 open_interest = 7;
-    int64 first_buy_datetime = 8;
+    string open_id = 8;
+    int64 first_buy_datetime = 9;
 }

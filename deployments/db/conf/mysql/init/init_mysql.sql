@@ -89,6 +89,7 @@ CREATE TABLE `king_account`.`assets` (
     `code` VARCHAR(8) NOT NULL COMMENT '代码',
     `name` VARCHAR(32) NOT NULL COMMENT '名称',
     `open_interest` INT NOT NULL COMMENT '持仓量',
+    `open_id` CHAR(19) NOT NULL COMMENT '开仓 id',
     `first_buy_datetime` DATETIME NOT NULL COMMENT '第一次购买时间',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
@@ -100,11 +101,13 @@ CREATE UNIQUE INDEX idx_user_id_fund_no_code ON `king_account`.`assets`(`user_id
 -- CREATE TABLE fund
 DROP TABLE IF EXISTS `king_account`.`fund`;
 CREATE TABLE `king_account`.`fund` (
+    `alias_name` VARCHAR(32) NOT NULL COMMENT '资金账户别名',
     `user_id` CHAR(19) NOT NULL COMMENT 'passport 表 id',
     `fund_no` CHAR(19) NOT NULL PRIMARY KEY,
     `opening_cash` DECIMAL(11,2) NOT NULL COMMENT '初始金额',
     `end_cash` DECIMAL(11,2) COMMENT '剩余金额',
-    `status` TINYINT NOT NULL COMMENT '状态(1:启用,2:冻结)',
+    `yesterday_end_cash` DECIMAL(11,2) COMMENT '昨日剩余金额',
+    `status` TINYINT NOT NULL COMMENT '状态(0:启用,1:冻结)',
     `init_datetime` DATETIME NOT NULL COMMENT '初始化时间',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
@@ -112,7 +115,7 @@ CREATE TABLE `king_account`.`fund` (
 CREATE INDEX idx_user_id_fund_no ON `king_account`.`fund`(`user_id`, `fund_no`);
 
 
--- CREATE TABLE fund
+-- CREATE TABLE transaction_record
 DROP TABLE IF EXISTS `king_account`.`transaction_record`;
 CREATE TABLE `king_account`.`transaction_record` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
@@ -126,13 +129,14 @@ CREATE TABLE `king_account`.`transaction_record` (
     `volume` INT NOT NULL COMMENT '成交量',
     `datetime` DATETIME NOT NULL COMMENT '成交时间',
     `status` TINYINT NOT NULL COMMENT '状态',
+    `open_id` CHAR(19) NOT NULL COMMENT '开仓 id',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_datetime ON `king_account`.`transaction_record`(`datetime`);
 CREATE INDEX idx_user_id_fund_no ON `king_account`.`transaction_record`(`user_id`, `fund_no`);
 
--- CREATE TABLE fund
+-- CREATE TABLE transaction_fee
 DROP TABLE IF EXISTS `king_account`.`transaction_fee`;
 CREATE TABLE `king_account`.`transaction_fee` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,

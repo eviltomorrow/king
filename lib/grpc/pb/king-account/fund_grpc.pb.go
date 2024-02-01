@@ -21,18 +21,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Fund_InitAccount_FullMethodName  = "/account.Fund/InitAccount"
-	Fund_Reblance_FullMethodName     = "/account.Fund/Reblance"
-	Fund_ListByUserId_FullMethodName = "/account.Fund/ListByUserId"
+	Fund_ReblanceByUserId_FullMethodName = "/account.Fund/ReblanceByUserId"
+	Fund_InitAccount_FullMethodName      = "/account.Fund/InitAccount"
+	Fund_ListByUserId_FullMethodName     = "/account.Fund/ListByUserId"
+	Fund_ModifyAliasName_FullMethodName  = "/account.Fund/ModifyAliasName"
 )
 
 // FundClient is the client API for Fund service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FundClient interface {
-	InitAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Reblance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountResp, error)
+	ReblanceByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	InitAccount(ctx context.Context, in *InitAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountListResp, error)
+	ModifyAliasName(ctx context.Context, in *ModifyAliasNameReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type fundClient struct {
@@ -43,7 +45,16 @@ func NewFundClient(cc grpc.ClientConnInterface) FundClient {
 	return &fundClient{cc}
 }
 
-func (c *fundClient) InitAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *fundClient) ReblanceByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Fund_ReblanceByUserId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fundClient) InitAccount(ctx context.Context, in *InitAccountReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Fund_InitAccount_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -52,18 +63,18 @@ func (c *fundClient) InitAccount(ctx context.Context, in *Account, opts ...grpc.
 	return out, nil
 }
 
-func (c *fundClient) Reblance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, Fund_Reblance_FullMethodName, in, out, opts...)
+func (c *fundClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountListResp, error) {
+	out := new(AccountListResp)
+	err := c.cc.Invoke(ctx, Fund_ListByUserId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *fundClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountResp, error) {
-	out := new(AccountResp)
-	err := c.cc.Invoke(ctx, Fund_ListByUserId_FullMethodName, in, out, opts...)
+func (c *fundClient) ModifyAliasName(ctx context.Context, in *ModifyAliasNameReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Fund_ModifyAliasName_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,9 +85,10 @@ func (c *fundClient) ListByUserId(ctx context.Context, in *wrapperspb.StringValu
 // All implementations must embed UnimplementedFundServer
 // for forward compatibility
 type FundServer interface {
-	InitAccount(context.Context, *Account) (*emptypb.Empty, error)
-	Reblance(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
-	ListByUserId(context.Context, *wrapperspb.StringValue) (*AccountResp, error)
+	ReblanceByUserId(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
+	InitAccount(context.Context, *InitAccountReq) (*emptypb.Empty, error)
+	ListByUserId(context.Context, *wrapperspb.StringValue) (*AccountListResp, error)
+	ModifyAliasName(context.Context, *ModifyAliasNameReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedFundServer()
 }
 
@@ -84,14 +96,17 @@ type FundServer interface {
 type UnimplementedFundServer struct {
 }
 
-func (UnimplementedFundServer) InitAccount(context.Context, *Account) (*emptypb.Empty, error) {
+func (UnimplementedFundServer) ReblanceByUserId(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReblanceByUserId not implemented")
+}
+func (UnimplementedFundServer) InitAccount(context.Context, *InitAccountReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InitAccount not implemented")
 }
-func (UnimplementedFundServer) Reblance(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Reblance not implemented")
-}
-func (UnimplementedFundServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*AccountResp, error) {
+func (UnimplementedFundServer) ListByUserId(context.Context, *wrapperspb.StringValue) (*AccountListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListByUserId not implemented")
+}
+func (UnimplementedFundServer) ModifyAliasName(context.Context, *ModifyAliasNameReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyAliasName not implemented")
 }
 func (UnimplementedFundServer) mustEmbedUnimplementedFundServer() {}
 
@@ -106,8 +121,26 @@ func RegisterFundServer(s grpc.ServiceRegistrar, srv FundServer) {
 	s.RegisterService(&Fund_ServiceDesc, srv)
 }
 
+func _Fund_ReblanceByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServer).ReblanceByUserId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fund_ReblanceByUserId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServer).ReblanceByUserId(ctx, req.(*wrapperspb.StringValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Fund_InitAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Account)
+	in := new(InitAccountReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -119,25 +152,7 @@ func _Fund_InitAccount_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: Fund_InitAccount_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FundServer).InitAccount(ctx, req.(*Account))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Fund_Reblance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FundServer).Reblance(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Fund_Reblance_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FundServer).Reblance(ctx, req.(*wrapperspb.StringValue))
+		return srv.(FundServer).InitAccount(ctx, req.(*InitAccountReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -160,6 +175,24 @@ func _Fund_ListByUserId_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Fund_ModifyAliasName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyAliasNameReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FundServer).ModifyAliasName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fund_ModifyAliasName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FundServer).ModifyAliasName(ctx, req.(*ModifyAliasNameReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Fund_ServiceDesc is the grpc.ServiceDesc for Fund service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -168,16 +201,20 @@ var Fund_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FundServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ReblanceByUserId",
+			Handler:    _Fund_ReblanceByUserId_Handler,
+		},
+		{
 			MethodName: "InitAccount",
 			Handler:    _Fund_InitAccount_Handler,
 		},
 		{
-			MethodName: "Reblance",
-			Handler:    _Fund_Reblance_Handler,
-		},
-		{
 			MethodName: "ListByUserId",
 			Handler:    _Fund_ListByUserId_Handler,
+		},
+		{
+			MethodName: "ModifyAliasName",
+			Handler:    _Fund_ModifyAliasName_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
