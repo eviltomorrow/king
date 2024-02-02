@@ -95,7 +95,7 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 
 func AssetsWithUpdateOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, assets *Assets, userId, fundNo, code string) (int64, error) {
 	if assets == nil {
-		return 0, fmt.Errorf("invalid parameter, assets is nil")
+		return 0, fmt.Errorf("assets is nil")
 	}
 
 	value := map[string]interface{}{
@@ -108,7 +108,7 @@ func AssetsWithUpdateOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 
 func AssetsWithDeleteOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, assets *Assets, userId, fundNo, code string) (int64, error) {
 	if assets == nil {
-		return 0, fmt.Errorf("invalid parameter, assets is nil")
+		return 0, fmt.Errorf("assets is nil")
 	}
 
 	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
@@ -116,7 +116,7 @@ func AssetsWithDeleteOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 
 func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (int64, error) {
 	if assets == nil {
-		return 0, fmt.Errorf("invalid parameter, assets is nil")
+		return 0, fmt.Errorf("assets is nil")
 	}
 
 	value := map[string]interface{}{

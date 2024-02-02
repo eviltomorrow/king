@@ -28,9 +28,17 @@ func TransactionFeeWithSelectManyByRecordId(ctx context.Context, exec mysql.Exec
 	return &fee, nil
 }
 
+func TransactionFeeWithInsertMany(ctx context.Context, exec mysql.Exec, fees []*TransactionFee) (int64, error) {
+	if len(fees) == 0 {
+		return 0, fmt.Errorf("fees is nil")
+	}
+
+	return 0, nil
+}
+
 func TransactionFeeWithInsertOne(ctx context.Context, exec mysql.Exec, fee *TransactionFee) (int64, error) {
 	if fee == nil {
-		return 0, fmt.Errorf("invalid parameter, fee is nil")
+		return 0, fmt.Errorf("fee is nil")
 	}
 
 	value := map[string]interface{}{

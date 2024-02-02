@@ -86,10 +86,9 @@ func TableWithInsertMany(ctx context.Context, exec mysql.Exec, table string, col
 	}
 	field := fmt.Sprintf("(%s)", strings.Join(fields, ", "))
 
-	fields = make([]string, 0, len(values))
 	args := make([]interface{}, 0, len(columns)*len(values))
+	fields = make([]string, 0, len(values))
 	for _, value := range values {
-		fields = append(fields, field)
 		for _, column := range columns {
 			arg, ok := value[column]
 			if !ok {
@@ -97,6 +96,7 @@ func TableWithInsertMany(ctx context.Context, exec mysql.Exec, table string, col
 			}
 			args = append(args, arg)
 		}
+		fields = append(fields, field)
 	}
 
 	_sql := fmt.Sprintf("insert into %s (%s) values %s", table, strings.Join(columns, ","), strings.Join(fields, ","))

@@ -111,7 +111,7 @@ func TransactionRecordWithSelectManyByFundNo(ctx context.Context, exec mysql.Exe
 
 func TransactionRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record *TransactionRecord) (int64, error) {
 	if record == nil {
-		return 0, fmt.Errorf("invalid parameter, record is nil")
+		return 0, fmt.Errorf("record is nil")
 	}
 
 	value := map[string]interface{}{
