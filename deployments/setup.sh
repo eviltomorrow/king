@@ -72,22 +72,24 @@ up_ordering=("db" "apps" "monitoring" "third-party")
 down_ordering=("apps" "db" "monitoring" "third-party") 
 
 # version
-export opentelemetry_collector_contrib_version="0.91.0"
-export jaeger_version="1.52.0"
-export prometheus_version="2.48.1"
+export opentelemetry_collector_contrib_version="0.93.0"
+export jaeger_version="1.53.0"
+export prometheus_version="2.49.1"
 export node_exporter_version="1.7.0"
-export grafana_version="10.2.3"
-export redis_version="6.2"
-export mongo_version="7.0.4"
-export mysql_version="8.0.35"
-export etcd_version="3.5.11"
-export loki_promtail_version="2.9.3"
+export grafana_version="10.3.1"
+export redis_version="6.2.14"
+export mongo_version="7.0.5"
+export mysql_version="8.0.36"
+export etcd_version="3.5.12"
+export loki_promtail_version="2.9.4"
 export cassandra_version="4.1.3"
+export ntfy_version="latest"
+
 export king_collector_version="latest"
 export king_notification_version="latest"
 export king_storage_version="latest"
 export king_auth_version="latest"
-export ntfy_version="latest"
+
 
 name=""
 action=""
