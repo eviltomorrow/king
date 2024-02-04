@@ -12,6 +12,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Storage_PushMetadata_FullMethodName   = "/storage.Storage/PushMetadata"
+	Storage_GetStockOne_FullMethodName    = "/storage.Storage/GetStockOne"
 	Storage_GetStockFull_FullMethodName   = "/storage.Storage/GetStockFull"
 	Storage_GetQuoteLatest_FullMethodName = "/storage.Storage/GetQuoteLatest"
 )
@@ -30,6 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StorageClient interface {
 	PushMetadata(ctx context.Context, opts ...grpc.CallOption) (Storage_PushMetadataClient, error)
+	GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error)
 	GetStockFull(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Storage_GetStockFullClient, error)
 	GetQuoteLatest(ctx context.Context, in *QuoteRequest, opts ...grpc.CallOption) (Storage_GetQuoteLatestClient, error)
 }
@@ -74,6 +77,15 @@ func (x *storagePushMetadataClient) CloseAndRecv() (*Stats, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func (c *storageClient) GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error) {
+	out := new(Stock)
+	err := c.cc.Invoke(ctx, Storage_GetStockOne_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *storageClient) GetStockFull(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Storage_GetStockFullClient, error) {
@@ -145,6 +157,7 @@ func (x *storageGetQuoteLatestClient) Recv() (*Quote, error) {
 // for forward compatibility
 type StorageServer interface {
 	PushMetadata(Storage_PushMetadataServer) error
+	GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error)
 	GetStockFull(*emptypb.Empty, Storage_GetStockFullServer) error
 	GetQuoteLatest(*QuoteRequest, Storage_GetQuoteLatestServer) error
 	mustEmbedUnimplementedStorageServer()
@@ -156,6 +169,9 @@ type UnimplementedStorageServer struct {
 
 func (UnimplementedStorageServer) PushMetadata(Storage_PushMetadataServer) error {
 	return status.Errorf(codes.Unimplemented, "method PushMetadata not implemented")
+}
+func (UnimplementedStorageServer) GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStockOne not implemented")
 }
 func (UnimplementedStorageServer) GetStockFull(*emptypb.Empty, Storage_GetStockFullServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetStockFull not implemented")
@@ -200,6 +216,24 @@ func (x *storagePushMetadataServer) Recv() (*Metadata, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func _Storage_GetStockOne_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(wrapperspb.StringValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StorageServer).GetStockOne(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Storage_GetStockOne_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StorageServer).GetStockOne(ctx, req.(*wrapperspb.StringValue))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Storage_GetStockFull_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -250,7 +284,12 @@ func (x *storageGetQuoteLatestServer) Send(m *Quote) error {
 var Storage_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "storage.Storage",
 	HandlerType: (*StorageServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetStockOne",
+			Handler:    _Storage_GetStockOne_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "PushMetadata",

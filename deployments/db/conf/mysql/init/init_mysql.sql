@@ -109,6 +109,7 @@ CREATE TABLE `king_account`.`fund` (
     `yesterday_end_cash` DECIMAL(11,2) COMMENT '昨日剩余金额',
     `status` TINYINT NOT NULL COMMENT '状态(0:启用,1:冻结)',
     `init_datetime` DATETIME NOT NULL COMMENT '初始化时间',
+    `version` INT NOT NULL COMMENT '版本号',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );

@@ -30,6 +30,7 @@ func FundWithSelectOne(ctx context.Context, exec mysql.Exec, fundNo string) (*Fu
 			&fund.YesterdayEndCash,
 			&fund.Status,
 			&fund.InitDatetime,
+			&fund.Version,
 			&fund.CreateTimestamp,
 			&fund.ModifyTimestamp,
 		)
@@ -54,6 +55,7 @@ func FundWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId str
 				&fund.YesterdayEndCash,
 				&fund.Status,
 				&fund.InitDatetime,
+				&fund.Version,
 				&fund.CreateTimestamp,
 				&fund.ModifyTimestamp,
 			); err != nil {
@@ -83,7 +85,7 @@ func FundWithUpdateAliasName(ctx context.Context, exec mysql.Exec, aliasName, fu
 	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo})
 }
 
-func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, fundNo string) (int64, error) {
+func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, fundNo string, version int64) (int64, error) {
 	if fund == nil {
 		return 0, fmt.Errorf("fund is nil")
 	}
@@ -97,8 +99,9 @@ func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, fundNo 
 		FieldFundEndCash:          fund.EndCash,
 		FieldFundYesterdayEndCash: fund.YesterdayEndCash,
 		FieldFundStatus:           fund.Status,
+		FieldFundVersion:          fund.Version + 1,
 	}
-	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo})
+	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo, FieldFundVersion: version})
 }
 
 func FundWithDeleteOne(ctx context.Context, exec mysql.Exec, fundNo string) (int64, error) {
@@ -122,6 +125,7 @@ func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64,
 		FieldFundYesterdayEndCash: fund.YesterdayEndCash,
 		FieldFundStatus:           fund.Status,
 		FieldFundInitDatetime:     fund.InitDatetime,
+		FieldFundVersion:          0,
 	}
 	return orm.TableWithInsertOne(ctx, exec, TableFundName, value)
 }
@@ -135,6 +139,7 @@ type Fund struct {
 	YesterdayEndCash float64      `json:"yesterday_end_cash"`
 	Status           int8         `json:"status"`
 	InitDatetime     time.Time    `json:"init_datetime"`
+	Version          int64        `json:"version"`
 	CreateTimestamp  time.Time    `json:"create_timestamp"`
 	ModifyTimestamp  sql.NullTime `json:"modify_timestamp"`
 }
@@ -150,6 +155,7 @@ const (
 	FieldFundYesterdayEndCash = "yesterday_end_cash"
 	FieldFundStatus           = "status"
 	FieldFundInitDatetime     = "init_datetime"
+	FieldFundVersion          = "version"
 	FieldFundCreateTimestamp  = "create_timestamp"
 	FieldFundModifyTimestamp  = "modify_timestamp"
 )
@@ -163,6 +169,7 @@ var FundFields = []string{
 	FieldFundYesterdayEndCash,
 	FieldFundStatus,
 	FieldFundInitDatetime,
+	FieldFundVersion,
 	FieldFundCreateTimestamp,
 	FieldFundModifyTimestamp,
 }

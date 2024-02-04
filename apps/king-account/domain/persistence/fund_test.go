@@ -119,7 +119,7 @@ func TestFundWithUpdateOne(t *testing.T) {
 
 	fund1.Status = 2
 	fund1.EndCash = 300000
-	affected, err = FundWithUpdateOne(ctx, mysql.DB, fund1, fund1.FundNo)
+	affected, err = FundWithUpdateOne(ctx, mysql.DB, fund1, fund1.FundNo, fund1.Version)
 	_assert.Nil(err)
 	_assert.Equal(int64(1), affected)
 
@@ -128,7 +128,7 @@ func TestFundWithUpdateOne(t *testing.T) {
 	_assert.Equal(int8(2), fundUpdated.Status)
 	_assert.Equal(fund1.EndCash, fundUpdated.EndCash)
 
-	affected, err = FundWithUpdateOne(ctx, mysql.DB, nil, fund1.FundNo)
+	affected, err = FundWithUpdateOne(ctx, mysql.DB, nil, fund1.FundNo, fund1.Version)
 	_assert.NotNil(err)
 	_assert.Equal(int64(0), affected)
 }

@@ -103,6 +103,30 @@ func FundWithListByUserId(ctx context.Context, userId string) ([]*Account, error
 	return accounts, nil
 }
 
+func FundWithOneByFundNo(ctx context.Context, fundNo string) (*Account, error) {
+	if fundNo == "" {
+		return nil, fmt.Errorf("fund_no is nil")
+	}
+
+	fund, err := persistence.FundWithSelectOne(ctx, mysql.DB, fundNo)
+	if err != nil {
+		return nil, err
+	}
+
+	account := &Account{
+		AliasName:        fund.AliasName,
+		UserId:           fund.UserId,
+		FundNo:           fund.FundNo,
+		OpeningCash:      decimal.NewFromFloat(fund.OpeningCash),
+		EndCash:          decimal.NewFromFloat(fund.EndCash),
+		YesterdayEndCash: decimal.NewFromFloat(fund.YesterdayEndCash),
+		Status:           fund.Status,
+		InitDatetime:     fund.InitDatetime,
+	}
+
+	return account, nil
+}
+
 const letters = "1234567890"
 
 const (

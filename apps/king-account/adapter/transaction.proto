@@ -6,8 +6,8 @@ option go_package = "./;pb";
 package account;
 
 service Transaction {
-    rpc Buy(Securities) returns (google.protobuf.StringValue);
     rpc Sell(Securities) returns (google.protobuf.StringValue);
+    rpc Buy(Securities) returns (google.protobuf.StringValue);
 }
 
 message Securities {
@@ -19,7 +19,6 @@ message Securities {
     }
     Type type = 3;
     string code = 4;
-    string name = 5;
-    int64 volume = 6;
-    double close_price = 7;
+    int64 volume = 5;
+    double close_price = 6;
 }

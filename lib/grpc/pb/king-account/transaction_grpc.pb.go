@@ -20,16 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Transaction_Buy_FullMethodName  = "/account.Transaction/Buy"
 	Transaction_Sell_FullMethodName = "/account.Transaction/Sell"
+	Transaction_Buy_FullMethodName  = "/account.Transaction/Buy"
 )
 
 // TransactionClient is the client API for Transaction service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionClient interface {
-	Buy(ctx context.Context, in *Securities, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	Sell(ctx context.Context, in *Securities, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	Buy(ctx context.Context, in *Securities, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
 type transactionClient struct {
@@ -38,15 +38,6 @@ type transactionClient struct {
 
 func NewTransactionClient(cc grpc.ClientConnInterface) TransactionClient {
 	return &transactionClient{cc}
-}
-
-func (c *transactionClient) Buy(ctx context.Context, in *Securities, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
-	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, Transaction_Buy_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *transactionClient) Sell(ctx context.Context, in *Securities, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
@@ -58,12 +49,21 @@ func (c *transactionClient) Sell(ctx context.Context, in *Securities, opts ...gr
 	return out, nil
 }
 
+func (c *transactionClient) Buy(ctx context.Context, in *Securities, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
+	err := c.cc.Invoke(ctx, Transaction_Buy_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionServer is the server API for Transaction service.
 // All implementations must embed UnimplementedTransactionServer
 // for forward compatibility
 type TransactionServer interface {
-	Buy(context.Context, *Securities) (*wrapperspb.StringValue, error)
 	Sell(context.Context, *Securities) (*wrapperspb.StringValue, error)
+	Buy(context.Context, *Securities) (*wrapperspb.StringValue, error)
 	mustEmbedUnimplementedTransactionServer()
 }
 
@@ -71,11 +71,11 @@ type TransactionServer interface {
 type UnimplementedTransactionServer struct {
 }
 
-func (UnimplementedTransactionServer) Buy(context.Context, *Securities) (*wrapperspb.StringValue, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Buy not implemented")
-}
 func (UnimplementedTransactionServer) Sell(context.Context, *Securities) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sell not implemented")
+}
+func (UnimplementedTransactionServer) Buy(context.Context, *Securities) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Buy not implemented")
 }
 func (UnimplementedTransactionServer) mustEmbedUnimplementedTransactionServer() {}
 
@@ -88,24 +88,6 @@ type UnsafeTransactionServer interface {
 
 func RegisterTransactionServer(s grpc.ServiceRegistrar, srv TransactionServer) {
 	s.RegisterService(&Transaction_ServiceDesc, srv)
-}
-
-func _Transaction_Buy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Securities)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransactionServer).Buy(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Transaction_Buy_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServer).Buy(ctx, req.(*Securities))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Transaction_Sell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -126,6 +108,24 @@ func _Transaction_Sell_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Transaction_Buy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Securities)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServer).Buy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Transaction_Buy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServer).Buy(ctx, req.(*Securities))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Transaction_ServiceDesc is the grpc.ServiceDesc for Transaction service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,12 +134,12 @@ var Transaction_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TransactionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Buy",
-			Handler:    _Transaction_Buy_Handler,
-		},
-		{
 			MethodName: "Sell",
 			Handler:    _Transaction_Sell_Handler,
+		},
+		{
+			MethodName: "Buy",
+			Handler:    _Transaction_Buy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,15 +1,17 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "./;pb";
 package storage;
 
 service Storage {
-    rpc PushMetadata(stream Metadata) returns (Stats){}
+    rpc PushMetadata(stream Metadata) returns (Stats);
 
-    rpc GetStockFull(google.protobuf.Empty) returns (stream Stock){}
-    rpc GetQuoteLatest(QuoteRequest) returns (stream Quote){}
+    rpc GetStockOne(google.protobuf.StringValue) returns (Stock);
+    rpc GetStockFull(google.protobuf.Empty) returns (stream Stock);
+    rpc GetQuoteLatest(QuoteRequest) returns (stream Quote);
 }
 
 message Stats {
