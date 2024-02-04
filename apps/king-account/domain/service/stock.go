@@ -13,7 +13,7 @@ type Stock struct {
 	Name string
 }
 
-func GetStock(ctx context.Context, code string) (*Stock, error) {
+func StockWithGetOne(ctx context.Context, code string) (*Stock, error) {
 	if code == "" {
 		return nil, fmt.Errorf("code is nil")
 	}
