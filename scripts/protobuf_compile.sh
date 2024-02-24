@@ -45,7 +45,7 @@ for name in $(ls ${root_dir}/apps); do
     if [ -d ${adapter_dir} ]; then
         ok=false
         for name in $(ls ${adapter_dir}); do
-            if [ "${file##*.}"x = "proto"x ]; then
+            if [ "${name##*.}"x = "proto"x ]; then
                 ok=true
                 break
             fi
