@@ -22,15 +22,15 @@ func init() {
 		panic(fmt.Errorf("panic: Abs path failure, nest error: %v", err))
 	}
 
+	Runtime.HostName, _ = os.Hostname()
+	Runtime.IP, _ = netutil.GetLocalIP2()
+
 	Runtime.ExecuteDir, Runtime.ExecuteFile = filepath.Dir(executePath), filepath.Base(executePath)
 	if strings.HasSuffix(Runtime.ExecuteDir, "/bin") {
 		Runtime.RootDir = filepath.Dir(Runtime.ExecuteDir)
 	} else {
 		Runtime.RootDir = Runtime.ExecuteDir
 	}
-
-	Runtime.HostName, _ = os.Hostname()
-	Runtime.IP, _ = netutil.GetLocalIP2()
 }
 
 type runtimeHelper struct {
