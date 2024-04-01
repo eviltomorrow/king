@@ -47,7 +47,7 @@ endif
 # docker
 .PHONY: docker
 docker: vendor
-build: fmt
+docker: fmt
 ifeq (${app},)
 	@bash build/docker_build.sh ${MAINVERSION} ${GITSHA} ${BUILDTIME}
 else
