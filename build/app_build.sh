@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail 
+set -euo pipefail 
 
 root_dir=$(pwd)
 app_dir=${root_dir}/apps

@@ -27,6 +27,8 @@ const (
 
 // FileLogConfig serializes file log related config in toml/json.
 type FileLogConfig struct {
+	// Enable std log
+	EnableStdlog bool `toml:"enable-stdlog" json:"enable-stdlog"`
 	// Log filename, leave empty to disable file log.
 	Filename string `toml:"filename" json:"filename"`
 	// Max size for a single file, in MB.
@@ -35,8 +37,9 @@ type FileLogConfig struct {
 	MaxDays int `toml:"max-days" json:"max-days"`
 	// Maximum number of old log files to retain.
 	MaxBackups int `toml:"max-backups" json:"max-backups"`
-	// Compress compress log file to .zip
-	Compress bool `toml:"compress" json:"compress"`
+	// Compression function for rotated files.
+	// Currently only `gzip` and empty are supported, empty means compression disabled.
+	Compression string `toml:"compression" json:"compression"`
 }
 
 // Config serializes log related config in toml/json.

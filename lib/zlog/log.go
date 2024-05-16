@@ -17,6 +17,7 @@ package zlog
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -48,7 +49,17 @@ func InitLogger(cfg *Config, opts ...zap.Option) (*zap.Logger, *ZapProperties, e
 		if err != nil {
 			return nil, nil, err
 		}
-		output = zapcore.AddSync(lg)
+
+		if cfg.File.EnableStdlog {
+			stdOut, _, err := zap.Open([]string{"stdout"}...)
+			if err != nil {
+				return nil, nil, err
+			}
+			output = zapcore.AddSync(io.MultiWriter(lg, stdOut))
+		} else {
+			output = zapcore.AddSync(lg)
+		}
+
 	} else {
 		stdOut, _, err := zap.Open([]string{"stdout"}...)
 		if err != nil {
@@ -182,6 +193,16 @@ func initFileLog(cfg *FileLogConfig) (*lumberjack.Logger, error) {
 		cfg.MaxSize = defaultLogMaxSize
 	}
 
+	compress := false
+	switch cfg.Compression {
+	case "":
+		compress = false
+	case "gzip":
+		compress = true
+	default:
+		return nil, fmt.Errorf("can't set compression to `%s`", cfg.Compression)
+	}
+
 	// use lumberjack to logrotate
 	return &lumberjack.Logger{
 		Filename:   cfg.Filename,
@@ -189,7 +210,7 @@ func initFileLog(cfg *FileLogConfig) (*lumberjack.Logger, error) {
 		MaxBackups: cfg.MaxBackups,
 		MaxAge:     cfg.MaxDays,
 		LocalTime:  true,
-		Compress:   cfg.Compress,
+		Compress:   compress,
 	}, nil
 }
 
