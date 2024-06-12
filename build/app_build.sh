@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail 
+set -eo pipefail 
 
 root_dir=$(pwd)
 app_dir=${root_dir}/apps
@@ -37,7 +37,7 @@ function build_app(){
     echo -e "\033[32m=> Build Success\033[0m"
 }
 
-if [ ${1} ]; then
+if [ ! -n ${1} ]; then
     build_app ${1}
 else
     for name in $(ls ${app_dir}); do
