@@ -19,5 +19,5 @@ var RootCommand = &cobra.Command{
 var cfg = conf.Default
 
 func loadConfig() error {
-	return cfg.LoadFile(filepath.Join(system.Runtime.RootDir, "/etc/config.toml"))
+	return cfg.LoadFile(filepath.Join(system.Directory.EtcDir, "config.toml"))
 }

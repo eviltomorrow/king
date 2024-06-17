@@ -14,29 +14,29 @@ type GRPC struct {
 	Port       int
 	AppName    string
 
-	EmailServer        *impl.EmailServer
-	NotificationServer *impl.NotificationServer
+	EmailServer *impl.EmailServer
+	NtfyServer  *impl.NtfyServer
 
-	helper *server.GrpcHelper
+	bootstrap *server.Bootstrap
 }
 
 func (g *GRPC) Startup() error {
-	g.helper = server.NewGrpcHelper(
+	g.bootstrap = server.NewGrpcBootstrap(
 		server.WithListenHost(g.Host),
 		server.WithPort(g.Port),
 		server.WithAppName(g.AppName),
 		server.WithEtcdClient(g.EtcdClient),
 		server.WithRegisterServerFunc(func(s *grpc.Server) {
 			pb.RegisterEmailServer(s, g.EmailServer)
-			pb.RegisterNotificationServer(s, g.NotificationServer)
+			pb.RegisterNtfyServer(s, g.NtfyServer)
 		}),
 	)
-	return g.helper.Init()
+	return g.bootstrap.Init()
 }
 
 func (g *GRPC) Stop() error {
-	if g.helper != nil {
-		return g.helper.Stop()
+	if g.bootstrap != nil {
+		return g.bootstrap.Stop()
 	}
 	return nil
 }

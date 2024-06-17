@@ -3,9 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -17,10 +15,10 @@ import (
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
-	"github.com/eviltomorrow/king/lib/cleanup"
 	"github.com/eviltomorrow/king/lib/config"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
 	"github.com/eviltomorrow/king/lib/etcd"
+	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/fs"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
@@ -68,14 +66,14 @@ var StartCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		begin := time.Now()
 		if isBackground {
-			if err := procutil.RunAppBackground(os.Args[0], []string{"start"}); err != nil {
+			if err := procutil.RunAppInBackground([]string{"start"}); err != nil {
 				log.Fatalf("[F] Run app in background failure, nest error: %v", err)
 			}
 			return
 		}
 
 		defer func() {
-			for _, err := range cleanup.RunCleanupFuncs() {
+			for _, err := range finalizer.RunCleanupFuncs() {
 				zlog.Error("Run cleanup funcs failure", zap.Error(err))
 			}
 			zlog.Info("Stop app complete", zap.String("app-name", buildinfo.AppName), zap.String("running-duration", system.Runtime.RunningDuration()))
@@ -94,10 +92,10 @@ var StartCommand = &cobra.Command{
 
 func setRuntimeEnv() error {
 	for _, dir := range []string{
-		filepath.Join(system.Runtime.RootDir, "/var/log"),
-		filepath.Join(system.Runtime.RootDir, "/var/run"),
+		filepath.Join(system.Directory.VarDir, "/log"),
+		filepath.Join(system.Directory.VarDir, "/run"),
 	} {
-		if err := fs.CreateDir(dir); err != nil {
+		if err := fs.MkdirAll(dir); err != nil {
 			return fmt.Errorf("create dir failure, nest error: %v", err)
 		}
 	}
@@ -105,7 +103,7 @@ func setRuntimeEnv() error {
 }
 
 func loadConfig() error {
-	if err := cfg.LoadFile(filepath.Join(system.Runtime.RootDir, "/etc/config.toml")); err != nil {
+	if err := cfg.LoadFile(filepath.Join(system.Directory.EtcDir, "config.toml")); err != nil {
 		return err
 	}
 
@@ -113,13 +111,13 @@ func loadConfig() error {
 	if err != nil {
 		return err
 	}
-	cleanup.RegisterCleanupFuncs(closeFuncs...)
+	finalizer.RegisterCleanupFuncs(closeFuncs...)
 
 	return nil
 }
 
 func setGlobalVars() error {
-	middleware.LogDir = filepath.Join(system.Runtime.RootDir, "/var/log")
+	middleware.LogDir = filepath.Join(system.Directory.VarDir, "/log")
 	etcd.Endpoints = cfg.Etcd.Endpoints
 	mongodb.DSN = cfg.MongoDB.DSN
 	event.Source = cfg.Collector.Source
@@ -144,7 +142,7 @@ func runOpentrace() error {
 	if err != nil {
 		return fmt.Errorf("init trace provider failure, nest error: %v", err)
 	}
-	cleanup.RegisterCleanupFuncs(shutdown)
+	finalizer.RegisterCleanupFuncs(shutdown)
 	return nil
 }
 
@@ -152,7 +150,7 @@ func runDB() error {
 	if err := mongodb.Connect(); err != nil {
 		return err
 	}
-	cleanup.RegisterCleanupFuncs(mongodb.Close)
+	finalizer.RegisterCleanupFuncs(mongodb.Close)
 
 	return nil
 }
@@ -162,7 +160,7 @@ func runServer() error {
 	if err != nil {
 		return err
 	}
-	cleanup.RegisterCleanupFuncs(client.Close)
+	finalizer.RegisterCleanupFuncs(client.Close)
 
 	if err := middleware.InitLogger(); err != nil {
 		return err
@@ -179,7 +177,7 @@ func runServer() error {
 	if err := g.Startup(); err != nil {
 		return err
 	}
-	cleanup.RegisterCleanupFuncs(g.Stop)
+	finalizer.RegisterCleanupFuncs(g.Stop)
 
 	return nil
 }
@@ -201,7 +199,7 @@ func runCron() error {
 	}
 	c.Start()
 
-	cleanup.RegisterCleanupFuncs(func() error {
+	finalizer.RegisterCleanupFuncs(func() error {
 		c.Stop()
 		return nil
 	})
@@ -209,40 +207,25 @@ func runCron() error {
 }
 
 func rewritePaniclog() error {
-	fs.StderrFilePath = filepath.Join(system.Runtime.RootDir, "/var/log/panic.log")
-	if err := fs.RewriteStderrFile(); err != nil {
-		zlog.Error("RewriteStderrFile failure", zap.Error(err))
+	fs.StderrFilePath = filepath.Join(system.Directory.VarDir, "/log/panic.log")
+	if err := fs.RewriteStderrToFile(); err != nil {
+		zlog.Error("RewriteStderrToFile failure", zap.Error(err))
 	}
 	return nil
 }
 
 func buildPidFile() error {
-	closeFunc, err := procutil.CreatePidFile(filepath.Join(system.Runtime.RootDir, fmt.Sprintf("/var/run/%s.pid", buildinfo.AppName)), system.Runtime.Pid)
+	closeFunc, err := procutil.CreatePidFile(filepath.Join(system.Directory.VarDir, fmt.Sprintf("/run/%s.pid", buildinfo.AppName)), system.Process.Pid)
 	if err != nil {
 		return err
 	}
-	cleanup.RegisterCleanupFuncs(closeFunc)
+	finalizer.RegisterCleanupFuncs(closeFunc)
+
 	return nil
 }
 
 func notifyStopDaemon() error {
-	if ppid == -1 {
-		return nil
-	}
-
-	if _, err := procutil.FindProcessWithPid(ppid); err != nil {
-		return err
-	}
-
-	confirmationBytes, err := io.ReadAll(os.Stdin)
-	if err != nil {
-		return fmt.Errorf("reading confirmation bytes from stdin: %v", err)
-	}
-	if len(confirmationBytes) == 0 {
-		return nil
-	}
-
-	return procutil.NotifyStopDaemon(confirmationBytes)
+	return procutil.StopDaemon()
 }
 
 func printCfg() error {

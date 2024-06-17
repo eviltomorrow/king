@@ -27,9 +27,9 @@ func InitLogger() error {
 		File: zlog.FileLogConfig{
 			Filename:    filepath.Join(LogDir, "access.log"),
 			MaxSize:     100,
-			MaxDays:     180,
+			MaxDays:     90,
 			MaxBackups:  90,
-			Compression: "zip",
+			Compression: "gzip",
 		},
 		DisableStacktrace:   true,
 		DisableErrorVerbose: true,

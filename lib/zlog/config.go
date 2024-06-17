@@ -15,6 +15,8 @@
 package zlog
 
 import (
+	"path/filepath"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -22,8 +24,24 @@ import (
 )
 
 const (
-	defaultLogMaxSize = 300 // MB
+	defaultLogMaxSize = 100 // MB
 )
+
+var DefaultConf = &Config{
+	Level:            "info",
+	Format:           "json",
+	DisableTimestamp: false,
+	File: FileLogConfig{
+		Filename:     filepath.Join("../log", "data.log"),
+		MaxSize:      100,
+		MaxDays:      90,
+		MaxBackups:   90,
+		Compression:  "gzip",
+		EnableStdlog: false,
+	},
+	DisableStacktrace:   true,
+	DisableErrorVerbose: true,
+}
 
 // FileLogConfig serializes file log related config in toml/json.
 type FileLogConfig struct {
@@ -45,39 +63,48 @@ type FileLogConfig struct {
 // Config serializes log related config in toml/json.
 type Config struct {
 	// Log level.
-	Level string `toml:"level" json:"level"`
+	Level string `toml:"level" json:"level" mapstructure:"level"`
 	// Log format. One of json or text.
-	Format string `toml:"format" json:"format"`
+	Format string `toml:"format" json:"format" mapstructure:"format"`
 	// Disable automatic timestamps in output.
-	DisableTimestamp bool `toml:"disable-timestamp" json:"disable-timestamp"`
+	DisableTimestamp bool `json:"-"`
 	// File log config.
-	File FileLogConfig `toml:"file" json:"file"`
+	File FileLogConfig `toml:"file" json:"file" mapstructure:"file"`
 	// Development puts the logger in development mode, which changes the
 	// behavior of DPanicLevel and takes stacktraces more liberally.
-	Development bool `toml:"development" json:"development"`
+	Development bool `json:"-"`
 	// DisableCaller stops annotating logs with the calling function's file
 	// name and line number. By default, all logs are annotated.
-	DisableCaller bool `toml:"disable-caller" json:"disable-caller"`
+	DisableCaller bool `json:"-"`
 	// DisableStacktrace completely disables automatic stacktrace capturing. By
 	// default, stacktraces are captured for WarnLevel and above logs in
 	// development and ErrorLevel and above in production.
-	DisableStacktrace bool `toml:"disable-stacktrace" json:"disable-stacktrace"`
+	DisableStacktrace bool `json:"-"`
 	// DisableErrorVerbose stops annotating logs with the full verbose error
 	// message.
-	DisableErrorVerbose bool `toml:"disable-error-verbose" json:"disable-error-verbose"`
+	DisableErrorVerbose bool `json:"-"`
 	// SamplingConfig sets a sampling strategy for the logger. Sampling caps the
 	// global CPU and I/O load that logging puts on your process while attempting
 	// to preserve a representative subset of your logs.
 	//
 	// Values configured here are per-second. See zapcore.NewSampler for details.
-	Sampling *zap.SamplingConfig `toml:"sampling" json:"sampling"`
+	Sampling *zap.SamplingConfig `json:"-"`
 	// ErrorOutputPath is a path to write internal logger errors to.
 	// If this field is not set, the internal logger errors will be sent to the same file as in File field.
 	// Note: if we want to output the logger errors to stderr, we can just set this field to "stderr"
-	ErrorOutputPath string `toml:"error-output-path" json:"error-output-path"`
+	ErrorOutputPath string `json:"-"`
 	// Timeout for writing log, if TiDB hang on writing log, make it panic.
 	// The value is seconds, 0 means no timeout
-	Timeout int `toml:"timeout" json:"timeout"`
+	Timeout int `json:"-"`
+}
+
+func (c *Config) Validate() error {
+	for _, allowLevel := range []string{"debug", "info", "warn", "error"} {
+		if allowLevel == strings.ToLower(c.Level) {
+			break
+		}
+	}
+	return nil
 }
 
 // ZapProperties records some information about zap.

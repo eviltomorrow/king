@@ -37,9 +37,8 @@ func Connect() error {
 		if err == nil {
 			break
 		}
-		if err != nil {
-			log.Printf("[E] Try to connect to Redis, retry: %d, nest error: %v", i, err)
-		}
+
+		log.Printf("[E] Try to connect to Redis, retry: %d, nest error: %v", i, err)
 		i++
 		time.Sleep(Period)
 	}
@@ -59,7 +58,7 @@ func Close() error {
 
 func buildRedis(dsn string) (*redis.Client, error) {
 	if dsn == "" {
-		return nil, fmt.Errorf("Redis: no DSN set")
+		return nil, fmt.Errorf("redis: no DSN set")
 	}
 
 	opts, err := redis.ParseURL(dsn)

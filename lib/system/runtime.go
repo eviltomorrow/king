@@ -1,60 +1,61 @@
 package system
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"time"
 
-	"github.com/eviltomorrow/king/lib/netutil"
-	"github.com/eviltomorrow/king/lib/timeutil"
+	jsoniter "github.com/json-iterator/go"
 )
-
-func init() {
-	executePath, err := os.Executable()
-	if err != nil {
-		panic(fmt.Errorf("panic: Executable path failure, nest error: %v", err))
-	}
-	executePath, err = filepath.Abs(executePath)
-	if err != nil {
-		panic(fmt.Errorf("panic: Abs path failure, nest error: %v", err))
-	}
-
-	Runtime.HostName, _ = os.Hostname()
-	Runtime.IP, _ = netutil.GetLocalIP2()
-
-	Runtime.ExecuteDir, Runtime.ExecuteFile = filepath.Dir(executePath), filepath.Base(executePath)
-	if strings.HasSuffix(Runtime.ExecuteDir, "/bin") {
-		Runtime.RootDir = filepath.Dir(Runtime.ExecuteDir)
-	} else {
-		Runtime.RootDir = Runtime.ExecuteDir
-	}
-}
-
-type runtimeHelper struct {
-	ExecuteDir      string        `json:"execute-dir"`
-	ExecuteFile     string        `json:"execute-file"`
-	RootDir         string        `json:"root-dir"`
-	Pid             int           `json:"pid"`
-	LaunchTime      time.Time     `json:"launch-time"`
-	HostName        string        `json:"host-name"`
-	OS              string        `json:"os"`
-	ARCH            string        `json:"arch"`
-	RunningDuration func() string `json:"-"`
-	IP              string        `json:"ip"`
-}
 
 var (
-	now     = time.Now()
-	Runtime = runtimeHelper{
-		ARCH:       runtime.GOARCH,
-		OS:         runtime.GOOS,
-		Pid:        os.Getpid(),
-		LaunchTime: now,
-		RunningDuration: func() string {
-			return timeutil.FormatDuration(time.Since(now))
-		},
-	}
+	Runtime   _runtime
+	Machine   _machine
+	Network   _network
+	Process   _process
+	Directory _directory
 )
+
+type _runtime struct {
+	BootupTime      time.Time
+	RunningDuration func() string
+
+	OS   string
+	ARCH string
+}
+
+type _machine struct {
+	Hostname string
+}
+
+type _network struct {
+	BindIP string
+	NatIP  string
+}
+
+type _process struct {
+	Name string
+	Args []string
+
+	Pid  int
+	PPid int
+}
+
+type _directory struct {
+	RootDir string
+
+	BinDir string
+	EtcDir string
+	UsrDir string
+	VarDir string
+}
+
+func String() string {
+	var data = map[string]interface{}{
+		"machine": Machine,
+		"network": Network,
+		"process": Process,
+	}
+
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(data)
+	return string(buf)
+
+}

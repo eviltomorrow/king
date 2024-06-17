@@ -33,35 +33,30 @@ func (bi *BootInfo) UnMarshal(buf []byte) error {
 	return jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(buf, bi)
 }
 
-func RunAppBackground(name string, args []string) error {
-	args = append(args, "--ppid", fmt.Sprintf("%d", os.Getpid()))
-	cmd := exec.Command(name, args...)
+func RunAppInBackground(args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("panic: invalid os.Args format")
+	}
+
+	var (
+		name    = args[0]
+		newArgs = func() []string {
+			var data = make([]string, 0, len(args)-2)
+			for _, arg := range args[1:] {
+				switch arg {
+				case "-d", "--daemon":
+				default:
+					data = append(data, arg)
+				}
+			}
+			return data
+		}()
+	)
+
+	cmd := exec.Command(name, newArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return runAppStartBackground(cmd)
-}
-
-func NotifyStopDaemon(buf []byte) error {
-	var bi = &BootInfo{}
-	if err := bi.UnMarshal(buf); err != nil {
-		return err
-	}
-
-	address := fmt.Sprintf("%s:%d", pingbackHost, bi.ListenPort)
-	conn, err := net.DialTimeout("tcp", address, 20*time.Second)
-	if err != nil {
-		return fmt.Errorf("dialing confirmation address: %v", err)
-	}
-	defer conn.Close()
-	_, err = conn.Write([]byte(bi.ChallengeKey))
-	if err != nil {
-		return fmt.Errorf("writing confirmation bytes to %s, nest error: %v", address, err)
-	}
-	return nil
-}
-
-func runAppStartBackground(cmd *exec.Cmd) error {
 	port, err := netutil.GetAvailablePort()
 	if err != nil {
 		return fmt.Errorf("get available port failure, nest error: %v", err)
@@ -128,6 +123,34 @@ func runAppStartBackground(cmd *exec.Cmd) error {
 		printRunning(cmd.Process.Pid)
 	case err := <-exit:
 		return fmt.Errorf("process exited with error: %v", err)
+	}
+	return nil
+}
+
+func StopDaemon() error {
+	confirmationBytes, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return fmt.Errorf("reading confirmation bytes from stdin: %v", err)
+	}
+	if len(confirmationBytes) == 0 {
+		return nil
+	}
+
+	var bi = &BootInfo{}
+	if err := bi.UnMarshal(confirmationBytes); err != nil {
+		return err
+	}
+
+	address := fmt.Sprintf("%s:%d", pingbackHost, bi.ListenPort)
+	conn, err := net.DialTimeout("tcp", address, 5*time.Second)
+	if err != nil {
+		return fmt.Errorf("dialing confirmation address: %v", err)
+	}
+	defer conn.Close()
+
+	_, err = conn.Write([]byte(bi.ChallengeKey))
+	if err != nil {
+		return fmt.Errorf("writing confirmation bytes to %s, nest error: %v", address, err)
 	}
 	return nil
 }

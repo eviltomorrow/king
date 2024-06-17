@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func SynchronizeMetadataQuick(source string) (int64, int64, error) {
+func SynchronizeMetadataQuick(ctx context.Context, source string) (int64, int64, error) {
 	select {
 	case inFlightSem <- struct{}{}:
 		defer func() { <-inFlightSem }()

@@ -16,11 +16,11 @@ type GRPC struct {
 
 	AssetsServer *impl.AssetsServer
 
-	helper *server.GrpcHelper
+	bootstrap *server.Bootstrap
 }
 
 func (g *GRPC) Startup() error {
-	g.helper = server.NewGrpcHelper(
+	g.bootstrap = server.NewGrpcBootstrap(
 		server.WithListenHost(g.Host),
 		server.WithPort(g.Port),
 		server.WithAppName(g.AppName),
@@ -29,12 +29,12 @@ func (g *GRPC) Startup() error {
 			pb.RegisterAssetsServer(s, g.AssetsServer)
 		}),
 	)
-	return g.helper.Init()
+	return g.bootstrap.Init()
 }
 
 func (g *GRPC) Stop() error {
-	if g.helper != nil {
-		return g.helper.Stop()
+	if g.bootstrap != nil {
+		return g.bootstrap.Stop()
 	}
 	return nil
 }

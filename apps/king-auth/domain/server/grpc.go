@@ -21,7 +21,7 @@ type GRPC struct {
 	Port       int
 	AppName    string
 
-	helper *server.GrpcHelper
+	bootstrap *server.Bootstrap
 
 	pb.UnimplementedPassportServer
 }
@@ -179,7 +179,7 @@ func (g *GRPC) ModifyPassword(ctx context.Context, req *pb.ModifyPasswordReq) (*
 }
 
 func (g *GRPC) Startup() error {
-	g.helper = server.NewGrpcHelper(
+	g.bootstrap = server.NewGrpcBootstrap(
 		server.WithListenHost(g.Host),
 		server.WithPort(g.Port),
 		server.WithAppName(g.AppName),
@@ -188,12 +188,12 @@ func (g *GRPC) Startup() error {
 			pb.RegisterPassportServer(s, g)
 		}),
 	)
-	return g.helper.Init()
+	return g.bootstrap.Init()
 }
 
 func (g *GRPC) Stop() error {
-	if g.helper != nil {
-		return g.helper.Stop()
+	if g.bootstrap != nil {
+		return g.bootstrap.Stop()
 	}
 	return nil
 }

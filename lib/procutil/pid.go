@@ -8,7 +8,7 @@ import (
 )
 
 func CreatePidFile(path string, pid int) (func() error, error) {
-	file, err := fs.NewFlockFile(path)
+	file, err := fs.CreateFlockFile(path)
 	if err != nil {
 		return nil, err
 	}

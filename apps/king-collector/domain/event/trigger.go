@@ -38,7 +38,7 @@ func TriggerFetchMetadataEveryWeekDay(ctx context.Context) error {
 
 			ctx, span = opentrace.DefaultTracer().Start(ctx, "Send notification")
 			defer span.End()
-			if err := SendNotification(ctx, "Fetch metadata failure", fmt.Sprintf("Possible reason: %v", e)); err != nil {
+			if err := SendNtfy(ctx, "Fetch metadata failure", fmt.Sprintf("Possible reason: %v", e)); err != nil {
 				span.RecordError(err)
 				zlog.Error("Send notification failure", zap.Error(err))
 			}
@@ -84,7 +84,7 @@ func SendEmail(ctx context.Context, subject, reason string) error {
 	}
 	defer closeFunc()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	if _, err = client.Send(ctx, &pb_notification.Mail{
@@ -100,18 +100,18 @@ func SendEmail(ctx context.Context, subject, reason string) error {
 	return nil
 }
 
-func SendNotification(ctx context.Context, title, reason string) error {
-	client, closeFunc, err := client_grpc.NewNotificationWithEtcd()
+func SendNtfy(ctx context.Context, title, reason string) error {
+	client, closeFunc, err := client_grpc.NewNtfyWithEtcd()
 	if err != nil {
 		return err
 	}
 	defer closeFunc()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	if _, err = client.Send(ctx, &pb_notification.Msg{
-		Topic:    "topic_alert",
+		Topic:    "SrxOPwCBiRWZUOq0",
 		Message:  reason,
 		Title:    title,
 		Priority: 4,

@@ -1,9 +1,7 @@
 package client
 
 import (
-	"context"
 	"fmt"
-	"time"
 
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -13,17 +11,12 @@ import (
 )
 
 func NewEmailWithEtcd() (pb.EmailClient, func() error, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	target := "etcd:///grpclb/king-notification"
-	conn, err := grpc.DialContext(
-		ctx,
+	conn, err := grpc.NewClient(
 		target,
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-		grpc.WithBlock(),
 	)
 	if err != nil {
 		return nil, nil, err
@@ -32,15 +25,10 @@ func NewEmailWithEtcd() (pb.EmailClient, func() error, error) {
 }
 
 func NewEmailWithTarget(target string) (pb.EmailClient, func() error, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	conn, err := grpc.DialContext(
-		ctx,
+	conn, err := grpc.NewClient(
 		target,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-		grpc.WithBlock(),
 	)
 	if err != nil {
 		return nil, nil, err
@@ -48,38 +36,28 @@ func NewEmailWithTarget(target string) (pb.EmailClient, func() error, error) {
 	return pb.NewEmailClient(conn), func() error { return conn.Close() }, nil
 }
 
-func NewNotificationWithEtcd() (pb.NotificationClient, func() error, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
+func NewNtfyWithEtcd() (pb.NtfyClient, func() error, error) {
 	target := "etcd:///grpclb/king-notification"
-	conn, err := grpc.DialContext(
-		ctx,
+	conn, err := grpc.NewClient(
 		target,
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-		grpc.WithBlock(),
 	)
 	if err != nil {
 		return nil, nil, err
 	}
-	return pb.NewNotificationClient(conn), func() error { return conn.Close() }, nil
+	return pb.NewNtfyClient(conn), func() error { return conn.Close() }, nil
 }
 
-func NewNotificationWithTarget(target string) (pb.NotificationClient, func() error, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	conn, err := grpc.DialContext(
-		ctx,
+func NewNtfyWithTarget(target string) (pb.NtfyClient, func() error, error) {
+	conn, err := grpc.NewClient(
 		target,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-		grpc.WithBlock(),
 	)
 	if err != nil {
 		return nil, nil, err
 	}
-	return pb.NewNotificationClient(conn), func() error { return conn.Close() }, nil
+	return pb.NewNtfyClient(conn), func() error { return conn.Close() }, nil
 }

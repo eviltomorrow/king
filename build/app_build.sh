@@ -41,6 +41,9 @@ if [ ! -n ${1} ]; then
     build_app ${1}
 else
     for name in $(ls ${app_dir}); do
+        if [ -e ${app_dir}/${name}/.build_skip ]; then
+            continue
+        fi
         build_app ${name}
     done
 fi

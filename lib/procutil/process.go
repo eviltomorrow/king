@@ -25,7 +25,7 @@ func FindProcessWithPid(pid int) (*os.Process, error) {
 	return process, nil
 }
 
-func LoadProcessWithPidFile(path string) (*os.Process, error) {
+func FindProcessWithPidFile(path string) (*os.Process, error) {
 	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func LoadProcessWithPidFile(path string) (*os.Process, error) {
 }
 
 func StopProcessWithPidFile(path string) error {
-	if process, err := LoadProcessWithPidFile(path); err != nil {
+	if process, err := FindProcessWithPidFile(path); err != nil {
 		return fmt.Errorf("load process with pidfile failure, nest error: %v", err)
 	} else {
 		if err := process.Signal(syscall.SIGTERM); err != nil {

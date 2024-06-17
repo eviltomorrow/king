@@ -151,6 +151,8 @@ func TestTimeout(t *testing.T) {
 
 type hang struct{}
 
+var _ = hang.Write
+
 func (h hang) Write(_ []byte) (int, error) {
 	<-make(chan struct{}) // block forever
 	return 0, nil

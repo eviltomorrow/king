@@ -7,6 +7,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-collector/cmd/metadata"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	libcmd "github.com/eviltomorrow/king/lib/cmd"
+	"github.com/eviltomorrow/king/lib/system"
 	"github.com/spf13/cobra"
 )
 
@@ -44,10 +45,13 @@ func initCommand() {
 }
 
 func main() {
+	if err := system.InitRuntime(); err != nil {
+		log.Fatalf("[F] App: init system runtime failure, nest error: %v", err)
+	}
 	initCommand()
 
 	if err := runApp(); err != nil {
-		log.Fatalf("[F] Run app command(embeded) failure, nest error: %v", err)
+		log.Fatalf("[F] App: Run app command(embeded) failure, nest error: %v", err)
 	}
 }
 

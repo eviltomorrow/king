@@ -9,7 +9,7 @@ import (
 )
 
 func TestSendNotification(t *testing.T) {
-	client, closeFunc, err := NewNotificationWithTarget("127.0.0.1:5273")
+	client, closeFunc, err := NewNtfyWithTarget("127.0.0.1:5273")
 	if err != nil {
 		t.Fatal(err)
 	}

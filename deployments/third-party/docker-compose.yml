@@ -1,0 +1,6 @@
+services:
+
+networks:
+  default:
+    name: net-king
+    external: true

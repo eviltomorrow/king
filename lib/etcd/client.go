@@ -52,9 +52,8 @@ func NewClient() (*clientv3.Client, error) {
 		if e == nil {
 			break
 		}
-		if e != nil {
-			log.Printf("[W] Connect to Etcd. Retry: %d, nest error: %v", i, e)
-		}
+
+		log.Printf("[W] Connect to Etcd. Retry: %d, nest error: %v", i, e)
 		i++
 		time.Sleep(Period)
 	}

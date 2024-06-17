@@ -50,7 +50,7 @@ var (
 			Level:            "info",
 			Format:           "json",
 			MaxSize:          100,
-			MaxDays:          180,
+			MaxDays:          90,
 			MaxBackups:       90,
 			Compress:         true,
 		},

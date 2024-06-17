@@ -1,5 +1,5 @@
-smtp-file = "etc/smtp.json"
-ntfy-file = "etc/ntfy.json"
+smtp-file = "smtp.json"
+ntfy-file = "ntfy.json"
 
 [server]
 	host = "0.0.0.0"

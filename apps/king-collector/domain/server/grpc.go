@@ -21,7 +21,7 @@ type GRPC struct {
 	Port       int
 	AppName    string
 
-	helper *server.GrpcHelper
+	bootstrap *server.Bootstrap
 
 	pb.UnimplementedCollectorServer
 }
@@ -38,7 +38,7 @@ func (g *GRPC) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 	defer span.End()
 
 	span.SetAttributes(attribute.String("req", req.Value))
-	total, ignore, err := service.SynchronizeMetadataQuick(req.Value)
+	total, ignore, err := service.SynchronizeMetadataQuick(ctx, req.Value)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
@@ -63,7 +63,7 @@ func (g *GRPC) StoreMetadata(ctx context.Context, req *wrapperspb.StringValue) (
 }
 
 func (g *GRPC) Startup() error {
-	g.helper = server.NewGrpcHelper(
+	g.bootstrap = server.NewGrpcBootstrap(
 		server.WithListenHost(g.Host),
 		server.WithPort(g.Port),
 		server.WithAppName(g.AppName),
@@ -73,12 +73,12 @@ func (g *GRPC) Startup() error {
 		}),
 	)
 
-	return g.helper.Init()
+	return g.bootstrap.Init()
 }
 
 func (g *GRPC) Stop() error {
-	if g.helper != nil {
-		return g.helper.Stop()
+	if g.bootstrap != nil {
+		return g.bootstrap.Stop()
 	}
 	return nil
 }

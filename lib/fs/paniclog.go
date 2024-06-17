@@ -9,10 +9,10 @@ import (
 var (
 	stderrFileHandler *os.File
 
-	StderrFilePath = "../log/panic.log"
+	StderrFilePath = "../var/log/panic.log"
 )
 
-func RewriteStderrFile() error {
+func RewriteStderrToFile() error {
 	file, err := os.OpenFile(StderrFilePath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0o644)
 	if err != nil {
 		return err
