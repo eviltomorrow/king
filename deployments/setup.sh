@@ -37,7 +37,9 @@ function docker_compose_action(){
     cd ${root_dir}
     if [ -d ${1} ]; then
         cd ${1}
-
+        if [ -e '.skip' ]; then
+            return
+        fi
         if [ ! -f "${DATA_HOME}/.${1}.ready" ]; then
             if [ "${2}"="up" ]; then
                 ./init.sh
