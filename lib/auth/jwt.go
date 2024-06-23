@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -47,12 +48,13 @@ func JwtWithParseToken(tokenStr string, f func(string) error) (*JwtClaims, error
 	case token.Valid:
 		claims, ok := token.Claims.(*JwtClaims)
 		if ok {
+			if f == nil {
+				return claims, nil
+			}
 			return claims, nil
+
 		}
-		if f != nil {
-			return claims, f(claims.AccountId)
-		}
-		return claims, nil
+		return claims, fmt.Errorf("panic: invalid claims")
 
 	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
 		return nil, ErrTokenExpired
