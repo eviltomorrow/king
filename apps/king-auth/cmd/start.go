@@ -22,24 +22,39 @@ import (
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/procutil"
 	"github.com/eviltomorrow/king/lib/system"
+	"github.com/eviltomorrow/king/lib/workflow"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/resolver"
 )
 
-var workflowsFunc = []func() error{
-	setRuntimeEnv,
-	loadConfig,
-	printCfg,
-	setGlobalVars,
-	runOpentrace,
-	runDB,
-	runServer,
-	buildPidFile,
-	rewritePaniclog,
-	notifyStopDaemon,
-}
+// var workflowsFunc = []func() error{
+// 	setRuntimeEnv,
+// 	loadConfig,
+// 	printCfg,
+// 	setGlobalVars,
+// 	runOpentrace,
+// 	runDB,
+// 	runServer,
+// 	buildPidFile,
+// 	rewritePaniclog,
+// 	notifyStopDaemon,
+// }
+
+var workflowsFunc = func() []workflow.Job {
+	workflow.Register("setRuntimeEnv", setRuntimeEnv)
+	workflow.Register("loadConfig", loadConfig)
+	workflow.Register("printCfg", printCfg)
+	workflow.Register("setGlobalVars", setGlobalVars)
+	workflow.Register("runOpentrace", runOpentrace)
+	workflow.Register("runDB", runDB)
+	workflow.Register("runServer", runServer)
+	workflow.Register("buildPidFile", buildPidFile)
+	workflow.Register("rewritePaniclog", rewritePaniclog)
+	workflow.Register("notifyStopDaemon", notifyStopDaemon)
+	return workflow.Finish()
+}()
 
 var cfg = conf.Default
 var (
@@ -71,9 +86,9 @@ var StartCommand = &cobra.Command{
 			zlog.Info("Stop app complete", zap.String("app-name", buildinfo.AppName), zap.String("running-duration", system.Runtime.RunningDuration()))
 		}()
 
-		for _, f := range workflowsFunc {
-			if err := f(); err != nil {
-				log.Fatalf("[F]Run workflow failure, nest error: %v", err)
+		for _, job := range workflowsFunc {
+			if err := job.F(); err != nil {
+				log.Fatalf("[F] Run job failure, nest error: %v, job name: %v", err, job.Name)
 			}
 		}
 
@@ -110,6 +125,7 @@ func loadConfig() error {
 
 func setGlobalVars() error {
 	middleware.LogDir = filepath.Join(system.Directory.VarDir, "/log")
+
 	etcd.Endpoints = cfg.Etcd.Endpoints
 	redis.DSN = cfg.Redis.DSN
 	mysql.DSN = cfg.MySQL.DSN
@@ -120,6 +136,7 @@ func setGlobalVars() error {
 	service.AccessTokenExpiresIn = cfg.Global.AccessTokenExpiresIn
 	service.RefreshTokenExpiresIn = cfg.Global.RefreshTokenExpiresIn
 	auth.TokenLimitPerAccount = cfg.Global.TokenLimitPerAccount
+
 	return nil
 }
 
