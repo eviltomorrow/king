@@ -66,7 +66,7 @@ var StartCommand = &cobra.Command{
 			for _, err := range finalizer.RunCleanupFuncs() {
 				zlog.Error("Run cleanup funcs failure", zap.Error(err))
 			}
-			zlog.Info("Stop app complete", zap.String("app-name", buildinfo.AppName), zap.String("running-duration", system.Runtime.RunningDuration()))
+			zlog.Info("Stop app complete", zap.String("app-name", buildinfo.AppName), zap.String("launched-time", system.LaunchTime()))
 		}()
 
 		for _, f := range workflowsFunc {

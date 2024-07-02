@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/netutil"
+	"github.com/eviltomorrow/king/lib/system"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -42,13 +43,15 @@ func RunAppInBackground(args []string) error {
 		name    = args[0]
 		newArgs = func() []string {
 			var data = make([]string, 0, len(args)-2)
-			for _, arg := range args[1:] {
-				switch arg {
-				case "-d", "--daemon":
-				default:
-					data = append(data, arg)
-				}
-			}
+			// for _, arg := range args[1:] {
+			// 	switch arg {
+			// 	case "-d", "--daemon":
+
+			// 	default:
+			// 		data = append(data, arg)
+			// 	}
+			// }
+			data = append(data, "--start-ppid", fmt.Sprintf("%d", os.Getpid()))
 			return data
 		}()
 	)
@@ -87,6 +90,7 @@ func RunAppInBackground(args []string) error {
 			log.Fatalf("[F] Marshal boot-info failure, nest error: %v", err)
 		}
 		_, _ = stdin.Write(buf)
+
 		stdin.Close()
 	}()
 
@@ -128,6 +132,9 @@ func RunAppInBackground(args []string) error {
 }
 
 func StopDaemon() error {
+	if system.Process.PPid != os.Getppid() {
+		return fmt.Errorf("panic: ppid not equal")
+	}
 	confirmationBytes, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return fmt.Errorf("reading confirmation bytes from stdin: %v", err)

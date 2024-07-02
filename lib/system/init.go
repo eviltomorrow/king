@@ -3,15 +3,12 @@ package system
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"time"
 
 	"github.com/eviltomorrow/king/lib/netutil"
-	"github.com/eviltomorrow/king/lib/timeutil"
 )
 
-func InitRuntime() error {
+func LoadRuntime() error {
 	executePath, err := os.Executable()
 	if err != nil {
 		return err
@@ -30,6 +27,7 @@ func InitRuntime() error {
 	Directory.EtcDir = filepath.Join(Directory.RootDir, "/etc")
 	Directory.UsrDir = filepath.Join(Directory.RootDir, "/usr")
 	Directory.VarDir = filepath.Join(Directory.RootDir, "/var")
+	Directory.LogDir = filepath.Join(Directory.VarDir, "/log")
 
 	Process.Name = filepath.Base(executePath)
 	Process.Args = os.Args[1:]
@@ -47,14 +45,6 @@ func InitRuntime() error {
 		return err
 	}
 	Machine.Hostname = hostname
-
-	now := time.Now()
-	Runtime.BootupTime = now
-	Runtime.RunningDuration = func() string {
-		return timeutil.FormatDuration(time.Since(now))
-	}
-	Runtime.OS = runtime.GOOS
-	Runtime.ARCH = runtime.GOARCH
 
 	return nil
 }

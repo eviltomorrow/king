@@ -11,7 +11,7 @@ ENV MAINVERSION=${MAINVERSION} \
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.AppName=${APPNAME} -X main.MainVersion=${MAINVERSION} -X main.GitSha=${GITSHA} -X main.BuildTime=${BUILDTIME} -s -w" -gcflags "all=-trimpath=$(go env GOPATH)" -o bin/${APPNAME}/bin/${APPNAME} apps/${APPNAME}/main.go
 
 
-FROM --platform=$TARGETPLATFORM alpine:latest as prod
+FROM --platform=$TARGETPLATFORM alpine:latest AS prod
 WORKDIR /app
 ARG APPNAME=unknown
 ENV APPNAME=${APPNAME} 

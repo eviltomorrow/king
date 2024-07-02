@@ -47,7 +47,7 @@ func runApp() error {
 }
 
 func main() {
-	if err := system.InitRuntime(); err != nil {
+	if err := system.LoadRuntime(); err != nil {
 		log.Fatalf("[F] App: init system runtime failure, nest error: %v", err)
 	}
 	initCommand()
