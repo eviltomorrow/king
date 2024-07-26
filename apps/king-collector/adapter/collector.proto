@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package collector;
+
+service Collector {
+    // Crawl last metadata with specify source(sina, net126)
+    rpc CrawlMetadata(google.protobuf.StringValue) returns (CrawlMetadataResponse){}
+    // Archive metadata to storage
+    rpc ArchiveMetadata(google.protobuf.StringValue) returns (ArchiveMetadataResponse){}
+}
+
+message CrawlMetadataResponse {
+    int64 total = 1;
+    int64 ignore = 2;   
+}
+
+message ArchiveMetadataResponse {
+    int64 total = 1;
+
+    message Affected {
+        int64 stock = 1;
+        int64 quote_day= 2;
+        int64 quote_week= 3; 
+    }
+    Affected affected = 2;
+}

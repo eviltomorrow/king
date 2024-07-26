@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "./;pb";
+package auth;
+
+service Passport {
+    rpc BindThirdPartyAccount(BindThirdPartyAccountReq) returns (google.protobuf.StringValue);
+    rpc ConfirmCode(ConfirmCodeReq) returns (google.protobuf.Empty);
+    
+    rpc CreateVerificationCode(CreateVerificationCodeReq) returns (CreateVerificationCodeResp);
+    rpc Register(RegisterReq) returns (google.protobuf.StringValue);
+    rpc Auth(AuthReq) returns (Token);
+    rpc RenewToken(Token) returns (Token);
+    rpc VerifyToken(Token) returns (google.protobuf.Empty);
+    rpc RevokeToken(Token) returns (google.protobuf.Empty);
+
+    rpc Exist(google.protobuf.StringValue) returns (google.protobuf.BoolValue);
+    rpc Lock(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc Unlock(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc List(UserReq) returns (UserResp);
+    rpc Get(google.protobuf.StringValue) returns (User);
+    rpc Remove(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc ModifyPassword(ModifyPasswordReq) returns (google.protobuf.Empty);
+}
+
+message UserReq {
+    int64 page_no = 1;
+    int64 page_size = 2;
+}
+
+message UserResp {
+    repeated User users = 1;
+    int64 total_count = 2;
+}
+
+message Token {
+    string access_token = 1;
+    string token_type = 2;
+    string refresh_token = 3;
+    int64 expires_in = 4;
+}
+
+message User {
+    string id = 1;
+    string account = 2;
+    string code = 3;
+    string email = 4;
+    string phone = 5;
+    int32 status = 6;
+    int64 register_datetime = 7;
+}
+
+message RegisterReq {
+    string account = 1;
+    string password = 2;
+}
+
+message BindThirdPartyAccountReq {
+    enum Type {
+        EMAIL = 0;
+        PHONE = 1;
+    }
+    Type type = 1;
+    string id = 2;
+    string account = 3;
+}
+
+message ConfirmCodeReq {
+    string bind_request_id = 1;
+    string code = 2;
+}
+
+message AuthReq {
+    enum Method {
+        PASSWORD = 0;
+        SMS = 1;
+    }
+    message Credential {
+        string account = 1;
+        string key = 2;
+    }
+    Method method = 1;
+    Credential credential = 2;
+}
+
+message CreateVerificationCodeReq {
+    enum Type {
+        EMAIL = 0;
+        PHONE = 1;
+    }
+    Type type = 1;
+    string account = 2;
+}
+
+message CreateVerificationCodeResp {
+    string code = 1;
+    int64 expires_in = 2;
+}
+
+message ModifyPasswordReq {
+    string id = 1;
+    string password = 2;
+}

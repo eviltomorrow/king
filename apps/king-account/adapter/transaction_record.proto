@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package account;
+
+service TransactionRecord {
+    rpc ListByUserId(google.protobuf.StringValue) returns (RecordResp);
+    rpc ListByOpenID(google.protobuf.StringValue) returns (RecordResp);
+}
+
+message RecordResp {
+    repeated Record records = 1;
+    int64 total_count = 2;
+}
+    
+message Record {
+    string id = 1;
+    string user_id = 2;
+    string fund_no = 3;
+    enum Action {
+        BUY = 0;
+        SELL = 1;
+    }
+    Action action = 4;
+
+    enum Type {
+        STOCK = 0;
+        ETF = 1;
+    }
+    Type type = 5;
+
+    string code = 6;
+    string name = 7;
+    int64 volume = 8;
+    double close_price = 9;
+    
+    repeated Fee fee = 10;
+}
+    
+
+message Fee {
+    string id = 1;
+    string record_id = 2;
+    string item = 3;
+    double money = 4;
+}
+        

@@ -1,0 +1,77 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+  grpc_server_max_recv_msg_size: 1073741824 #grpc最大接收消息值,默认4m
+  grpc_server_max_send_msg_size: 1073741824 #grpc最大发送消息值,默认4m
+
+querier:
+  tail_max_duration: 72h
+
+query_scheduler:
+  max_outstanding_requests_per_tenant: 4096
+frontend:
+  max_outstanding_per_tenant: 4096
+
+common:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /tmp/loki
+
+compactor:
+  working_directory: /tmp/loki/compactor
+  compaction_interval: 5m
+
+ingester:
+  wal:
+    dir: "/tmp/wal"
+  lifecycler:
+    address: localhost
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 1h
+  chunk_retain_period: 30s
+  # max_transfer_retries: 0
+  max_chunk_age: 20m #一个timeseries块在内存中的最大持续时间。如果timeseries运行的时间超过此时间,则当前块将刷新到存储并创建一个新块
+  shutdown_marker_path: "/opt/loki/shutdown_marker"
+
+schema_config:
+  configs:
+    - from: 2021-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /tmp/loki/index
+    cache_location: /tmp/loki/index_cache
+  filesystem:
+    directory: /opt/loki/chunks
+
+limits_config:
+  split_queries_by_interval: 24h
+  max_query_parallelism: 100
+  # enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+  ingestion_rate_mb: 30 #修改每用户摄入速率限制,即每秒样本量,默认值为4M
+  ingestion_burst_size_mb: 20 #修改每用户摄入速率限制,即每秒样本量,默认值为6M
+  max_query_lookback: 168h
+  query_timeout: 5m
+  allow_structured_metadata: false
+  
+table_manager:
+  retention_deletes_enabled: true #日志保留周期开关,默认为false
+  retention_period: 168h #日志保留周期
+

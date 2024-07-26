@@ -1,0 +1,95 @@
+services:
+  redis:
+    restart: always
+    volumes:
+      - ${DATA_HOME}/redis:/data
+      - $PWD/conf/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+    image: redis:${redis_version}
+    container_name: redis
+    ports:
+      - 127.0.0.1:6379:6379
+    expose:
+      - "6379"
+
+  mongo:
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - LANG=zh_CN.UTF-8
+    volumes:
+      - $PWD/conf/mongo/:/etc/mongo/
+      - ${DATA_HOME}/mongo/db:/var/lib/mongo/
+      - ${DATA_HOME}/mongo/log:/var/log/mongo/
+      - $PWD/conf/mongo/init/init_mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo/
+    command: ["--auth","--config","/etc/mongo/mongod.conf"]
+    image: mongo:${mongo_version}
+    container_name: mongo
+    ports:
+      - 127.0.0.1:27017:27017
+    expose:
+      - "27017"
+
+  mysql:
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - $PWD/conf/mysql/:/etc/mysql/conf.d/
+      - ${DATA_HOME}/mysql/db:/var/lib/mysql/
+      - ${DATA_HOME}/mysql/log:/var/log/mysql/
+      - $PWD/conf/mysql/init:/docker-entrypoint-initdb.d/
+      - ${DATA_HOME}/mysql/run/mysqld:/run/mysqld/
+      - /usr/share/zoneinfo:/usr/share/zoneinfo/
+      - /etc/localtime:/etc/localtime:ro
+    image: mysql:${mysql_version}
+    container_name: mysql
+    ports:
+      - 127.0.0.1:3306:3306
+    expose:
+      - "3306"
+    privileged: true
+
+  etcd:
+    restart: always
+    environment:               
+      - ALLOW_NONE_AUTHENTICATION=yes                                   
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379          
+      - ETCDCTL_API=3                                            
+    volumes:
+      - ${DATA_HOME}/etcd:/etcd-data/                       
+      - /etc/localtime:/etc/localtime:ro
+    image: bitnami/etcd:${etcd_version}
+    container_name: etcd                
+    ports:                   
+      - "127.0.0.1:2379:2379"
+      - "127.0.0.1:2380:2380"
+    expose:
+      - "2379"
+      - "2380"
+
+  # rabbitmq:
+  #   restart: always
+  #   environment:               
+  #     - RABBITMQ_DEFAULT_USER=admin
+  #     - RABBITMQ_DEFAULT_PASS=admin123                                        
+  #   volumes:
+  #     - ${DATA_HOME}/rabbitmq/db:/var/lib/rabbitmq/
+  #     - ${DATA_HOME}/rabbitmq/log:/var/log/rabbitmq/
+  #     - /etc/localtime:/etc/localtime:ro
+  #   image: registry.cn-beijing.aliyuncs.com/eviltomorrow/rabbitmq:3.12.4-management
+  #   container_name: rabbitmq                
+  #   # ports: 
+  #   #   - "5672:5672"                 
+  #   #   - "15672:15672"
+  #   expose:
+  #     - "5672"
+  #     - "15672"
+
+networks:
+  default:
+    name: net-king
+    external: true

@@ -1,0 +1,43 @@
+services:      
+  king-collector:     
+    restart: always                                    
+    volumes:
+      - ${DATA_HOME}/king-collector/log:/app/var/log/                      
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-collector:${king_collector_version}
+    container_name: king-collector                
+    ports:                   
+      - "127.0.0.1:50003:50003"
+    expose:
+      - "50003"
+
+  king-notification:   
+    restart: always                                      
+    volumes:
+      - ${DATA_HOME}/king-notification/log:/app/var/log/
+      # - ./conf/king-notification/smtp.json:/app/etc/smtp.json
+      # - ./conf/king-notification/ntfy.json:/app/etc/ntfy.json                 
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-notification:${king_notification_version}
+    container_name: king-notification                
+    ports:                   
+      - "127.0.0.1:50002:50002"
+    expose:
+      - "50002"
+
+  king-storage:   
+    restart: always                                      
+    volumes:
+      - ${DATA_HOME}/king-storage/log:/app/var/log/                       
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-storage:${king_storage_version}
+    container_name: king-storage                
+    ports:                   
+      - "127.0.0.1:5272:50001"
+    expose:
+      - "50001"
+
+networks:
+  default:
+    name: net-king
+    external: true

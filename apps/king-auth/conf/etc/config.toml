@@ -1,0 +1,24 @@
+[global]
+access_token_expires_in = "10m"
+refresh_token_expires_in = "120m"
+
+token_limit_per_account = 10
+
+[grpc]
+access_ip = ""
+bind_ip = "0.0.0.0"
+bind_port = 50004
+
+[etcd]
+endpoints = ["etcd:2379"]
+
+[otel]
+dsn = "otel-collector:4317"
+
+[redis]
+dsn = "redis://:admin123@redis:6379/0?protocol=3"
+
+[mysql]
+dsn = "admin:admin123@tcp(mysql:3306)/king_auth?charset=utf8mb4&parseTime=true&loc=Local"
+min_open = 3
+max_open = 10

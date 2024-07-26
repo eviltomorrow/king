@@ -1,0 +1,16 @@
+smtp_file = "smtp.json"
+ntfy_file = "ntfy.json"
+
+[grpc]
+access_ip = ""
+bind_ip = "0.0.0.0"
+bind_port = 50002
+
+[etcd]
+endpoints = ["etcd:2379"]
+
+[otel]
+dsn = "otel-collector:4317"
+
+[log]
+level = "info"

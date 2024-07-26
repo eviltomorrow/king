@@ -1,0 +1,33 @@
+[grpc]
+access_ip = ""
+bind_ip = "0.0.0.0"
+bind_port = 50003
+
+[mongodb]
+dsn = "mongodb://admin:admin123@mongo:27017/transaction_db"
+
+[etcd]
+endpoints = ["etcd:2379"]
+
+[otel]
+dsn = "otel-collector:4317"
+
+[log]
+level = "info"
+
+[collector]
+code_list = [
+    "sh688***",
+    "sh605***",
+    "sh603***",
+    "sh601***",
+    "sh600***",
+    "sz300***",
+    "sz0030**",
+    "sz002***",
+    "sz001***",
+    "sz000***",
+]
+crontab = "25 18 * * MON,TUE,WED,THU,FRI"
+source = "sina"
+random_period = [10,35] # unit: s

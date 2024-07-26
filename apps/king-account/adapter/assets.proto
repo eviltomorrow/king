@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package account;
+
+service Assets {
+    rpc ListByUserId(google.protobuf.StringValue) returns (ItemListResp);
+}
+
+message ItemListResp {
+    repeated Item items = 1;
+    int64 total_count = 2;
+}
+
+message Item {
+    string user_id = 1;
+    string fund_no = 2;
+    enum Type {
+        STOCK = 0;
+        ETF = 1;
+    }
+    Type type = 3;
+    double cash_position = 4;
+    string code = 5;
+    string name = 6;
+    int64 open_interest = 7;
+    string open_id = 8;
+    int64 first_buy_datetime = 9;
+}

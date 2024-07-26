@@ -1,0 +1,89 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/promtail/conf/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: king-collector
+    pipeline_stages:
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: king-collector
+          type: data 
+          __path__: /log/king-collector/data.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-collector
+          type: access 
+          __path__: /log/king-collector/access.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-collector
+          type: panic
+          __path__: /log/king-collector/panic.log
+
+  - job_name: king-notification
+    pipeline_stages:
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: king-notification
+          type: data 
+          __path__: /log/king-notification/data.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-notification
+          type: access 
+          __path__: /log/king-notification/access.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-notification
+          type: panic 
+          __path__: /log/king-notification/panic.log
+
+  - job_name: king-storage
+    pipeline_stages:
+    - json:
+       expressions:
+         level: level
+         time: time
+         caller: caller
+         message: message
+         error: error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: king-storage
+          type: data 
+          __path__: /log/king-storage/data.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-storage
+          type: access 
+          __path__: /log/king-storage/access.log
+
+      - targets:
+          - localhost
+        labels:
+          app: king-storage
+          type: panic 
+          __path__: /log/king-storage/panic.log

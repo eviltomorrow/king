@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package account;
+
+service Transaction {
+    rpc Sell(Securities) returns (google.protobuf.StringValue);
+    rpc Buy(Securities) returns (google.protobuf.StringValue);
+}
+
+message Securities {
+    string user_id = 1;
+    string fund_no = 2;
+    enum Type {
+        STOCK = 0;
+        ETF = 1;
+    }
+    Type type = 3;
+    string code = 4;
+    int64 volume = 5;
+    double close_price = 6;
+}

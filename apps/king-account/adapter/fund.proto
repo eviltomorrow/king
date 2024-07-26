@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "./;pb";
+package account;
+
+service Fund {
+    rpc ReblanceByUserId(google.protobuf.StringValue) returns (google.protobuf.Empty);
+    rpc InitAccount(InitAccountReq) returns (google.protobuf.Empty);
+
+    rpc ListByUserId(google.protobuf.StringValue) returns (AccountListResp);
+    rpc ModifyAliasName(ModifyAliasNameReq) returns (google.protobuf.Empty);
+}
+
+message ModifyAliasNameReq {
+    string alias_name = 1;
+    string fund_no = 2;
+}
+
+message InitAccountReq {
+    string alias_name = 1;
+    string user_id = 2;
+    double opening_cash = 3;
+}
+
+message AccountListResp {
+    repeated Account accounts = 1;
+    int64 total_count = 2;
+}
+    
+message Account {
+    string alias_name = 1;
+    string user_id = 2;
+    string fund_no = 3;
+    double opening_cash = 4;
+    double end_cash = 5;
+    double yesterday_end_cash = 6;
+    int32 status = 7;
+    int64 init_datetime = 8;
+}

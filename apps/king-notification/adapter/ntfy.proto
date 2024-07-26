@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package notification;
+
+service Ntfy {
+    rpc Send(Msg) returns (google.protobuf.StringValue){}
+}
+
+message Msg {
+    string topic = 1;
+    string message = 2;
+    string title = 3;
+    int64 priority = 4;
+    string attach = 5;
+    repeated string tags = 6;
+}

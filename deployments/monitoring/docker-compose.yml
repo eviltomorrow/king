@@ -1,0 +1,186 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:${opentelemetry_collector_contrib_version}
+    container_name: otel-collector
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./conf/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    # ports:
+    #   - "1888:1888"   # pprof extension
+    #   - "8888:8888"   # Prometheus metrics exposed by the collector
+    #   - "8889:8889"   # Prometheus exporter metrics
+    #   - "13133:13133" # health_check extension
+      # - "127.0.0.1:4317:4317"   # OTLP gRPC receiver
+    #   - "55679:55679" # zpages extension
+    expose:
+      - "1888"
+      - "8888"
+      - "8889"
+      - "4317"
+      - "13133"
+      - "55679"
+    depends_on:
+      - jaeger-collector
+
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector:${jaeger_version}
+    container_name: jaeger-collector
+    command:
+      - "--cassandra.keyspace=jaeger_v1_dc1"
+      - "--cassandra.servers=cassandra"
+      - "--collector.zipkin.host-port=:9411"
+      - "--collector.otlp.enabled=true"
+      - "--collector.otlp.grpc.host-port=0.0.0.0:4317"
+    environment:
+      - SAMPLING_CONFIG_TYPE=adaptive
+      - SPAN_STORAGE_TYPE=cassandra
+    # ports:
+    #   - "14269:14269"
+    #   - "14268:14268"
+    #   - "14250:14250"
+    #   - "9411:9411"
+    expose:
+      - "14269"
+      - "14268"
+      - "14250"
+      - "9411"
+      - "4317"
+    restart: always
+    depends_on:
+      - cassandra-schema
+
+  jaeger-query:
+    image: jaegertracing/jaeger-query:${jaeger_version}
+    container_name: jaeger-query
+    command:
+      ["--cassandra.keyspace=jaeger_v1_dc1", "--cassandra.servers=cassandra"]
+    environment:
+      - SPAN_STORAGE_TYPE=cassandra
+      - SAMPLING_CONFIG_TYPE=adaptive
+      - SAMPLING_STORAGE_TYPE=cassandra
+    ports:
+    #   - "16685:16685"
+      - "127.0.0.1:16686:16686"
+    #   - "16687"
+    expose:
+      - "16685"
+      - "16686"
+      - "16687"
+    restart: always
+    depends_on:
+      - cassandra-schema
+
+  cassandra:
+    image: cassandra:${cassandra_version}
+    restart: on-failure
+    container_name: cassandra
+    # ports:
+    #   - "9042:9042"
+    expose:
+      - "9402"
+    volumes:
+      - ${DATA_HOME}/cassandra/db:/var/lib/cassandra
+      - ${DATA_HOME}/cassandra/log:/var/log/cassandra
+
+  cassandra-schema:
+    image: jaegertracing/jaeger-cassandra-schema:${jaeger_version}
+    restart: on-failure
+    container_name: cassandra-schema
+    depends_on:
+      - cassandra
+
+  loki:
+    image: grafana/loki:${loki_promtail_version}
+    container_name: loki
+    # ports:
+    #   - "3100:3100"
+    #   - "9095:9095"
+    expose:
+      - "3100"
+      - "9095"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./conf/loki:/etc/loki
+      - ${DATA_HOME}/loki/data/:/opt/loki/
+      - ${DATA_HOME}/loki/log:/var/log
+    restart: always
+
+  promtail:
+    image: grafana/promtail:${loki_promtail_version}
+    container_name: promtail
+    # ports:
+    #   - "9080:9080"
+    expose:
+      - "9080"
+    volumes:
+      - ${DATA_HOME}/promtail/conf/:/var/promtail/conf/
+      - ${DATA_HOME}/promtail/log:/var/log
+      - ./conf/promtail:/etc/promtail/config
+      - ${DATA_HOME}/king-collector/log:/log/king-collector
+      - ${DATA_HOME}/king-notification/log:/log/king-notification
+      - ${DATA_HOME}/king-storage/log:/log/king-storage
+    command: -config.file=/etc/promtail/config/promtail-config.yaml
+    restart: always
+
+  prometheus:
+    container_name: prometheus
+    image: bitnami/prometheus:${prometheus_version}
+    volumes:
+      - ./conf/prometheus:/etc/prometheus/
+      - ${DATA_HOME}/prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    # ports:
+    #   - "9090:9090"
+    expose:
+      - "9090"
+    restart: always
+
+  node-exporter:
+    container_name: node-exporter
+    image: bitnami/node-exporter:${node_exporter_version}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /:/host:ro,rslave
+    command: 
+      - '--path.rootfs=/host'
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    # ports:
+    #   - "127.0.0.1:9100:9100"
+    expose:
+      - "9100"
+    restart: always
+
+  grafana:
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    image: grafana/grafana:${grafana_version}
+    container_name: grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    expose:
+      - "3000"
+    volumes:
+      - ./conf/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ${DATA_HOME}/grafana/data:/var/lib/grafana
+      - ${DATA_HOME}/grafana/log:/var/log/grafana
+      - ./conf/grafana/provisioning:/etc/grafana/provisioning
+    restart: always
+
+networks:
+  default:
+    name: net-king
+    external: true
