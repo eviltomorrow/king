@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+// import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package brain;
+
+service Finder {
+    rpc DiscoverPossibleChance(google.protobuf.StringValue) returns (Chance);
+}
+
+message Stock {
+    string code = 1;
+    string name = 2;
+}
+
+message Model {
+    string name = 1;
+    string desc = 2;
+}
+
+message Chance {
+    Stock stock = 1;
+    Model model = 2;
+}

@@ -30,7 +30,7 @@ const (
 type CollectorClient interface {
 	// Crawl last metadata with specify source(sina, net126)
 	CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlMetadataResponse, error)
-	// Store metadata to storage
+	// Archive metadata to storage
 	ArchiveMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ArchiveMetadataResponse, error)
 }
 
@@ -68,7 +68,7 @@ func (c *collectorClient) ArchiveMetadata(ctx context.Context, in *wrapperspb.St
 type CollectorServer interface {
 	// Crawl last metadata with specify source(sina, net126)
 	CrawlMetadata(context.Context, *wrapperspb.StringValue) (*CrawlMetadataResponse, error)
-	// Store metadata to storage
+	// Archive metadata to storage
 	ArchiveMetadata(context.Context, *wrapperspb.StringValue) (*ArchiveMetadataResponse, error)
 	mustEmbedUnimplementedCollectorServer()
 }
