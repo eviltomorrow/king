@@ -13,7 +13,6 @@ type NTFY struct {
 	Port     int    `json:"port"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Topic    string `json:"topic"`
 }
 
 func (n *NTFY) String() string {

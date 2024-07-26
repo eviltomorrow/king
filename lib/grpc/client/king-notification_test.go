@@ -9,7 +9,7 @@ import (
 )
 
 func TestSendNotification(t *testing.T) {
-	client, closeFunc, err := NewNtfyWithTarget("127.0.0.1:5273")
+	client, closeFunc, err := NewNtfyWithTarget("127.0.0.1:50002")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,10 +19,10 @@ func TestSendNotification(t *testing.T) {
 	defer cancel()
 
 	if _, err = client.Send(ctx, &pb_notification.Msg{
-		Topic:    "topic_alert",
+		Topic:    "SrxOPwCBiRWZUOq0",
 		Message:  "Hello world",
 		Title:    "Hi",
-		Priority: 4,
+		Priority: 3,
 		Tags:     []string{"warning", "metadata", "crawl"},
 	}); err != nil {
 		t.Fatal(err)

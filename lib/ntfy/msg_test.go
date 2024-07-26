@@ -15,7 +15,7 @@ func TestSend(t *testing.T) {
 	}
 	fmt.Println(ntfy.String())
 
-	data, err := Send(fmt.Sprintf("%s://%s:%d", ntfy.Scheme, ntfy.Server, ntfy.Port), ntfy.Username, ntfy.Password, ntfy.Topic, &Msg{
+	data, err := Send(fmt.Sprintf("%s://%s:%d", ntfy.Scheme, ntfy.Server, ntfy.Port), ntfy.Username, ntfy.Password, "", &Msg{
 		Title:    "Hi",
 		Message:  "This is shepard",
 		Priority: 3,
