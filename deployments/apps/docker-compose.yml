@@ -33,7 +33,7 @@ services:
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-storage:${king_storage_version}
     container_name: king-storage                
     ports:                   
-      - "127.0.0.1:5272:50001"
+      - "127.0.0.1:50001:50001"
     expose:
       - "50001"
 
