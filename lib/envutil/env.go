@@ -7,24 +7,25 @@ import (
 	"github.com/eviltomorrow/king/lib/config"
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
+	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
 )
 
-func InitBaseComponent(otel *config.Opentrace, log *config.Log, server *config.GRPC) error {
+func InitBaseComponent(otel *opentrace.Config, log *config.Log, server *server.Config) error {
 	global, prop, err := zlog.InitLogger(&zlog.Config{
 		Level:  log.Level,
 		Format: "json",
 		File: zlog.FileLogConfig{
-			Filename:      filepath.Join(system.Directory.LogDir, "data.log"),
-			MaxSize:       100,
-			MaxDays:       90,
-			MaxBackups:    90,
-			Compression:   "gzip",
-			DisableStdlog: log.DisableStdlog,
+			Filename:    filepath.Join(system.Directory.LogDir, "data.log"),
+			MaxSize:     100,
+			MaxDays:     90,
+			MaxBackups:  90,
+			Compression: "gzip",
 		},
 		DisableStacktrace: true,
+		DisableStdlog:     log.DisableStdlog,
 	})
 	if err != nil {
 		return fmt.Errorf("init global log failure, nest error: %v", err)
@@ -37,14 +38,14 @@ func InitBaseComponent(otel *config.Opentrace, log *config.Log, server *config.G
 		Level:  log.Level,
 		Format: "json",
 		File: zlog.FileLogConfig{
-			Filename:      filepath.Join(system.Directory.LogDir, "access.log"),
-			MaxSize:       100,
-			MaxDays:       90,
-			MaxBackups:    90,
-			Compression:   "gzip",
-			DisableStdlog: log.DisableStdlog,
+			Filename:    filepath.Join(system.Directory.LogDir, "access.log"),
+			MaxSize:     100,
+			MaxDays:     90,
+			MaxBackups:  90,
+			Compression: "gzip",
 		},
 		DisableStacktrace: true,
+		DisableStdlog:     log.DisableStdlog,
 	})
 	if err != nil {
 		return fmt.Errorf("init midlog failure, nest error: %v", err)
@@ -68,7 +69,7 @@ func InitBaseComponent(otel *config.Opentrace, log *config.Log, server *config.G
 
 	shutdown, err := opentrace.InitTraceProvider(&opentrace.Config{
 		DSN:            otel.DSN,
-		ConnectTimeout: otel.ConnetTimeout,
+		ConnectTimeout: otel.ConnectTimeout,
 	})
 	if err != nil {
 		return fmt.Errorf("init opentrace failure, nest error: %v", err)

@@ -50,7 +50,7 @@ func InitLogger(cfg *Config, opts ...zap.Option) (*zap.Logger, *ZapProperties, e
 			return nil, nil, err
 		}
 
-		if !cfg.File.DisableStdlog {
+		if !cfg.DisableStdlog {
 			stdOut, _, err := zap.Open([]string{"stdout"}...)
 			if err != nil {
 				return nil, nil, err

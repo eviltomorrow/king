@@ -8,7 +8,6 @@ import (
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/certificate"
-	"github.com/eviltomorrow/king/lib/config"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
@@ -37,7 +36,7 @@ type GRPC struct {
 	revokeFunc func() error
 }
 
-func NewGRPC(c *config.GRPC, supported ...func(*grpc.Server)) *GRPC {
+func NewGRPC(c *Config, supported ...func(*grpc.Server)) *GRPC {
 	return &GRPC{
 		DisableTLS: c.DisableTLS,
 		AccessIP:   c.AccessIP,

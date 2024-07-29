@@ -1,4 +1,4 @@
-package config
+package server
 
 import (
 	"fmt"
@@ -7,14 +7,14 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type GRPC struct {
+type Config struct {
 	AccessIP   string `json:"access_ip" toml:"access_ip" mapstructure:"access_ip"`
 	BindIP     string `json:"bind_ip" toml:"bind_ip" mapstructure:"bind_ip"`
 	BindPort   int    `json:"bind_port" toml:"bind_port" mapstructure:"bind_port"`
 	DisableTLS bool   `json:"disable_tls" toml:"-" mapstructure:"-"`
 }
 
-func (c *GRPC) Validate() error {
+func (c *Config) VerifyConfig() error {
 	if c.AccessIP != "" {
 		ip := net.ParseIP(c.AccessIP)
 		if ip == nil {
@@ -38,7 +38,7 @@ func (c *GRPC) Validate() error {
 	return nil
 }
 
-func (c *GRPC) String() string {
+func (c *Config) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
 	return string(buf)
 }

@@ -1,4 +1,4 @@
-package config
+package mysql
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ const (
 	DEFAULT_MYSQL_MAX_OPEN_LIMIT = DEFAULT_MYSQL_MAX_OPEN
 )
 
-type MySQL struct {
+type Config struct {
 	DSN     string `json:"dsn" toml:"dsn" mapstructure:"dsn"`
 	MinOpen int    `json:"min_open" toml:"min_open" mapstructure:"min_open"`
 	MaxOpen int    `json:"max_open" toml:"max_open" mapstructure:"max_open"`
@@ -25,11 +25,11 @@ type MySQL struct {
 	StartupRetryPeriod time.Duration `json:"startup_retry_period" toml:"-" mapstructure:"-"`
 }
 
-func (c *MySQL) Name() string {
+func (c *Config) Name() string {
 	return "mysql"
 }
 
-func (c *MySQL) Validate() error {
+func (c *Config) VerifyConfig() error {
 	if c.DSN == "" {
 		return fmt.Errorf("mysql.dsn has no value")
 	}
@@ -64,11 +64,11 @@ func (c *MySQL) Validate() error {
 	return nil
 }
 
-func (m *MySQL) String() string {
+func (m *Config) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
 	return string(buf)
 }
 
-func (m *MySQL) MarshalConfig() ([]byte, error) {
+func (m *Config) MarshalConfig() ([]byte, error) {
 	return jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
 }

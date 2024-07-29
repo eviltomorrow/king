@@ -1,4 +1,4 @@
-package config
+package etcd
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type Etcd struct {
+type Config struct {
 	Endpoints []string `json:"endpoints" toml:"endpoints" mapstructure:"endpoints"`
 
 	ConnetTimeout      time.Duration `json:"connect_timeout" toml:"-" mapstructure:"-"`
@@ -15,11 +15,11 @@ type Etcd struct {
 	StartupRetryPeriod time.Duration `json:"startup_retry_period" toml:"-" mapstructure:"-"`
 }
 
-func (c *Etcd) Name() string {
+func (c *Config) Name() string {
 	return "etcd"
 }
 
-func (c *Etcd) Validate() error {
+func (c *Config) VerifyConfig() error {
 	if len(c.Endpoints) == 0 {
 		return fmt.Errorf("etcd.endpoints has no value")
 	}
@@ -36,11 +36,11 @@ func (c *Etcd) Validate() error {
 	return nil
 }
 
-func (c *Etcd) String() string {
+func (c *Config) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
 	return string(buf)
 }
 
-func (c *Etcd) MarshalConfig() ([]byte, error) {
+func (c *Config) MarshalConfig() ([]byte, error) {
 	return jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
 }

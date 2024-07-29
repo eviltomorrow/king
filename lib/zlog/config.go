@@ -15,7 +15,6 @@
 package zlog
 
 import (
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -27,26 +26,8 @@ const (
 	defaultLogMaxSize = 100 // MB
 )
 
-var DefaultConf = &Config{
-	Level:            "info",
-	Format:           "json",
-	DisableTimestamp: false,
-	File: FileLogConfig{
-		Filename:      filepath.Join("../log", "data.log"),
-		MaxSize:       100,
-		MaxDays:       90,
-		MaxBackups:    90,
-		Compression:   "gzip",
-		DisableStdlog: false,
-	},
-	DisableStacktrace:   true,
-	DisableErrorVerbose: true,
-}
-
 // FileLogConfig serializes file log related config in toml/json.
 type FileLogConfig struct {
-	// Enable std log
-	DisableStdlog bool `toml:"disable-stdlog" json:"disable-stdlog"`
 	// Log filename, leave empty to disable file log.
 	Filename string `toml:"filename" json:"filename"`
 	// Max size for a single file, in MB.
@@ -62,6 +43,8 @@ type FileLogConfig struct {
 
 // Config serializes log related config in toml/json.
 type Config struct {
+	// Enable std log
+	DisableStdlog bool `toml:"disable-stdlog" json:"disable-stdlog"`
 	// Log level.
 	Level string `toml:"level" json:"level" mapstructure:"level"`
 	// Log format. One of json or text.

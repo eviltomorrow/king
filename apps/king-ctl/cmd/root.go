@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-ctl/cmd/metadata"
 	"github.com/eviltomorrow/king/lib/buildinfo"
-	"github.com/eviltomorrow/king/lib/config"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/infrastructure"
@@ -22,6 +22,14 @@ var RootCommand = &cobra.Command{
 }
 
 func init() {
+	RootCommand.SetHelpCommand(&cobra.Command{
+		Use:    "",
+		Hidden: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return fmt.Errorf(`unknown command "help" for "%s"`, cmd.Root().Name())
+		},
+	})
+
 	RootCommand.AddCommand(metadata.ArchiveCommand)
 	RootCommand.AddCommand(metadata.CrawlCommand)
 }
@@ -29,7 +37,7 @@ func init() {
 func RunApp() error {
 	RootCommand.Use = buildinfo.AppName
 
-	component, err := infrastructure.LoadConfig(&config.Etcd{
+	component, err := infrastructure.LoadConfig(&etcd.Config{
 		Endpoints:          []string{"127.0.0.1:2379"},
 		ConnetTimeout:      5 * time.Second,
 		StartupRetryTimes:  1,

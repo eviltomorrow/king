@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	AppName     = "unknown"
+	AppName     = "king-storage"
 	MainVersion = "unknown"
 	GitSha      = "unknown"
 	BuildTime   = "unknown"

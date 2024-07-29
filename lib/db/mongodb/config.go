@@ -1,4 +1,4 @@
-package config
+package mongodb
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ const (
 	DEFAULT_MONGODB_MAX_OPEN_LIMIT = DEFAULT_MONGODB_MAX_OPEN
 )
 
-type MongoDB struct {
+type Config struct {
 	DSN     string `json:"dsn" toml:"dsn" mapstructure:"dsn"`
 	MinOpen uint64 `json:"min_open" toml:"min_open" mapstructure:"min_open"`
 	MaxOpen uint64 `json:"max_open" toml:"max_open" mapstructure:"max_open"`
@@ -25,11 +25,11 @@ type MongoDB struct {
 	StartupRetryPeriod time.Duration `json:"startup_retry_period" toml:"-" mapstructure:"-"`
 }
 
-func (c *MongoDB) Name() string {
+func (c *Config) Name() string {
 	return "mongodb"
 }
 
-func (c *MongoDB) Validate() error {
+func (c *Config) VerifyConfig() error {
 	if c.DSN == "" {
 		return fmt.Errorf("mongodb.dsn has no value")
 	}
@@ -64,11 +64,11 @@ func (c *MongoDB) Validate() error {
 	return nil
 }
 
-func (m *MongoDB) String() string {
+func (m *Config) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
 	return string(buf)
 }
 
-func (m *MongoDB) MarshalConfig() ([]byte, error) {
+func (m *Config) MarshalConfig() ([]byte, error) {
 	return jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
 }

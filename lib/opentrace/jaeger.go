@@ -2,7 +2,6 @@ package opentrace
 
 import (
 	"context"
-	"time"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"go.opentelemetry.io/otel"
@@ -14,11 +13,6 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
-
-type Config struct {
-	DSN            string
-	ConnectTimeout time.Duration
-}
 
 func DefaultTracer() trace.Tracer {
 	return otel.Tracer(buildinfo.AppName)

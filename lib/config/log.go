@@ -11,7 +11,7 @@ type Log struct {
 	DisableStdlog bool   `json:"disable_stdlog" toml:"-" mapstructure:"-"`
 }
 
-func (c *Log) Validate() error {
+func (c *Log) VerifyConfig() error {
 	switch c.Level {
 	case "debug", "warn", "info", "error":
 	default:

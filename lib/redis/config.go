@@ -1,4 +1,4 @@
-package config
+package redis
 
 import (
 	"fmt"
@@ -7,18 +7,18 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type Redis struct {
+type Config struct {
 	DSN                string        `json:"dsn" toml:"dsn" mapstructure:"dsn"`
 	ConnetTimeout      time.Duration `json:"connect_timeout" toml:"-" mapstructure:"-"`
 	StartupRetryTimes  int           `json:"startup_retry_times" toml:"-" mapstructure:"-"`
 	StartupRetryPeriod time.Duration `json:"startup_retry_period" toml:"-" mapstructure:"-"`
 }
 
-func (c *Redis) Name() string {
+func (c *Config) Name() string {
 	return "redis"
 }
 
-func (c *Redis) Validate() error {
+func (c *Config) VerifyConfig() error {
 	if c.DSN == "" {
 		return fmt.Errorf("redis.dsn has no value")
 	}
@@ -34,11 +34,11 @@ func (c *Redis) Validate() error {
 	return nil
 }
 
-func (r *Redis) String() string {
+func (r *Config) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(r)
 	return string(buf)
 }
 
-func (r *Redis) MarshalConfig() ([]byte, error) {
+func (r *Config) MarshalConfig() ([]byte, error) {
 	return jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(r)
 }

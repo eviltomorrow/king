@@ -1,24 +1,23 @@
 package conf
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/eviltomorrow/king/lib/config"
+	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
-	"github.com/eviltomorrow/king/lib/system"
+	"github.com/eviltomorrow/king/lib/grpc/server"
+	"github.com/eviltomorrow/king/lib/opentrace"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Etcd  *config.Etcd      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
+	Etcd  *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
 	Log   *config.Log       `json:"log" toml:"log" mapstructure:"log"`
-	MySQL *config.MySQL     `json:"mysql" toml:"mysql" mapstructure:"mysql"`
-	GRPC  *config.GRPC      `json:"grpc" toml:"grpc" mapstructure:"grpc"`
-	Otel  *config.Opentrace `json:"otel" toml:"otel" mapstructure:"otel"`
+	MySQL *mysql.Config     `json:"mysql" toml:"mysql" mapstructure:"mysql"`
+	GRPC  *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
+	Otel  *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
 }
 
 func (c *Config) String() string {
@@ -27,50 +26,21 @@ func (c *Config) String() string {
 }
 
 func ReadConfig(opts *flagsutil.Flags) (*Config, error) {
-	DefaultConfig.Log.DisableStdlog = opts.DisableStdlog
+	c := initializeDefaultConfig(opts)
 
-	var findConfigFile = func(path string) (string, error) {
-		for _, p := range []string{
-			path,
-			filepath.Join(system.Directory.EtcDir, "config.toml"),
-		} {
-			fi, err := os.Stat(p)
-			if err == nil && !fi.IsDir() {
-				return p, nil
-			}
-		}
-		return "", fmt.Errorf("not found config file")
-	}
-
-	configFile, err := findConfigFile(opts.ConfigFile)
-	if err != nil {
+	if err := config.ReadFile(c, opts.ConfigFile); err != nil {
 		return nil, err
 	}
-
-	v := viper.New()
-	v.SetConfigFile(configFile)
-	v.SetConfigType("toml")
-
-	if err := v.ReadInConfig(); err != nil {
-		return nil, err
-	}
-	if err := v.Unmarshal(DefaultConfig); err != nil {
-		return nil, err
-	}
-	if err := DefaultConfig.validate(); err != nil {
-		return nil, err
-	}
-
-	return DefaultConfig, nil
+	return c, nil
 }
 
-func (c *Config) validate() error {
+func (c *Config) IsConfigValid() error {
 	for _, f := range []func() error{
-		c.Etcd.Validate,
-		c.MySQL.Validate,
-		c.Otel.Validate,
-		c.Log.Validate,
-		c.GRPC.Validate,
+		c.Etcd.VerifyConfig,
+		c.MySQL.VerifyConfig,
+		c.Otel.VerifyConfig,
+		c.Log.VerifyConfig,
+		c.GRPC.VerifyConfig,
 	} {
 		if err := f(); err != nil {
 			return err
@@ -79,38 +49,40 @@ func (c *Config) validate() error {
 	return nil
 }
 
-var DefaultConfig = &Config{
-	Etcd: &config.Etcd{
-		Endpoints: []string{
-			"127.0.0.1:2379",
+func initializeDefaultConfig(opts *flagsutil.Flags) *Config {
+	return &Config{
+		Etcd: &etcd.Config{
+			Endpoints: []string{
+				"127.0.0.1:2379",
+			},
+			ConnetTimeout:      5 * time.Second,
+			StartupRetryTimes:  3,
+			StartupRetryPeriod: 5 * time.Second,
 		},
-		ConnetTimeout:      5 * time.Second,
-		StartupRetryTimes:  3,
-		StartupRetryPeriod: 5 * time.Second,
-	},
-	MySQL: &config.MySQL{
-		DSN:     "admin:admin123@tcp(127.0.0.1:3306)/king_storage?charset=utf8mb4&parseTime=true&loc=Local",
-		MinOpen: 3,
-		MaxOpen: 10,
+		MySQL: &mysql.Config{
+			DSN:     "admin:admin123@tcp(127.0.0.1:3306)/king_storage?charset=utf8mb4&parseTime=true&loc=Local",
+			MinOpen: 3,
+			MaxOpen: 10,
 
-		MaxLifetime:        5 * time.Minute,
-		ConnetTimeout:      5 * time.Second,
-		StartupRetryTimes:  3,
-		StartupRetryPeriod: 5 * time.Second,
-	},
-	Otel: &config.Opentrace{
-		Enable:        true,
-		DSN:           "127.0.0.1:4317",
-		ConnetTimeout: 5 * time.Second,
-	},
-	Log: &config.Log{
-		Level:         "info",
-		DisableStdlog: false,
-	},
-	GRPC: &config.GRPC{
-		AccessIP:   "",
-		BindIP:     "0.0.0.0",
-		BindPort:   50001,
-		DisableTLS: true,
-	},
+			MaxLifetime:        5 * time.Minute,
+			ConnetTimeout:      5 * time.Second,
+			StartupRetryTimes:  3,
+			StartupRetryPeriod: 5 * time.Second,
+		},
+		Otel: &opentrace.Config{
+			Enable:         true,
+			DSN:            "127.0.0.1:4317",
+			ConnectTimeout: 5 * time.Second,
+		},
+		Log: &config.Log{
+			Level:         "info",
+			DisableStdlog: opts.DisableStdlog,
+		},
+		GRPC: &server.Config{
+			AccessIP:   "",
+			BindIP:     "0.0.0.0",
+			BindPort:   50001,
+			DisableTLS: true,
+		},
+	}
 }
