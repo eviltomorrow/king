@@ -190,7 +190,7 @@ func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer)
 	return nil
 }
 
-func (g *Storage) GetQuotesLatest(req *pb.GetQuoteLatestRequest, resp pb.Storage_GetQuoteLatestServer) error {
+func (g *Storage) GetQuoteLatest(req *pb.GetQuoteLatestRequest, resp pb.Storage_GetQuoteLatestServer) error {
 	var (
 		limit   int64 = req.Limit
 		kind    string

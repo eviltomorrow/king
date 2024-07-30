@@ -111,6 +111,7 @@ func (g *GRPC) Serve() error {
 	g.ctx, g.cancel = context.WithCancel(context.Background())
 	if etcd.Client != nil {
 		resolver.Register(lb.NewBuilder(etcd.Client))
+
 		g.revokeFunc, err = etcd.RegisterService(g.ctx, buildinfo.AppName, system.Network.AccessIP, g.BindPort, 10)
 		if err != nil {
 			return err

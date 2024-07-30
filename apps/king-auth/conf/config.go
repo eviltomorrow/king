@@ -36,7 +36,7 @@ func (c *Config) String() string {
 }
 
 func ReadConfig(opts *flagsutil.Flags) (*Config, error) {
-	c := initializeDefaultConfig(opts)
+	c := InitializeDefaultConfig(opts)
 
 	if err := config.ReadFile(c, opts.ConfigFile); err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (c *Config) IsConfigValid() error {
 	return nil
 }
 
-func initializeDefaultConfig(opts *flagsutil.Flags) *Config {
+func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 	return &Config{
 		Global: &Global{
 			AccessTokenExpiresIn:  10 * time.Minute,
