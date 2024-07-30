@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"sync"
 	"testing"
 	"time"
 
@@ -14,29 +13,15 @@ import (
 )
 
 func TestNewK(t *testing.T) {
-	var pipe = make(chan *pb.Stock, 64)
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		for stock := range pipe {
-			quotes, err := data.FetchQuote(context.Background(), time.Now(), stock.Code)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			k, err := chart.NewK(context.Background(), stock, quotes)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			fmt.Println(k)
-		}
-		wg.Done()
-	}()
-	if err := data.FetchStock(context.Background(), pipe); err != nil {
+	quotes, err := data.FetchQuote(context.Background(), time.Now(), "sh600519")
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	wg.Wait()
+	k, err := chart.NewK(context.Background(), &pb.Stock{Name: "贵州茅台", Code: "sh600519"}, quotes)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(k)
 }

@@ -6,5 +6,5 @@ import (
 
 func calculateMa(closed []float64) float64 {
 	sum := mathutil.Sum(closed)
-	return mathutil.TruncN(sum/float64(len(closed)), 3)
+	return mathutil.Trunc2(sum / float64(len(closed)))
 }

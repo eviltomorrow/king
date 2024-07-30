@@ -35,7 +35,6 @@ func FetchStock(ctx context.Context, pipe chan *pb.Stock) error {
 			return err
 		}
 		pipe <- stock
-		break
 	}
 	close(pipe)
 
@@ -49,6 +48,7 @@ func FetchQuote(ctx context.Context, date time.Time, code string) ([]*pb.Quote, 
 		}
 		return quotes
 	}
+
 	stub, closeFunc, err := client.NewStorageWithEtcd()
 	if err != nil {
 		return nil, err
