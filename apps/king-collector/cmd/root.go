@@ -71,6 +71,7 @@ func RunApp() error {
 		if err := component.Init(); err != nil {
 			return fmt.Errorf("component init failure, nest error: %v", err)
 		}
+		finalizer.RegisterCleanupFuncs(component.Close)
 	}
 
 	s := server.NewGRPC(c.GRPC,

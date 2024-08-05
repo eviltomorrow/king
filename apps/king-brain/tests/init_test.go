@@ -6,6 +6,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-brain/conf"
 	"github.com/eviltomorrow/king/lib/envutil"
 	"github.com/eviltomorrow/king/lib/etcd"
+	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/infrastructure"
@@ -28,6 +29,7 @@ func init() {
 		if err := component.Init(); err != nil {
 			log.Fatalf("component init failure, nest error: %v", err)
 		}
+		finalizer.RegisterCleanupFuncs(component.Close)
 	}
 
 	resolver.Register(lb.NewBuilder(etcd.Client))

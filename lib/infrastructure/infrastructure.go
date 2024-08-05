@@ -2,8 +2,6 @@ package infrastructure
 
 import (
 	"fmt"
-
-	"github.com/eviltomorrow/king/lib/finalizer"
 )
 
 type infrastructure struct {
@@ -29,8 +27,16 @@ func (c *Component) Init() error {
 	if err := c.c.Connect(); err != nil {
 		return fmt.Errorf("connect to %s failure, nest error: %v", c.name, err)
 	}
-	finalizer.RegisterCleanupFuncs(c.c.Close)
+
 	return nil
+}
+
+func (c *Component) Close() error {
+	if c.c == nil {
+		return nil
+	}
+
+	return c.c.Close()
 }
 
 type ConnectClose interface {

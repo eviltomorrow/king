@@ -7,6 +7,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-ctl/cmd/metadata"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/etcd"
+	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/infrastructure"
 	"github.com/spf13/cobra"
@@ -49,6 +50,8 @@ func RunApp() error {
 	if err := component.Init(); err != nil {
 		return err
 	}
+	finalizer.RegisterCleanupFuncs(component.Close)
+
 	resolver.Register(lb.NewBuilder(etcd.Client))
 
 	return RootCommand.Execute()

@@ -72,6 +72,7 @@ func RunApp() error {
 		if err := component.Init(); err != nil {
 			return fmt.Errorf("component init failure, nest error: %v", err)
 		}
+		finalizer.RegisterCleanupFuncs(component.Close)
 	}
 
 	resolver.Register(lb.NewBuilder(etcd.Client))
