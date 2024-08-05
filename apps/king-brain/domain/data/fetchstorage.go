@@ -26,19 +26,21 @@ func FetchStock(ctx context.Context, pipe chan *pb.Stock) error {
 		return err
 	}
 
+	var e error = nil
 	for {
 		stock, err := resp.Recv()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			return err
+			e = err
+			break
 		}
 		pipe <- stock
 	}
 	close(pipe)
 
-	return nil
+	return e
 }
 
 func FetchQuote(ctx context.Context, date time.Time, code string) ([]*pb.Quote, error) {
