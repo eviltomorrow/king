@@ -9,7 +9,6 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 )
 
 func TestNewK(t *testing.T) {
@@ -18,7 +17,7 @@ func TestNewK(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	k, err := chart.NewK(context.Background(), &pb.Stock{Name: "贵州茅台", Code: "sh600519"}, quotes)
+	k, err := chart.NewK(context.Background(), &data.Stock{Name: "贵州茅台", Code: "sh600519"}, quotes)
 	if err != nil {
 		log.Fatal(err)
 	}

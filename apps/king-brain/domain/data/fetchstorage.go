@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func FetchStock(ctx context.Context, pipe chan *pb.Stock) error {
+func FetchStock(ctx context.Context, pipe chan *Stock) error {
 	if pipe == nil {
 		return fmt.Errorf("panic: invalid pipe")
 	}
@@ -36,15 +36,19 @@ func FetchStock(ctx context.Context, pipe chan *pb.Stock) error {
 			e = err
 			break
 		}
-		pipe <- stock
+		pipe <- &Stock{
+			Code:    stock.Code,
+			Name:    stock.Name,
+			Suspend: stock.Suspend,
+		}
 	}
 	close(pipe)
 
 	return e
 }
 
-func FetchQuote(ctx context.Context, date time.Time, code string) ([]*pb.Quote, error) {
-	reverse := func(quotes []*pb.Quote) []*pb.Quote {
+func FetchQuote(ctx context.Context, date time.Time, code string) ([]*Quote, error) {
+	reverse := func(quotes []*Quote) []*Quote {
 		for i, j := 0, len(quotes)-1; i < j; i, j = i+1, j-1 {
 			quotes[i], quotes[j] = quotes[j], quotes[i]
 		}
@@ -67,7 +71,7 @@ func FetchQuote(ctx context.Context, date time.Time, code string) ([]*pb.Quote, 
 		return nil, err
 	}
 
-	var data = make([]*pb.Quote, 0, limit)
+	var data = make([]*Quote, 0, limit)
 	for {
 		quote, err := resp.Recv()
 		if err == io.EOF {
@@ -76,7 +80,20 @@ func FetchQuote(ctx context.Context, date time.Time, code string) ([]*pb.Quote, 
 		if err != nil {
 			return nil, err
 		}
-		data = append(data, quote)
+
+		var q = &Quote{
+			Code:            quote.Code,
+			Open:            quote.Open,
+			Close:           quote.Close,
+			High:            quote.High,
+			Low:             quote.Low,
+			YesterdayClosed: quote.YesterdayClosed,
+			Volume:          quote.Volume,
+			Account:         quote.Account,
+			Date:            quote.Date,
+			NumOfYear:       quote.NumOfYear,
+		}
+		data = append(data, q)
 	}
 
 	return reverse(data), nil

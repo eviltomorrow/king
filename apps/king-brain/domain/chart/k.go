@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
+	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -42,7 +42,7 @@ type Candlestick struct {
 	MA map[MaKind]float64
 }
 
-func NewK(ctx context.Context, stock *pb.Stock, quotes []*pb.Quote) (*K, error) {
+func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, error) {
 	var (
 		candlesticks = make([]*Candlestick, 0, len(quotes))
 
