@@ -8,7 +8,7 @@ import (
 )
 
 func TestSendEmail(t *testing.T) {
-	path := "../../deployments/apps/conf/king-notification/smtp.json"
+	path := "../../apps/king-notification/conf/etc/smtp.json"
 	smtp, err := conf.LoadSMTP(path)
 	if err != nil {
 		t.Fatal(err)
