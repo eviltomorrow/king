@@ -1,4 +1,4 @@
-package config
+package log
 
 import (
 	"fmt"
@@ -6,12 +6,12 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type Log struct {
+type Config struct {
 	Level         string `json:"level" toml:"level" mapstructure:"level"`
 	DisableStdlog bool   `json:"disable_stdlog" toml:"-" mapstructure:"-"`
 }
 
-func (c *Log) VerifyConfig() error {
+func (c *Config) VerifyConfig() error {
 	switch c.Level {
 	case "debug", "warn", "info", "error":
 	default:
@@ -20,7 +20,7 @@ func (c *Log) VerifyConfig() error {
 	return nil
 }
 
-func (c *Log) String() string {
+func (c *Config) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
 	return string(buf)
 }

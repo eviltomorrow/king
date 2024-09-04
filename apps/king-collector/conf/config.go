@@ -8,6 +8,7 @@ import (
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/grpc/server"
+	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	jsoniter "github.com/json-iterator/go"
 )
@@ -15,7 +16,7 @@ import (
 type Config struct {
 	MongoDB   *mongodb.Config   `json:"mongodb" toml:"mongodb" mapstructure:"mongodb"`
 	Etcd      *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
-	Log       *config.Log       `json:"log" toml:"log" mapstructure:"log"`
+	Log       *log.Config       `json:"log" toml:"log" mapstructure:"log"`
 	GRPC      *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
 	Otel      *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
 	Collector *Collector        `json:"collector" toml:"collector" mapstructure:"collector"`
@@ -82,7 +83,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			DSN:            "127.0.0.1:4317",
 			ConnectTimeout: 5 * time.Second,
 		},
-		Log: &config.Log{
+		Log: &log.Config{
 			Level:         "info",
 			DisableStdlog: opts.DisableStdlog,
 		},

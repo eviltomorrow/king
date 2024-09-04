@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/eviltomorrow/king/lib/config"
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
 	"github.com/eviltomorrow/king/lib/grpc/server"
+	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
 )
 
-func InitBaseComponent(otel *opentrace.Config, log *config.Log, server *server.Config) error {
+func InitBaseComponent(otel *opentrace.Config, log *log.Config, server *server.Config) error {
 	global, prop, err := zlog.InitLogger(&zlog.Config{
 		Level:  log.Level,
 		Format: "json",

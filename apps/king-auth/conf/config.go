@@ -8,6 +8,7 @@ import (
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/grpc/server"
+	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/redis"
 	jsoniter "github.com/json-iterator/go"
@@ -16,7 +17,7 @@ import (
 type Config struct {
 	Global *Global           `json:"global" toml:"global" mapstructure:"global"`
 	Etcd   *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
-	Log    *config.Log       `json:"log" toml:"log" mapstructure:"log"`
+	Log    *log.Config       `json:"log" toml:"log" mapstructure:"log"`
 	MySQL  *mysql.Config     `json:"mysql" toml:"mysql" mapstructure:"mysql"`
 	Redis  *redis.Config     `json:"redis" toml:"redis" mapstructure:"redis"`
 	GRPC   *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
@@ -97,7 +98,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			StartupRetryTimes:  3,
 			StartupRetryPeriod: 5 * time.Second,
 		},
-		Log: &config.Log{
+		Log: &log.Config{
 			Level:         "info",
 			DisableStdlog: opts.DisableStdlog,
 		},
