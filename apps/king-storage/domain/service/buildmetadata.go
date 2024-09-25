@@ -21,7 +21,7 @@ func BuildQuoteDayWitchMetadata(data *model.Metadata, date time.Time) (*db.Quote
 	}
 
 	var xd float64 = 1.0
-	if len(latest) == 1 && latest[0].Close != 0 && latest[0].Date.Format("2006-01-02") != data.Date && latest[0].Close != data.YesterdayClosed {
+	if len(latest) == 1 && latest[0].Close != 0 && latest[0].Date.Format(time.DateOnly) != data.Date && latest[0].Close != data.YesterdayClosed {
 		xd = data.YesterdayClosed / latest[0].Close
 	}
 
@@ -45,8 +45,8 @@ func BuildQuoteDayWitchMetadata(data *model.Metadata, date time.Time) (*db.Quote
 
 func BuildQuoteWeekWithQuoteDay(code string, date time.Time) (*db.Quote, error) {
 	var (
-		begin = date.AddDate(0, 0, -5).Format("2006-01-02")
-		end   = date.Format("2006-01-02")
+		begin = date.AddDate(0, 0, -5).Format(time.DateOnly)
+		end   = date.Format(time.DateOnly)
 	)
 
 	days, err := db.QuoteWithSelectBetweenByCodeAndDate(mysql.DB, db.Day, code, begin, end, timeout)

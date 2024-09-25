@@ -16,7 +16,7 @@ import (
 
 var RootCommand = &cobra.Command{
 	Short: "king-ctl tool for king-*(all service).",
-	Long:  "king-ctl tool for king-*(all service), support for king-collector and so on.",
+	Long:  "King 程序辅助终端",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},

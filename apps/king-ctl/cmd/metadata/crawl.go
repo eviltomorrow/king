@@ -13,7 +13,7 @@ import (
 
 var CrawlCommand = &cobra.Command{
 	Use:   "crawl",
-	Short: "Crawl data manual from specify source[sina/net126]",
+	Short: "抓取指定数据源的数据[sina/net126]",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := crawl(context.Background()); err != nil {
 			log.Printf("crawl data failure, nest error: %v", err)
@@ -27,13 +27,14 @@ var (
 )
 
 func init() {
-	CrawlCommand.PersistentFlags().StringVar(&source, "source", "sina", "crawl data from [sina/net126]")
+	CrawlCommand.PersistentFlags().StringVar(&source, "source", "sina", "指定数据源[sina/net126]")
+	CrawlCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
 func crawl(ctx context.Context) error {
 	begin := time.Now()
 
-	stub, closeFunc, err := client.NewCollectorWithEtcd()
+	stub, closeFunc, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
 	if err != nil {
 		return err
 	}
@@ -43,6 +44,6 @@ func crawl(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[Status] Complete, Source: %s, Total: %d, Ignore: %d, Actual: %d, Cost: %v\r\n", source, resp.Total, resp.Ignore, resp.Total-resp.Ignore, time.Since(begin))
+	fmt.Printf("[Status] 完成, 源: %s, 总数: %d, 忽略: %d, 实际数量: %d, 花费: %v\r\n", source, resp.Total, resp.Ignore, resp.Total-resp.Ignore, time.Since(begin))
 	return nil
 }

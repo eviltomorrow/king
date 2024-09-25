@@ -13,7 +13,7 @@ import (
 
 var ArchiveCommand = &cobra.Command{
 	Use:   "archive",
-	Short: "Archive metadata to storage",
+	Short: "归档数据",
 	Run: func(cmd *cobra.Command, args []string) {
 		begin, err := time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", begin))
 		if err != nil {
@@ -34,9 +34,9 @@ var ArchiveCommand = &cobra.Command{
 
 			total, stock, day, week, err := store(context.Background(), date)
 			if err != nil {
-				log.Printf("Archive metadata failure, nest error: %v, date: %v", err, date)
+				log.Printf("归档失败, nest error: %v, date: %v", err, date)
 			} else {
-				fmt.Printf("Archive metadata success, date: %v, total: %v, stock: %v, day: %v, week: %v, cost: %v\r\n", date, total, stock, day, week, time.Since(now))
+				fmt.Printf("归档完成, 日期: %v, 总数: %v, 股票数量: %v, 日交易量: %v, 周交易量: %v, 花费: %v\r\n", date, total, stock, day, week, time.Since(now))
 			}
 			begin = begin.Add(24 * time.Hour)
 		}
@@ -49,15 +49,15 @@ var (
 )
 
 func init() {
-	ArchiveCommand.PersistentFlags().StringVar(&begin, "begin", "", "specify the begin date")
+	ArchiveCommand.PersistentFlags().StringVar(&begin, "begin", "", "指定开始日期")
 	ArchiveCommand.MarkPersistentFlagRequired("begin")
 
-	ArchiveCommand.PersistentFlags().StringVar(&end, "end", time.Now().Format(time.DateOnly), "specify the end date")
-
+	ArchiveCommand.PersistentFlags().StringVar(&end, "end", time.Now().Format(time.DateOnly), "指定结束日期")
+	ArchiveCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
 func store(ctx context.Context, date string) (int64, int64, int64, int64, error) {
-	stub, closeFunc, err := client.NewCollectorWithEtcd()
+	stub, closeFunc, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
 	if err != nil {
 		return 0, 0, 0, 0, err
 	}

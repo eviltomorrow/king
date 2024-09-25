@@ -68,7 +68,7 @@ func (g *Storage) ArchiveMetadata(ps pb.Storage_ArchiveMetadataServer) error {
 
 		wrapper, ok := data[md.Date]
 		if !ok {
-			d, err := time.Parse("2006-01-02", md.Date)
+			d, err := time.Parse(time.DateOnly, md.Date)
 			if err != nil {
 				return err
 			}
@@ -224,7 +224,7 @@ func (g *Storage) GetQuoteLatest(req *pb.GetQuoteLatestRequest, resp pb.Storage_
 			YesterdayClosed: quote.YesterdayClosed,
 			Volume:          quote.Volume,
 			Account:         quote.Account,
-			Date:            quote.Date.Format("2006-01-02"),
+			Date:            quote.Date.Format(time.DateOnly),
 			NumOfYear:       int32(quote.NumOfYear),
 		}); err != nil {
 			return err
