@@ -15,28 +15,28 @@ import (
 	"go.uber.org/zap"
 )
 
-func ArchiveMetadataToStorage(ctx context.Context, date string) (int64, int64, int64, int64, error) {
+func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, error) {
 	client, closeFunc, err := client_grpc.NewStorageWithEtcd()
 	if err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, err
 	}
 	defer closeFunc()
 
-	stub, err := client.ArchiveMetadata(ctx)
+	stub, err := client.StoreMetadata(ctx)
 	if err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, err
 	}
 
 	var (
-		offset, limit, total int64 = 0, 100, 0
-		lastID               string
-		timeout              = 20 * time.Second
+		offset, limit int64 = 0, 100
+		lastID        string
+		timeout       = 20 * time.Second
 	)
 
 	for {
 		metadata, err := db.SelectMetadataRange(mongodb.DB, offset, limit, date, lastID, timeout)
 		if err != nil {
-			return 0, 0, 0, 0, err
+			return 0, 0, err
 		}
 
 		for _, md := range metadata {
@@ -55,9 +55,8 @@ func ArchiveMetadataToStorage(ctx context.Context, date string) (int64, int64, i
 				Time:            md.Time,
 				Suspend:         md.Suspend,
 			}); err != nil {
-				return 0, 0, 0, 0, err
+				return 0, 0, err
 			}
-			total++
 		}
 		if len(metadata) < int(limit) {
 			break
@@ -67,9 +66,9 @@ func ArchiveMetadataToStorage(ctx context.Context, date string) (int64, int64, i
 
 	resp, err := stub.CloseAndRecv()
 	if err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, err
 	}
-	return total, resp.Affected.Stock, resp.Affected.QuoteDay, resp.Affected.QuoteWeek, nil
+	return resp.Affected.Stock, resp.Affected.Quote, nil
 }
 
 func SynchronizeMetadataQuick(ctx context.Context, source string, baseCodeList []string, randomPeriod []int) (int64, int64, error) {

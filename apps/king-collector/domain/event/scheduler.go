@@ -17,9 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	lastDay int64 = -1
-)
+var lastDay int64 = -1
 
 type Scheduler struct {
 	config *conf.Collector
@@ -60,10 +58,10 @@ func (s *Scheduler) fetchMetadataEveryWeekDay(ctx context.Context, source string
 
 	zlog.Info("Fetch metadata every weekday begin")
 	var (
-		affectedStock, affectedDay, affectedWeek int64
-		total, ignore                            int64
-		e                                        error
-		begin                                    = time.Now()
+		affectedStock, affectedQuote int64
+		total, ignore                int64
+		e                            error
+		begin                        = time.Now()
 	)
 
 	defer func() {
@@ -95,7 +93,7 @@ func (s *Scheduler) fetchMetadataEveryWeekDay(ctx context.Context, source string
 	ctx, span = opentrace.DefaultTracer().Start(ctx, "ArchiveMetadataToStorage")
 	defer span.End()
 
-	_, affectedStock, affectedDay, affectedWeek, e = metadata.ArchiveMetadataToStorage(ctx, begin.Format(time.DateOnly))
+	affectedStock, affectedQuote, e = metadata.StoreMetadataToStorage(ctx, begin.Format(time.DateOnly))
 	if e != nil {
 		span.RecordError(e)
 		return e
@@ -107,6 +105,6 @@ func (s *Scheduler) fetchMetadataEveryWeekDay(ctx context.Context, source string
 	}
 
 	lastDay = total
-	zlog.Info("Archive metedata every weekday complete", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Int64("stock-affetced", affectedStock), zap.Int64("day-affected", affectedDay), zap.Int64("week-affected", affectedWeek), zap.Duration("cost", time.Since(begin)))
+	zlog.Info("Archive metedata every weekday complete", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Int64("stock-affetced", affectedStock), zap.Int64("day-affected", affectedQuote), zap.Duration("cost", time.Since(begin)))
 	return nil
 }

@@ -7,20 +7,19 @@ option go_package = "./;pb";
 package storage;
 
 service Storage {
-    rpc ArchiveMetadata(stream Metadata) returns (ArchiveResponse);
+    rpc StoreMetadata(stream Metadata) returns (StoreResponse);
 
     rpc GetStockOne(google.protobuf.StringValue) returns (Stock);
     rpc GetStockAll(google.protobuf.Empty) returns (stream Stock);
     rpc GetQuoteLatest(GetQuoteLatestRequest) returns (stream Quote);
 }
 
-message ArchiveResponse {
-    message Affected {
+message StoreResponse {
+    message AffectedCount {
         int64 stock = 1;
-        int64 quote_day = 2;
-        int64 quote_week = 3;
+        int64 quote = 2;
     }
-    Affected affected = 1;
+    AffectedCount affected = 1;
 }
 
 message Stock {
@@ -68,5 +67,4 @@ message Metadata {
     string date = 11;
     string time = 12;
     string suspend = 13;
-
 }

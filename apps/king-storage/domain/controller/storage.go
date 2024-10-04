@@ -6,7 +6,6 @@ import (
 	"io"
 	"sync"
 	"sync/atomic"
-
 	"time"
 
 	"go.uber.org/zap"
@@ -42,7 +41,7 @@ const PER_COMMIT_LIMIT = 32
 
 var sema = semaphore.NewWeighted(32)
 
-func (g *Storage) ArchiveMetadata(ps pb.Storage_ArchiveMetadataServer) error {
+func (g *Storage) StoreMetadata(ps pb.Storage_StoreMetadataServer) error {
 	type MetadataWrapper struct {
 		Date time.Time
 		Data []*model.Metadata
@@ -51,8 +50,7 @@ func (g *Storage) ArchiveMetadata(ps pb.Storage_ArchiveMetadataServer) error {
 
 	var (
 		as atomic.Int64
-		ad atomic.Int64
-		aw atomic.Int64
+		aq atomic.Int64
 
 		wg sync.WaitGroup
 	)
@@ -105,14 +103,13 @@ func (g *Storage) ArchiveMetadata(ps pb.Storage_ArchiveMetadataServer) error {
 
 				// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
 				// defer newspan.End()
-				s, d, w, err := service.ArchiveMetadata(wrapper.Date, ch)
+				s, q, err := service.StoreMetadata(wrapper.Date, ch)
 				if err != nil {
 					zlog.Error("Store metadata failure", zap.Error(err))
 					return
 				}
 				as.Add(s)
-				ad.Add(d)
-				aw.Add(w)
+				aq.Add(q)
 			}()
 			for _, md := range wrapper.Data {
 				ch <- md
@@ -135,15 +132,14 @@ func (g *Storage) ArchiveMetadata(ps pb.Storage_ArchiveMetadataServer) error {
 
 			// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
 			// defer newspan.End()
-			s, d, w, err := service.ArchiveMetadata(wrapper.Date, ch)
+			s, q, err := service.StoreMetadata(wrapper.Date, ch)
 			if err != nil {
 				zlog.Error("Store metadata failure", zap.Error(err))
 				// newspan.RecordError(err)
 				return
 			}
 			as.Add(s)
-			ad.Add(d)
-			aw.Add(w)
+			aq.Add(q)
 		}()
 		for _, md := range wrapper.Data {
 			ch <- md
@@ -155,13 +151,7 @@ func (g *Storage) ArchiveMetadata(ps pb.Storage_ArchiveMetadataServer) error {
 
 	wg.Wait()
 
-	return ps.SendAndClose(&pb.ArchiveResponse{
-		Affected: &pb.ArchiveResponse_Affected{
-			Stock:     as.Load(),
-			QuoteDay:  ad.Load(),
-			QuoteWeek: aw.Load(),
-		},
-	})
+	return ps.SendAndClose(nil)
 }
 
 func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer) error {

@@ -31,7 +31,7 @@ func init() {
 		},
 	})
 
-	RootCommand.AddCommand(metadata.ArchiveCommand)
+	RootCommand.AddCommand(metadata.StoreCommand)
 	RootCommand.AddCommand(metadata.CrawlCommand)
 }
 

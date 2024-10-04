@@ -49,7 +49,7 @@ func (c *Collector) CrawlMetadata(ctx context.Context, req *wrapperspb.StringVal
 	return &pb.CrawlMetadataResponse{Total: total, Ignore: ignore}, nil
 }
 
-func (c *Collector) ArchiveMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.ArchiveMetadataResponse, error) {
+func (c *Collector) StoreMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.StoreMetadataResponse, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, date is nil")
 	}
@@ -57,14 +57,13 @@ func (c *Collector) ArchiveMetadata(ctx context.Context, req *wrapperspb.StringV
 	ctx, span := opentrace.DefaultTracer().Start(ctx, "StoreMetadataToStorage")
 	defer span.End()
 
-	total, stock, day, week, err := metadata.ArchiveMetadataToStorage(ctx, req.Value)
+	stock, quote, err := metadata.StoreMetadataToStorage(ctx, req.Value)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
 	}
-	return &pb.ArchiveMetadataResponse{Total: total, Affected: &pb.ArchiveMetadataResponse_Affected{
-		Stock:     stock,
-		QuoteDay:  day,
-		QuoteWeek: week,
+	return &pb.StoreMetadataResponse{Affected: &pb.StoreMetadataResponse_AffectedCount{
+		Stock: stock,
+		Quote: quote,
 	}}, nil
 }
