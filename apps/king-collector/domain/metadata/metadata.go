@@ -93,6 +93,8 @@ func SynchronizeMetadataQuick(ctx context.Context, source string, baseCodeList [
 	return fetchMetadata(source, false, randomPeriod, baseCodeList, pipe, options)
 }
 
+var lastSyncCount int64 = -1
+
 func SynchronizeMetadataSlow(ctx context.Context, source string, baseCodeList []string, randomPeriod []int) (int64, int64, error) {
 	select {
 	case inFlightSem <- struct{}{}:
@@ -119,7 +121,14 @@ func SynchronizeMetadataSlow(ctx context.Context, source string, baseCodeList []
 			return false
 		},
 	}
-	return fetchMetadata(source, true, randomPeriod, baseCodeList, pipe, options)
+	total, ignore, err := fetchMetadata(source, true, randomPeriod, baseCodeList, pipe, options)
+
+	if lastSyncCount != -1 && (total > lastSyncCount && float64(total-lastSyncCount) > float64(lastSyncCount)*0.1) {
+		return total, ignore, fmt.Errorf("possible missing data, total: %v", total)
+	}
+
+	lastSyncCount = total
+	return total, ignore, err
 }
 
 func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []string, pipe chan *model.Metadata, options []func(*model.Metadata) bool) (int64, int64, error) {

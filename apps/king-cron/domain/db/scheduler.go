@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/orm"
 	jsoniter "github.com/json-iterator/go"
@@ -32,6 +33,9 @@ func SchedulerRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record *
 func SchedulerRecordWithUpdateStatus(ctx context.Context, exec mysql.Exec, status, code, errorMsg string, id string) (int64, error) {
 	if status == "" {
 		return 0, fmt.Errorf("status is invalid")
+	}
+	if code != codes.SUCCESS && errorMsg != "" {
+		return 0, fmt.Errorf("code is invalid, msg: %s", errorMsg)
 	}
 
 	value := map[string]interface{}{
@@ -62,6 +66,29 @@ func SchedulerRecordWithSelectOneByDateName(ctx context.Context, exec mysql.Exec
 		)
 	}
 	if err := orm.TableWithSelectOne(ctx, exec, TableSchedulerRecordName, schedulerRecordFields, map[string]interface{}{FieldSchedulerRecordName: name, fmt.Sprintf("DATE_FORMAT(`%s`, '%%Y-%%m-%%d')", FieldSchedulerRecordDate): date}, scan); err != nil {
+		return nil, err
+	}
+	return &record, nil
+}
+
+func SchedulerRecordWithSelectOneById(ctx context.Context, exec mysql.Exec, id string) (*SchedulerRecord, error) {
+	record := SchedulerRecord{}
+	scan := func(row *sql.Row) error {
+		return row.Scan(
+			&record.Id,
+			&record.Name,
+			&record.Date,
+			&record.ServiceName,
+			&record.FuncName,
+			&record.Status,
+			&record.Code,
+			&record.ErrorMsg,
+			&record.ParentId,
+			&record.CreateTimestamp,
+			&record.ModifyTimestamp,
+		)
+	}
+	if err := orm.TableWithSelectOne(ctx, exec, TableSchedulerRecordName, schedulerRecordFields, map[string]interface{}{FieldSchedulerRecordId: id}, scan); err != nil {
 		return nil, err
 	}
 	return &record, nil

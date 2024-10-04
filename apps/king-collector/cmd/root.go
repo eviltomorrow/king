@@ -7,7 +7,6 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-collector/conf"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/controller"
-	"github.com/eviltomorrow/king/apps/king-collector/domain/event"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/envutil"
@@ -81,10 +80,6 @@ func RunApp() error {
 		return fmt.Errorf("collector serve failure, nest error: %v", err)
 	}
 	finalizer.RegisterCleanupFuncs(s.Stop)
-
-	if err := event.NewScheduler(c.Collector).Run(); err != nil {
-		return fmt.Errorf("create scheduler failure, nest error: %v", err)
-	}
 
 	releaseFile, err := procutil.CreatePidFile()
 	if err != nil {

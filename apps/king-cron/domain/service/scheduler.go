@@ -1,11 +1,21 @@
 package service
 
-type Scheduler struct{}
+import (
+	"github.com/eviltomorrow/king/apps/king-cron/domain"
+	"github.com/robfig/cron/v3"
+)
 
-func (s *Scheduler) Register() error {
+type scheduler struct{}
+
+func NewScheduler() *scheduler {
+	cron.New()
+	return &scheduler{}
+}
+
+func (s *scheduler) Register(cron string, name string, plain *domain.Plan) error {
 	return nil
 }
 
-func (s *Scheduler) Start() error {
+func (s *scheduler) Start() error {
 	return nil
 }
