@@ -95,12 +95,15 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 		},
 		Collector: &Collector{
 			CodeList: []string{
+				"sh689009",
 				"sh688***",
 				"sh605***",
 				"sh603***",
 				"sh601***",
 				"sh600***",
+				"sz301***",
 				"sz300***",
+				"sz003816",
 				"sz0030**",
 				"sz002***",
 				"sz001***",

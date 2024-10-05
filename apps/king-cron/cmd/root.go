@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/eviltomorrow/king/apps/king-auth/domain/controller"
 	"github.com/eviltomorrow/king/apps/king-cron/conf"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/controller"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/plan"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/service"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/envutil"
@@ -75,12 +77,19 @@ func RunApp() error {
 
 	s := server.NewGRPC(
 		c.GRPC,
-		controller.NewPassport().Service(),
+		controller.NewCron().Service(),
 	)
 	if err := s.Serve(); err != nil {
-		return fmt.Errorf("auth serve failure, nest error: %v", err)
+		return fmt.Errorf("cron serve failure, nest error: %v", err)
 	}
 	finalizer.RegisterCleanupFuncs(s.Stop)
+
+	cron := service.NewScheduler()
+	cron.Register("", plan.CronWithCrawlMetadata())
+
+	if err := cron.Start(); err != nil {
+		return fmt.Errorf("cron start failure, nest error: %v", err)
+	}
 
 	releaseFile, err := procutil.CreatePidFile()
 	if err != nil {
