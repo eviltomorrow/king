@@ -25,7 +25,7 @@ func NewScheduler() *scheduler {
 
 func (s *scheduler) Register(cron string, plan *domain.Plan) {
 	_, err := s.cron.AddFunc(cron, func() {
-		if !plan.IsReady() {
+		if plan.IsCompleted() {
 			return
 		}
 
@@ -68,7 +68,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 			}
 		}
 
-		if plan.NotifyWithMsg != nil && err != nil {
+		if plan.NotifyWithMsg != nil && msg != "" {
 			err = plan.NotifyWithMsg(msg)
 			if err != nil {
 				zlog.Error("NotifyWithMsg faiulure", zap.Error(err), zap.String("name", plan.GetName()))

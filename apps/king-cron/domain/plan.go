@@ -2,12 +2,12 @@ package domain
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain/notification"
-	"github.com/eviltomorrow/king/lib/zlog"
-	"go.uber.org/zap"
 )
 
 type Plan struct {
@@ -27,14 +27,14 @@ func (p *Plan) GetName() string {
 }
 
 func (p *Plan) Reset() {
-	p.SetStatus(Ready)
+	p.SetStatus(Pending)
 }
 
-func (p *Plan) IsReady() bool {
+func (p *Plan) IsCompleted() bool {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	return p.Status == Ready
+	return p.Status == Completed
 }
 
 func (p *Plan) SetStatus(status StatusCode) {
@@ -52,8 +52,8 @@ const (
 type StatusCode int
 
 const (
-	Ready StatusCode = iota
-	Pending
+	Pending StatusCode = iota
+	Ready
 	Completed
 )
 
@@ -61,24 +61,26 @@ func DefaultNotifyWithError(title string, err error, tags []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	var e error
 	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, err.Error()); err != nil {
-		zlog.Error("Send email failure", zap.Error(err))
+		e = errors.Join(e, fmt.Errorf("send email faiulure, nest error: %v", err))
 	}
 	if err := notification.SendNtfy(ctx, title, err.Error(), "SrxOPwCBiRWZUOq0", tags); err != nil {
-		zlog.Error("Send ntfy failure", zap.Error(err))
+		e = errors.Join(e, fmt.Errorf("send ntfy faiulure, nest error: %v", err))
 	}
-	return nil
+	return e
 }
 
 func DefaultNotifyWithMsg(title, body string, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
+	var e error
 	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, body); err != nil {
-		zlog.Error("Send email failure", zap.Error(err))
+		e = errors.Join(e, fmt.Errorf("send email faiulure, nest error: %v", err))
 	}
 	if err := notification.SendNtfy(ctx, title, body, "SrxOPwCBiRWZUOq0", tags); err != nil {
-		zlog.Error("Send ntfy failure", zap.Error(err))
+		e = errors.Join(e, fmt.Errorf("send ntfy faiulure, nest error: %v", err))
 	}
-	return nil
+	return e
 }
