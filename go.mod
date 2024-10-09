@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
+	github.com/agiledragon/gomonkey/v2 v2.12.0
 	github.com/benbjohnson/clock v1.3.5
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/fatih/color v1.17.0
@@ -40,7 +41,6 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/agiledragon/gomonkey/v2 v2.12.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect

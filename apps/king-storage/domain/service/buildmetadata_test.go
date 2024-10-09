@@ -10,7 +10,7 @@ import (
 )
 
 func TestBuildQuoteDayWitchMetadata(t *testing.T) {
-	gomonkey.ApplyFunc(BuildQuoteDayWitchMetadata)
+	gomonkey.ApplyFunc(BuildQuoteDayWitchMetadata, nil)
 
 	assert := assert.New(t)
 	data := &model.Metadata{
