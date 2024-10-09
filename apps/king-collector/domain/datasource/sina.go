@@ -38,17 +38,18 @@ var (
 		"Accept-Language":           "zh-CN,zh;q=0.9,en;q=0.8,da;q=0.7,pt;q=0.6,ja;q=0.5",
 	}
 	SinaMatcher = map[string][]int{
-		"sh68": {33, 34},
-		"sh60": {33},
-		"sz0":  {33},
-		"sz3":  {33, 34},
+		"sh68":  {33, 34},
+		"sh60":  {33},
+		"sz0":   {33},
+		"sz3":   {33, 34},
+		"sh0":   {33, 34},
+		"bj8":   {38, 39},
+		"bj920": {38, 39},
 	}
 )
 
 func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
-	var (
-		url = fmt.Sprintf("https://hq.sinajs.cn/list=%s", strings.Join(codes, ","))
-	)
+	url := fmt.Sprintf("https://hq.sinajs.cn/list=%s", strings.Join(codes, ","))
 
 	data, err := client.Get(url, 20*time.Second, SinaHeader, nil)
 	if err != nil {
@@ -79,12 +80,12 @@ func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
 }
 
 func parseSinaDataToMap(data string) (map[string]string, error) {
-	var result = make(map[string]string)
+	result := make(map[string]string)
 
-	var scanner = bufio.NewScanner(strings.NewReader(data))
+	scanner := bufio.NewScanner(strings.NewReader(data))
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		var text = strings.TrimSpace(scanner.Text())
+		text := strings.TrimSpace(scanner.Text())
 		if text == "" {
 			continue
 		}
@@ -93,12 +94,12 @@ func parseSinaDataToMap(data string) (map[string]string, error) {
 			return nil, fmt.Errorf("invalid line data")
 		}
 
-		var n = strings.Index(text, "=")
+		n := strings.Index(text, "=")
 		if n == -1 {
 			return nil, fmt.Errorf("invalid line data")
 		}
 
-		var code = strings.Replace(text[:n], "var hq_str_", "", -1)
+		code := strings.Replace(text[:n], "var hq_str_", "", -1)
 		result[code] = text
 	}
 	return result, nil
@@ -120,9 +121,9 @@ func parseSinaLineToMetadata(code, data string) (*model.Metadata, error) {
 			return nil, nil
 		}
 	}
-	var attr = strings.Split(data[begin+1:end], ",")
+	attr := strings.Split(data[begin+1:end], ",")
 	if len(attr) == 1 {
-		return nil, fmt.Errorf("panic: attr foramt is unknown, nest attr: %v", attr)
+		return nil, fmt.Errorf("panic: attr format is unknown, nest attr: %v", attr)
 	}
 
 	if len(attr) >= 2 && attr[len(attr)-1] == "" {
@@ -166,7 +167,7 @@ loop:
 	// 	return nil, fmt.Errorf("panic: no support code[%v]", code)
 	// }
 
-	var md = &model.Metadata{
+	md := &model.Metadata{
 		Code: code,
 	}
 	for i, val := range attr {

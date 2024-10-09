@@ -1,15 +1,18 @@
 syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "./;pb";
 package collector;
 
 service Collector {
     // Crawl last metadata with specify source(sina, net126)
+    rpc CrawlMetadataAsync(google.protobuf.StringValue) returns (google.protobuf.Empty){}
+    // Crawl last metadata with specify source(sina, net126)
     rpc CrawlMetadata(google.protobuf.StringValue) returns (CrawlMetadataResponse){}
-    // Archive metadata to storage
-    rpc ArchiveMetadata(google.protobuf.StringValue) returns (ArchiveMetadataResponse){}
+    // Store metadata to storage
+    rpc StoreMetadata(google.protobuf.StringValue) returns (StoreMetadataResponse){}
 }
 
 message CrawlMetadataResponse {
@@ -17,13 +20,10 @@ message CrawlMetadataResponse {
     int64 ignore = 2;   
 }
 
-message ArchiveMetadataResponse {
-    int64 total = 1;
-
-    message Affected {
+message StoreMetadataResponse {
+    message AffectedCount {
         int64 stock = 1;
-        int64 quote_day= 2;
-        int64 quote_week= 3; 
+        int64 quote= 2;
     }
-    Affected affected = 2;
+    AffectedCount affected = 1;
 }

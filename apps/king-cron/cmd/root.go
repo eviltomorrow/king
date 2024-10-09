@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/eviltomorrow/king/apps/king-collector/conf"
-	"github.com/eviltomorrow/king/apps/king-collector/domain/controller"
+	"github.com/eviltomorrow/king/apps/king-cron/conf"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/controller"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/plan"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/service"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/envutil"
@@ -61,7 +63,7 @@ func RunApp() error {
 		return fmt.Errorf("init base components failure, nest error: %v", err)
 	}
 
-	for _, ic := range []infrastructure.Config{c.Etcd, c.MongoDB} {
+	for _, ic := range []infrastructure.Config{c.Etcd, c.MySQL} {
 		component, err := infrastructure.LoadConfig(ic)
 		if err != nil {
 			return fmt.Errorf("load config failure, nest error: %v, name: %s", err, ic.Name())
@@ -73,13 +75,21 @@ func RunApp() error {
 		finalizer.RegisterCleanupFuncs(component.Close)
 	}
 
-	s := server.NewGRPC(c.GRPC,
-		controller.NewCollector(c.Collector).Service(),
+	s := server.NewGRPC(
+		c.GRPC,
+		controller.NewCron().Service(),
 	)
 	if err := s.Serve(); err != nil {
-		return fmt.Errorf("collector serve failure, nest error: %v", err)
+		return fmt.Errorf("cron serve failure, nest error: %v", err)
 	}
 	finalizer.RegisterCleanupFuncs(s.Stop)
+
+	cron := service.NewScheduler()
+	cron.Register("", plan.CronWithCrawlMetadata())
+
+	if err := cron.Start(); err != nil {
+		return fmt.Errorf("cron start failure, nest error: %v", err)
+	}
 
 	releaseFile, err := procutil.CreatePidFile()
 	if err != nil {
@@ -98,7 +108,6 @@ func RunApp() error {
 
 	procutil.StopDaemon()
 	procutil.WaitForSigterm()
-
 	zlog.Info("App stop complete", zap.String("launched-time", system.LaunchTime()))
 	return nil
 }

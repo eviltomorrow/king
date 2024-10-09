@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "./;pb";
+package cron;
+
+service Scheduler {
+    rpc Callback(CallbackRequest) returns (CallbackResponse);
+}
+
+message CallbackRequest {
+    enum StatusCode {
+        SUCCESS = 0;
+        FAILURE = 1;
+    }
+    string scheduler_id = 1;
+    StatusCode code = 2;
+    string error_msg = 3;
+}
+
+message CallbackResponse {
+}

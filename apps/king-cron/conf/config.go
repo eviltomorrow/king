@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/config"
-	"github.com/eviltomorrow/king/lib/db/mongodb"
+	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/grpc/server"
@@ -14,19 +14,11 @@ import (
 )
 
 type Config struct {
-	MongoDB   *mongodb.Config   `json:"mongodb" toml:"mongodb" mapstructure:"mongodb"`
-	Etcd      *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
-	Log       *log.Config       `json:"log" toml:"log" mapstructure:"log"`
-	GRPC      *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
-	Otel      *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
-	Collector *Collector        `json:"collector" toml:"collector" mapstructure:"collector"`
-}
-
-type Collector struct {
-	CodeList     []string `json:"code_list" toml:"code_list" mapstructure:"code_list"`
-	Source       string   `json:"source" toml:"source" mapstructure:"source"`
-	Crontab      string   `json:"crontab" toml:"crontab" mapstructure:"crontab"`
-	RandomPeriod []int    `json:"random_period" toml:"random_period" mapstructure:"random_period"`
+	Etcd  *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
+	Log   *log.Config       `json:"log" toml:"log" mapstructure:"log"`
+	MySQL *mysql.Config     `json:"mysql" toml:"mysql" mapstructure:"mysql"`
+	GRPC  *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
+	Otel  *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
 }
 
 func (c *Config) String() string {
@@ -46,6 +38,7 @@ func ReadConfig(opts *flagsutil.Flags) (*Config, error) {
 func (c *Config) IsConfigValid() error {
 	for _, f := range []func() error{
 		c.Etcd.VerifyConfig,
+		c.MySQL.VerifyConfig,
 		c.Otel.VerifyConfig,
 		c.Log.VerifyConfig,
 		c.GRPC.VerifyConfig,
@@ -67,9 +60,8 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			StartupRetryTimes:  3,
 			StartupRetryPeriod: 5 * time.Second,
 		},
-		MongoDB: &mongodb.Config{
-			DSN: "mongodb://admin:admin123@mongo:27017/transaction_db",
-
+		MySQL: &mysql.Config{
+			DSN:     "admin:admin123@tcp(127.0.0.1:3306)/king_cron?charset=utf8mb4&parseTime=true&loc=Local",
 			MinOpen: 3,
 			MaxOpen: 10,
 
@@ -90,28 +82,8 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 		GRPC: &server.Config{
 			AccessIP:   "",
 			BindIP:     "0.0.0.0",
-			BindPort:   50003,
+			BindPort:   50009,
 			DisableTLS: true,
-		},
-		Collector: &Collector{
-			CodeList: []string{
-				"sh689009",
-				"sh688***",
-				"sh605***",
-				"sh603***",
-				"sh601***",
-				"sh600***",
-				"sz301***",
-				"sz300***",
-				"sz003816",
-				"sz0030**",
-				"sz002***",
-				"sz001***",
-				"sz000***",
-			},
-			Source:       "sina",
-			Crontab:      "05 18 * * MON,TUE,WED,THU,FRI",
-			RandomPeriod: []int{5, 30},
 		},
 	}
 }

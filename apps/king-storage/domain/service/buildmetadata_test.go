@@ -4,11 +4,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/eviltomorrow/king/lib/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuildQuoteDayWitchMetadata(t *testing.T) {
+	gomonkey.ApplyFunc(BuildQuoteDayWitchMetadata)
+
 	assert := assert.New(t)
 	data := &model.Metadata{
 		Source:          "sina",

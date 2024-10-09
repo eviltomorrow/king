@@ -1,7 +1,7 @@
 package service
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-storage/domain/db"
@@ -12,10 +12,10 @@ import (
 	"github.com/eviltomorrow/king/lib/timeutil"
 )
 
-var ErrNoData = errors.New("no data")
+// var ErrNoData = errors.New("no data")
 
 func BuildQuoteDayWitchMetadata(data *model.Metadata, date time.Time) (*db.Quote, error) {
-	latest, err := db.QuoteWithSelectManyLatest(mysql.DB, db.Day, data.Code, data.Date, 1, timeout)
+	latest, err := db.QuoteWithSelectManyLatest(mysql.DB, db.Day, data.Code, data.Date, 1, DBExecTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -44,18 +44,21 @@ func BuildQuoteDayWitchMetadata(data *model.Metadata, date time.Time) (*db.Quote
 }
 
 func BuildQuoteWeekWithQuoteDay(code string, date time.Time) (*db.Quote, error) {
+	if date.Weekday() != time.Friday {
+		return nil, fmt.Errorf("panic: date is not friday")
+	}
 	var (
 		begin = date.AddDate(0, 0, -5).Format(time.DateOnly)
 		end   = date.Format(time.DateOnly)
 	)
 
-	days, err := db.QuoteWithSelectBetweenByCodeAndDate(mysql.DB, db.Day, code, begin, end, timeout)
+	days, err := db.QuoteWithSelectBetweenByCodeAndDate(mysql.DB, db.Day, code, begin, end, DBExecTimeout)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(days) == 0 {
-		return nil, ErrNoData
+		return nil, nil
 	}
 
 	var (

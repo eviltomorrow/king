@@ -8,7 +8,7 @@ import (
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 )
 
-func SendEmail(ctx context.Context, subject, reason string) error {
+func SendEmail(ctx context.Context, name, address, subject, body string) error {
 	stub, closeFunc, err := client.NewEmailWithEtcd()
 	if err != nil {
 		return err
@@ -20,10 +20,10 @@ func SendEmail(ctx context.Context, subject, reason string) error {
 
 	if _, err = stub.Send(ctx, &pb.Mail{
 		To: []*pb.Contact{
-			{Name: "Shepard", Address: "eviltomorrow@163.com"},
+			{Name: name, Address: address},
 		},
 		Subject: subject,
-		Body:    reason,
+		Body:    body,
 	}); err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func SendEmail(ctx context.Context, subject, reason string) error {
 	return nil
 }
 
-func SendNtfy(ctx context.Context, title, reason string) error {
+func SendNtfy(ctx context.Context, title, msg string, topic string, tags []string) error {
 	stub, closeFunc, err := client.NewNtfyWithEtcd()
 	if err != nil {
 		return err
@@ -42,11 +42,12 @@ func SendNtfy(ctx context.Context, title, reason string) error {
 	defer cancel()
 
 	if _, err = stub.Send(ctx, &pb.Msg{
-		Topic:    "SrxOPwCBiRWZUOq0",
-		Message:  reason,
+		// Topic:    "SrxOPwCBiRWZUOq0",
+		Topic:    topic,
+		Message:  msg,
 		Title:    title,
 		Priority: 4,
-		Tags:     []string{"warning", "metadata", "crawl"},
+		Tags:     tags,
 	}); err != nil {
 		return err
 	}

@@ -149,3 +149,23 @@ CREATE TABLE `king_account`.`transaction_fee` (
 );
 CREATE INDEX idx_record_id ON `king_account`.`transaction_fee`(`record_id`);
 
+
+CREATE DATABASE IF NOT EXISTS `king_cron` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL ON king_cron.* TO 'admin'@'%';
+
+-- CREATE TABLE scheduler_record
+DROP TABLE IF EXISTS `king_cron`.`scheduler_record`;
+CREATE TABLE `king_cron`.`scheduler_record` (
+    `id` CHAR(19) NOT NULL PRIMARY KEY,
+    `name` VARCHAR(16) NOT NULL COMMENT '名称',
+    `date` TIMESTAMP NOT NULL COMMENT '日期',
+    `service_name` VARCHAR(128) NOT NULL COMMENT '服务名',
+    `func_name` VARCHAR(256) NOT NULL COMMENT '方法名',
+    `status` VARCHAR(16) NOT NULL COMMENT '状态', 
+    `code` VARCHAR(16) COMMENT '终态',
+    `error_msg` TEXT COMMENT '错误信息',
+    `parent_id` CHAR(19) COMMENT '父键'
+    `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `modify_timestamp` TIMESTAMP COMMENT '修改时间'
+);
+CREATE UNIQUE INDEX idx_name_date ON `king_cron`.`scheduler_record`(`name`, `date`);

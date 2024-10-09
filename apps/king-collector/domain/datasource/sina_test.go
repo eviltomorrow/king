@@ -8,10 +8,16 @@ import (
 
 func TestFetchMetadataFromSina(t *testing.T) {
 	_assert := assert.New(t)
-	var codes = []string{
-		"sh600030", "sz300002", "sz000001", "sh688023",
+	codes := []string{
+		"sh000001",
+		"sz399001",
+		"sz399006",
+		"sh000688",
+		"bj899050",
 	}
 	data, err := FetchMetadataFromSina(codes)
 	_assert.Nil(err)
 	t.Logf("data: %s\r\n", data)
+
+	// [{"_id":"","source":"","code":"sh689009","name":"九号公司","open":44.61,"yesterday_closed":43.03,"latest":48.2,"high":49.24,"low":44.06,"volume":26790226,"account":1248638943,"date":"2024-09-30","time":"15:00:03","suspend":"正常"}]
 }
