@@ -63,10 +63,10 @@ func DefaultNotifyWithError(title string, err error, tags []string) error {
 
 	var e error
 	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, err.Error()); err != nil {
-		e = errors.Join(e, fmt.Errorf("send email faiulure, nest error: %v", err))
+		e = errors.Join(e, fmt.Errorf("send email failure, nest error: %v", err))
 	}
 	if err := notification.SendNtfy(ctx, title, err.Error(), "SrxOPwCBiRWZUOq0", tags); err != nil {
-		e = errors.Join(e, fmt.Errorf("send ntfy faiulure, nest error: %v", err))
+		e = errors.Join(e, fmt.Errorf("send ntfy failure, nest error: %v", err))
 	}
 	return e
 }
@@ -77,10 +77,10 @@ func DefaultNotifyWithMsg(title, body string, tags []string) error {
 
 	var e error
 	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, body); err != nil {
-		e = errors.Join(e, fmt.Errorf("send email faiulure, nest error: %v", err))
+		e = errors.Join(e, fmt.Errorf("send email failure, nest error: %v", err))
 	}
 	if err := notification.SendNtfy(ctx, title, body, "SrxOPwCBiRWZUOq0", tags); err != nil {
-		e = errors.Join(e, fmt.Errorf("send ntfy faiulure, nest error: %v", err))
+		e = errors.Join(e, fmt.Errorf("send ntfy failure, nest error: %v", err))
 	}
 	return e
 }

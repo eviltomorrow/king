@@ -85,7 +85,8 @@ func RunApp() error {
 	finalizer.RegisterCleanupFuncs(s.Stop)
 
 	cron := service.NewScheduler()
-	cron.Register("", plan.CronWithCrawlMetadata())
+	cron.Register("30 16 * * MON,TUE,WED,THU,FRI", plan.CronWithCrawlMetadata())
+	cron.Register("0/5 20-23 * * MON,TUE,WED,THU,FRI", plan.CronWithStoreMetadata())
 
 	if err := cron.Start(); err != nil {
 		return fmt.Errorf("cron start failure, nest error: %v", err)

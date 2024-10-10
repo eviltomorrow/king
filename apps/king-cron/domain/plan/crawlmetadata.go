@@ -66,7 +66,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 		},
 
 		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyWithError(NameWithCrawlMetadata, fmt.Errorf("Failure, %v", err), []string{"原始数据", "网络"})
+			return domain.DefaultNotifyWithError(NameWithCrawlMetadata, fmt.Errorf("failure: %v", err), []string{"原始数据", "网络"})
 		},
 
 		Status: domain.Ready,

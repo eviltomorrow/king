@@ -37,7 +37,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		if plan.Precondition != nil {
 			status, err = plan.Precondition()
 			if err != nil {
-				zlog.Error("Check precondition faiulure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("Check precondition failure", zap.Error(err), zap.String("name", plan.GetName()))
 				return
 			}
 
@@ -56,22 +56,22 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		msg := ""
 		msg, err = plan.Todo()
 		if err != nil {
-			zlog.Error("Todo execute faiulure", zap.Error(err), zap.String("name", plan.GetName()))
+			zlog.Error("Todo execute failure", zap.Error(err), zap.String("name", plan.GetName()))
 		} else {
-			zlog.Info("Todo execute completed", zap.String("name", plan.GetName()))
+			zlog.Info("Todo execute success", zap.String("name", plan.GetName()))
 		}
 
 		if plan.NotifyWithError != nil && err != nil {
 			err = plan.NotifyWithError(err)
 			if err != nil {
-				zlog.Error("NotifyWithError faiulure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("NotifyWithError failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
 
 		if plan.NotifyWithMsg != nil && msg != "" {
 			err = plan.NotifyWithMsg(msg)
 			if err != nil {
-				zlog.Error("NotifyWithMsg faiulure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("NotifyWithMsg failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
 
@@ -85,7 +85,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 }
 
 func (s *scheduler) Start() error {
-	if _, err := s.cron.AddFunc("* 5 * * *", func() {
+	if _, err := s.cron.AddFunc("00 16 * * MON,TUE,WED,THU,FRI", func() {
 		for _, plan := range s.plans {
 			plan.Reset()
 		}

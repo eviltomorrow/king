@@ -46,6 +46,5 @@ code_list = [
 	"sh000688",
 	"bj899050",
 ]
-crontab = "05 18 * * MON,TUE,WED,THU,FRI"
 source = "sina"
 random_period = [10,35] # unit: s

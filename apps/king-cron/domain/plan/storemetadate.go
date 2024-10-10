@@ -81,13 +81,13 @@ func CronWithStoreMetadata() *domain.Plan {
 			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
 				return "", err
 			}
-			zlog.Info("StoreMetadata success", zap.String("scheduler_id", schedulerId), zap.Int64("stock", resp.Affected.Stock), zap.Int64("stock", resp.Affected.Quote))
+			zlog.Info("StoreMetadata success", zap.String("scheduler_id", schedulerId), zap.Int64("stock", resp.Affected.Stock), zap.Int64("quote", resp.Affected.Quote))
 
 			return "", nil
 		},
 
 		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyWithError(NameWithStoreMetadata, fmt.Errorf("Failure, %v", err), []string{"缓存数据", "数据库"})
+			return domain.DefaultNotifyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
 		},
 
 		Status: domain.Ready,

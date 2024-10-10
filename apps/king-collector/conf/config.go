@@ -25,7 +25,6 @@ type Config struct {
 type Collector struct {
 	CodeList     []string `json:"code_list" toml:"code_list" mapstructure:"code_list"`
 	Source       string   `json:"source" toml:"source" mapstructure:"source"`
-	Crontab      string   `json:"crontab" toml:"crontab" mapstructure:"crontab"`
 	RandomPeriod []int    `json:"random_period" toml:"random_period" mapstructure:"random_period"`
 }
 
@@ -110,7 +109,6 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 				"sz000***",
 			},
 			Source:       "sina",
-			Crontab:      "05 18 * * MON,TUE,WED,THU,FRI",
 			RandomPeriod: []int{5, 30},
 		},
 	}

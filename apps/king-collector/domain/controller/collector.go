@@ -46,7 +46,7 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 	go func() {
 		begin := time.Now()
 
-		total, ignore, err := metadata.SynchronizeMetadataSlow(ctx, c.config.Source, c.config.CodeList, c.config.RandomPeriod)
+		total, ignore, err := metadata.SynchronizeMetadataQuick(ctx, c.config.Source, c.config.CodeList, c.config.RandomPeriod)
 		if err != nil {
 			zlog.Error("Crawl metadata failure", zap.Error(err))
 		} else {
