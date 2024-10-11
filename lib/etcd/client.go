@@ -5,38 +5,31 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/eviltomorrow/king/lib/infrastructure"
-	"github.com/eviltomorrow/king/lib/timeutil"
 	"github.com/eviltomorrow/king/lib/zlog"
-	jsoniter "github.com/json-iterator/go"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
 
-type client struct {
-	ConnectTimeout     timeutil.Duration `json:"connect_timeout"`
-	StartupRetryTimes  int               `json:"startup_retry_times"`
-	StartupRetryPeriod timeutil.Duration `json:"startup_retry_period"`
-
-	Endpoints []string `json:"endpoints"`
-}
-
-func (c *client) String() string {
-	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
-	return string(buf)
-}
-
 var Client *clientv3.Client
 
-func init() {
-	infrastructure.Register("etcd", &client{
-		ConnectTimeout:     timeutil.Duration(3 * time.Second),
-		StartupRetryTimes:  3,
-		StartupRetryPeriod: timeutil.Duration(10 * time.Second),
-	})
+func InitEtcd(c *Config) (func() error, error) {
+	client, err := tryConnect(c)
+	if err != nil {
+		return nil, err
+	}
+	Client = client
+
+	return func() error {
+		if Client == nil {
+			return nil
+		}
+
+		Client.Sync(context.Background())
+		return Client.Close()
+	}, nil
 }
 
-func (c *client) Connect() error {
+func tryConnect(c *Config) (*clientv3.Client, error) {
 	client, err := clientv3.New(clientv3.Config{
 		Endpoints:   c.Endpoints,
 		DialTimeout: time.Duration(c.ConnectTimeout),
@@ -50,58 +43,38 @@ func (c *client) Connect() error {
 		},
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	var (
-		i = 1
-	)
+	i := 1
 	for {
-		err := c.statusClient(client)
+		err := statusClient(client, time.Duration(c.ConnectTimeout))
 		if err == nil {
-			break
+			return client, nil
 		}
-		zlog.Error("connect to etcd faialure", zap.Error(err))
+		zlog.Error("connect to etcd failure", zap.Error(err))
 		i++
 
 		if i > c.StartupRetryTimes {
-			return err
+			return nil, err
 		}
 
 		time.Sleep(time.Duration(c.StartupRetryPeriod))
 	}
-	Client = client
 
-	return nil
 }
 
-func (c *client) Close() error {
-	if Client == nil {
-		return nil
-	}
-
-	Client.Sync(context.Background())
-	return Client.Close()
-}
-
-func (c *client) UnMarshalConfig(config []byte) error {
-	if err := jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(config, c); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *client) statusClient(client *clientv3.Client) error {
-	for _, endpoint := range c.Endpoints {
-		if err := c.statusEndpoint(client, endpoint); err == nil {
+func statusClient(client *clientv3.Client, timeout time.Duration) error {
+	for _, endpoint := range client.Endpoints() {
+		if err := statusEndpoint(client, endpoint, timeout); err == nil {
 			return nil
 		}
 	}
-	return fmt.Errorf("connect to etcd service failure, nest endpoints: %v", c.Endpoints)
+	return fmt.Errorf("connect to etcd service failure, nest endpoints: %v", client.Endpoints())
 }
 
-func (c *client) statusEndpoint(client *clientv3.Client, endpoint string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.ConnectTimeout))
+func statusEndpoint(client *clientv3.Client, endpoint string, timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout))
 	defer cancel()
 
 	_, err := client.Status(ctx, endpoint)

@@ -6,30 +6,25 @@ import (
 	"github.com/eviltomorrow/king/apps/king-brain/conf"
 	"github.com/eviltomorrow/king/lib/envutil"
 	"github.com/eviltomorrow/king/lib/etcd"
-	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
-	"github.com/eviltomorrow/king/lib/infrastructure"
 	"google.golang.org/grpc/resolver"
 )
 
 func init() {
 	c := conf.InitializeDefaultConfig(&flagsutil.Flags{DisableStdlog: false})
 
-	if err := envutil.InitBaseComponent(c.Otel, c.Log, c.GRPC); err != nil {
-		log.Fatal(err)
+	if err := envutil.InitOpentrace(c.Otel); err != nil {
+		log.Fatalf("init opentrace failure, nest error: %v", err)
 	}
-
-	for _, ic := range []infrastructure.Config{c.Etcd} {
-		component, err := infrastructure.LoadConfig(ic)
-		if err != nil {
-			log.Fatalf("load config failure, nest error: %v, name: %s", err, ic.Name())
-		}
-
-		if err := component.Init(); err != nil {
-			log.Fatalf("component init failure, nest error: %v", err)
-		}
-		finalizer.RegisterCleanupFuncs(component.Close)
+	if err := envutil.InitLog(c.Log); err != nil {
+		log.Fatalf("init log failure, nest error: %v", err)
+	}
+	if err := envutil.InitNetwork(c.GRPC); err != nil {
+		log.Fatalf("init network failure, nest error: %v", err)
+	}
+	if err := envutil.InitEtcd(c.Etcd); err != nil {
+		log.Fatalf("init etcd failure, nest error: %v", err)
 	}
 
 	resolver.Register(lb.NewBuilder(etcd.Client))

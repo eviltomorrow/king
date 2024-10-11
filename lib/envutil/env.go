@@ -4,16 +4,33 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/eviltomorrow/king/lib/db/mongodb"
+	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/opentrace"
+	"github.com/eviltomorrow/king/lib/redis"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
 )
 
-func InitBaseComponent(otel *opentrace.Config, log *log.Config, server *server.Config) error {
+func InitOpentrace(otel *opentrace.Config) error {
+	shutdown, err := opentrace.InitTraceProvider(&opentrace.Config{
+		DSN:            otel.DSN,
+		ConnectTimeout: otel.ConnectTimeout,
+	})
+	if err != nil {
+		return fmt.Errorf("init opentrace failure, nest error: %v", err)
+	}
+	finalizer.RegisterCleanupFuncs(shutdown)
+
+	return nil
+}
+
+func InitLog(log *log.Config) error {
 	global, prop, err := zlog.InitLogger(&zlog.Config{
 		Level:  log.Level,
 		Format: "json",
@@ -52,6 +69,10 @@ func InitBaseComponent(otel *opentrace.Config, log *log.Config, server *server.C
 	}
 	finalizer.RegisterCleanupFuncs(midlog)
 
+	return nil
+}
+
+func InitNetwork(server *server.Config) error {
 	system.Network.AccessIP = func() string {
 		if server.AccessIP != "" {
 			return server.AccessIP
@@ -67,14 +88,45 @@ func InitBaseComponent(otel *opentrace.Config, log *log.Config, server *server.C
 		}
 	}()
 
-	shutdown, err := opentrace.InitTraceProvider(&opentrace.Config{
-		DSN:            otel.DSN,
-		ConnectTimeout: otel.ConnectTimeout,
-	})
+	return nil
+}
+
+func InitMySQL(c *mysql.Config) error {
+	closeFunc, err := mysql.InitMySQL(c)
 	if err != nil {
-		return fmt.Errorf("init opentrace failure, nest error: %v", err)
+		return err
 	}
-	finalizer.RegisterCleanupFuncs(shutdown)
+	finalizer.RegisterCleanupFuncs(closeFunc)
+
+	return nil
+}
+
+func InitEtcd(c *etcd.Config) error {
+	closeFunc, err := etcd.InitEtcd(c)
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(closeFunc)
+
+	return nil
+}
+
+func InitMongoDB(c *mongodb.Config) error {
+	closeFunc, err := mongodb.InitMongoDB(c)
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(closeFunc)
+
+	return nil
+}
+
+func InitRedis(c *redis.Config) error {
+	closeFunc, err := redis.InitRedis(c)
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(closeFunc)
 
 	return nil
 }

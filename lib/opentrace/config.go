@@ -13,6 +13,11 @@ type Config struct {
 	ConnectTimeout time.Duration `json:"connect_timeout" toml:"-" mapstructure:"-"`
 }
 
+func (c *Config) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
+	return string(buf)
+}
+
 func (c *Config) VerifyConfig() error {
 	if c.DSN == "" {
 		return fmt.Errorf("otel.dsn has no value")
@@ -21,9 +26,4 @@ func (c *Config) VerifyConfig() error {
 		return fmt.Errorf("otel.connect_timeout has no value")
 	}
 	return nil
-}
-
-func (c *Config) String() string {
-	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
-	return string(buf)
 }

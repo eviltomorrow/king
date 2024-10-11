@@ -73,7 +73,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			Endpoints: []string{
 				"127.0.0.1:2379",
 			},
-			ConnetTimeout:      5 * time.Second,
+			ConnectTimeout:     5 * time.Second,
 			StartupRetryTimes:  3,
 			StartupRetryPeriod: 5 * time.Second,
 		},
@@ -83,7 +83,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			MaxOpen: 10,
 
 			MaxLifetime:        5 * time.Minute,
-			ConnetTimeout:      5 * time.Second,
+			ConnectTimeout:     5 * time.Second,
 			StartupRetryTimes:  3,
 			StartupRetryPeriod: 5 * time.Second,
 		},
@@ -94,7 +94,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 		},
 		Redis: &redis.Config{
 			DSN:                "redis://:admin123@127.0.0.1:6379/0?protocol=3",
-			ConnetTimeout:      5 * time.Second,
+			ConnectTimeout:     5 * time.Second,
 			StartupRetryTimes:  3,
 			StartupRetryPeriod: 5 * time.Second,
 		},

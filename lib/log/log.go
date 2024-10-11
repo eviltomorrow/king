@@ -11,6 +11,11 @@ type Config struct {
 	DisableStdlog bool   `json:"disable_stdlog" toml:"-" mapstructure:"-"`
 }
 
+func (c *Config) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
+	return string(buf)
+}
+
 func (c *Config) VerifyConfig() error {
 	switch c.Level {
 	case "debug", "warn", "info", "error":
@@ -18,9 +23,4 @@ func (c *Config) VerifyConfig() error {
 		return fmt.Errorf("log.level has wrong value, level: %s", c.Level)
 	}
 	return nil
-}
-
-func (c *Config) String() string {
-	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
-	return string(buf)
 }

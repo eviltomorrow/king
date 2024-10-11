@@ -14,6 +14,11 @@ type Config struct {
 	DisableTLS bool   `json:"disable_tls" toml:"-" mapstructure:"-"`
 }
 
+func (c *Config) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
+	return string(buf)
+}
+
 func (c *Config) VerifyConfig() error {
 	if c.AccessIP != "" {
 		ip := net.ParseIP(c.AccessIP)
@@ -36,9 +41,4 @@ func (c *Config) VerifyConfig() error {
 		return fmt.Errorf("grpc.disable_tls must be true")
 	}
 	return nil
-}
-
-func (c *Config) String() string {
-	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
-	return string(buf)
 }

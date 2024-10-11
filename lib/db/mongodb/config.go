@@ -15,18 +15,19 @@ const (
 )
 
 type Config struct {
-	DSN     string `json:"dsn" toml:"dsn" mapstructure:"dsn"`
-	MinOpen uint64 `json:"min_open" toml:"min_open" mapstructure:"min_open"`
-	MaxOpen uint64 `json:"max_open" toml:"max_open" mapstructure:"max_open"`
-
-	MaxLifetime        time.Duration `json:"max_lifetime" toml:"-" mapstructure:"-"`
-	ConnetTimeout      time.Duration `json:"connect_timeout" toml:"-" mapstructure:"-"`
-	StartupRetryTimes  int           `json:"startup_retry_times" toml:"-" mapstructure:"-"`
 	StartupRetryPeriod time.Duration `json:"startup_retry_period" toml:"-" mapstructure:"-"`
+	StartupRetryTimes  int           `json:"startup_retry_times" toml:"-" mapstructure:"-"`
+	ConnectTimeout     time.Duration `json:"connect_timeout" toml:"-" mapstructure:"-"`
+
+	DSN         string        `json:"dsn" toml:"dsn" mapstructure:"dsn"`
+	MinOpen     uint64        `json:"min_open" toml:"min_open" mapstructure:"min_open"`
+	MaxOpen     uint64        `json:"max_open" toml:"max_open" mapstructure:"max_open"`
+	MaxLifetime time.Duration `json:"max_lifetime" toml:"-" mapstructure:"-"`
 }
 
-func (c *Config) Name() string {
-	return "mongodb"
+func (m *Config) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
+	return string(buf)
 }
 
 func (c *Config) VerifyConfig() error {
@@ -52,7 +53,7 @@ func (c *Config) VerifyConfig() error {
 	if c.MaxLifetime <= 0 {
 		return fmt.Errorf("mongodb.max_lifetime has no value")
 	}
-	if c.ConnetTimeout <= 0 {
+	if c.ConnectTimeout <= 0 {
 		return fmt.Errorf("mongodb.connect_timeout has no value")
 	}
 	if c.StartupRetryTimes <= 0 {
@@ -62,13 +63,4 @@ func (c *Config) VerifyConfig() error {
 		return fmt.Errorf("mongodb.startup_retry_period has no value")
 	}
 	return nil
-}
-
-func (m *Config) String() string {
-	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
-	return string(buf)
-}
-
-func (m *Config) MarshalConfig() ([]byte, error) {
-	return jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
 }

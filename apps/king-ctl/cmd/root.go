@@ -9,7 +9,6 @@ import (
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
-	"github.com/eviltomorrow/king/lib/infrastructure"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/resolver"
 )
@@ -38,19 +37,16 @@ func init() {
 func RunApp() error {
 	RootCommand.Use = buildinfo.AppName
 
-	component, err := infrastructure.LoadConfig(&etcd.Config{
+	closeFunc, err := etcd.InitEtcd(&etcd.Config{
 		Endpoints:          []string{"127.0.0.1:2379"},
-		ConnetTimeout:      5 * time.Second,
+		ConnectTimeout:     5 * time.Second,
 		StartupRetryTimes:  1,
 		StartupRetryPeriod: 5 * time.Second,
 	})
 	if err != nil {
 		return err
 	}
-	if err := component.Init(); err != nil {
-		return err
-	}
-	finalizer.RegisterCleanupFuncs(component.Close)
+	finalizer.RegisterCleanupFuncs(closeFunc)
 
 	resolver.Register(lb.NewBuilder(etcd.Client))
 

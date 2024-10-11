@@ -53,7 +53,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			Endpoints: []string{
 				"127.0.0.1:2379",
 			},
-			ConnetTimeout:      5 * time.Second,
+			ConnectTimeout:     5 * time.Second,
 			StartupRetryTimes:  3,
 			StartupRetryPeriod: 5 * time.Second,
 		},

@@ -6,85 +6,47 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/eviltomorrow/king/lib/infrastructure"
-	"github.com/eviltomorrow/king/lib/timeutil"
 	"github.com/eviltomorrow/king/lib/zlog"
 	_ "github.com/go-sql-driver/mysql"
-	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 )
 
-type client struct {
-	ConnectTimeout     timeutil.Duration `json:"connect_timeout"`
-	StartupRetryTimes  int               `json:"startup_retry_times"`
-	StartupRetryPeriod timeutil.Duration `json:"startup_retry_period"`
-
-	DSN         string            `json:"dsn"`
-	MinOpen     int               `json:"min_open"`
-	MaxOpen     int               `json:"max_open"`
-	MaxLifetime timeutil.Duration `json:"max_lifetime"`
-}
-
-func (c *client) String() string {
-	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
-	return string(buf)
-}
-
 var DB *sql.DB
 
-func init() {
-	infrastructure.Register("mysql", &client{
-		ConnectTimeout:     timeutil.Duration(3 * time.Second),
-		StartupRetryTimes:  3,
-		StartupRetryPeriod: timeutil.Duration(10 * time.Second),
+func InitMySQL(c *Config) (func() error, error) {
+	client, err := tryConnect(c)
+	if err != nil {
+		return nil, err
+	}
+	DB = client
 
-		MinOpen:     5,
-		MaxOpen:     10,
-		MaxLifetime: timeutil.Duration(3 * time.Minute),
-	})
+	return func() error {
+		if DB == nil {
+			return nil
+		}
+
+		return DB.Close()
+	}, nil
 }
 
-func (c *client) Connect() error {
-	var (
-		pool *sql.DB
-		err  error
-
-		i = 1
-	)
+func tryConnect(c *Config) (*sql.DB, error) {
+	i := 1
 	for {
-		pool, err = c.buildMySQL()
+		pool, err := buildMySQL(c)
 		if err == nil {
-			break
+			return pool, nil
 		}
-		zlog.Error("connect to mysql faialure", zap.Error(err))
+		zlog.Error("connect to mysql failure", zap.Error(err))
 		i++
 		if i > c.StartupRetryTimes {
-			return err
+			return nil, err
 		}
 
 		time.Sleep(time.Duration(c.StartupRetryPeriod))
 	}
-	DB = pool
-
-	return nil
 }
 
-func (c *client) Close() error {
-	if DB == nil {
-		return nil
-	}
-
-	return DB.Close()
-}
-
-func (c *client) UnMarshalConfig(config []byte) error {
-	if err := jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(config, c); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *client) buildMySQL() (*sql.DB, error) {
+func buildMySQL(c *Config) (*sql.DB, error) {
 	if c.DSN == "" {
 		return nil, fmt.Errorf("MySQL: no DSN set")
 	}

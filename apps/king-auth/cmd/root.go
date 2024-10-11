@@ -14,7 +14,6 @@ import (
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/fs"
 	"github.com/eviltomorrow/king/lib/grpc/server"
-	"github.com/eviltomorrow/king/lib/infrastructure"
 	"github.com/eviltomorrow/king/lib/pprofutil"
 	"github.com/eviltomorrow/king/lib/procutil"
 	"github.com/eviltomorrow/king/lib/system"
@@ -57,20 +56,23 @@ func RunApp() error {
 		return fmt.Errorf("read config failure, nest error: %v", err)
 	}
 
-	if err := envutil.InitBaseComponent(c.Otel, c.Log, c.GRPC); err != nil {
-		return fmt.Errorf("init base components failure, nest error: %v", err)
+	if err := envutil.InitOpentrace(c.Otel); err != nil {
+		return fmt.Errorf("init opentrace failure, nest error: %v", err)
 	}
-
-	for _, ic := range []infrastructure.Config{c.Etcd, c.MySQL, c.Redis} {
-		component, err := infrastructure.LoadConfig(ic)
-		if err != nil {
-			return fmt.Errorf("load config failure, nest error: %v, name: %s", err, ic.Name())
-		}
-
-		if err := component.Init(); err != nil {
-			return fmt.Errorf("component init failure, nest error: %v", err)
-		}
-		finalizer.RegisterCleanupFuncs(component.Close)
+	if err := envutil.InitLog(c.Log); err != nil {
+		return fmt.Errorf("init log failure, nest error: %v", err)
+	}
+	if err := envutil.InitNetwork(c.GRPC); err != nil {
+		return fmt.Errorf("init network failure, nest error: %v", err)
+	}
+	if err := envutil.InitEtcd(c.Etcd); err != nil {
+		return fmt.Errorf("init etcd failure, nest error: %v", err)
+	}
+	if err := envutil.InitMySQL(c.MySQL); err != nil {
+		return fmt.Errorf("init mysql failure, nest error: %v", err)
+	}
+	if err := envutil.InitRedis(c.Redis); err != nil {
+		return fmt.Errorf("init redis failure, nest error: %v", err)
 	}
 
 	s := server.NewGRPC(
