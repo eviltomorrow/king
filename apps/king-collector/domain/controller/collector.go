@@ -46,7 +46,7 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 	go func() {
 		begin := time.Now()
 
-		total, ignore, err := metadata.SynchronizeMetadataQuick(ctx, c.config.Source, c.config.CodeList, c.config.RandomPeriod)
+		total, ignore, err := metadata.SynchronizeMetadataQuick(ctx, c.config.Source, c.config.CodeList)
 		if err != nil {
 			zlog.Error("crawl metadata failure", zap.Error(err))
 		} else {
@@ -76,7 +76,7 @@ func (c *Collector) CrawlMetadata(ctx context.Context, req *wrapperspb.StringVal
 	defer span.End()
 
 	span.SetAttributes(attribute.String("req", req.Value))
-	total, ignore, err := metadata.SynchronizeMetadataQuick(ctx, req.Value, c.config.CodeList, c.config.RandomPeriod)
+	total, ignore, err := metadata.SynchronizeMetadataQuick(ctx, req.Value, c.config.CodeList)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/eviltomorrow/king/apps/king-collector/domain/datasource"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/db"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
 	client_grpc "github.com/eviltomorrow/king/lib/grpc/client"
@@ -28,13 +29,12 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, err
 	}
 
 	var (
-		offset, limit int64 = 0, 100
+		offset, limit int64 = 0, 30
 		lastID        string
-		timeout       = 20 * time.Second
 	)
 
 	for {
-		metadata, err := db.SelectMetadataRange(mongodb.DB, offset, limit, date, lastID, timeout)
+		metadata, err := db.SelectMetadataRange(ctx, mongodb.DB, offset, limit, date, lastID)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -71,7 +71,7 @@ func StoreMetadataToStorage(ctx context.Context, date string) (int64, int64, err
 	return resp.Affected.Stock, resp.Affected.Quote, nil
 }
 
-func SynchronizeMetadataQuick(ctx context.Context, source string, baseCodeList []string, randomPeriod []int) (int64, int64, error) {
+func SynchronizeMetadataQuick(ctx context.Context, source string, baseCodeList []string) (int64, int64, error) {
 	select {
 	case inFlightSem <- struct{}{}:
 		defer func() { <-inFlightSem }()
@@ -80,7 +80,7 @@ func SynchronizeMetadataQuick(ctx context.Context, source string, baseCodeList [
 	}
 
 	pipe := make(chan *model.Metadata, 128)
-	go persistenceMetadata(source, pipe)
+	go persistenceMetadata(ctx, source, pipe)
 
 	options := []func(*model.Metadata) bool{
 		func(m *model.Metadata) bool {
@@ -90,7 +90,7 @@ func SynchronizeMetadataQuick(ctx context.Context, source string, baseCodeList [
 			return false
 		},
 	}
-	return fetchMetadata(source, false, randomPeriod, baseCodeList, pipe, options)
+	return fetchMetadata(nil, baseCodeList, pipe, options)
 }
 
 var lastSyncCount int64 = -1
@@ -104,7 +104,7 @@ func SynchronizeMetadataSlow(ctx context.Context, source string, baseCodeList []
 	}
 
 	pipe := make(chan *model.Metadata, 128)
-	go persistenceMetadata(source, pipe)
+	go persistenceMetadata(ctx, source, pipe)
 
 	today := time.Now().Format(time.DateOnly)
 	options := []func(*model.Metadata) bool{
@@ -121,7 +121,7 @@ func SynchronizeMetadataSlow(ctx context.Context, source string, baseCodeList []
 			return false
 		},
 	}
-	total, ignore, err := fetchMetadata(source, true, randomPeriod, baseCodeList, pipe, options)
+	total, ignore, err := fetchMetadata(randomPeriod, baseCodeList, pipe, options)
 
 	if lastSyncCount != -1 && (total > lastSyncCount && float64(total-lastSyncCount) > float64(lastSyncCount)*0.1) {
 		return total, ignore, fmt.Errorf("possible missing data, total: %v", total)
@@ -131,15 +131,10 @@ func SynchronizeMetadataSlow(ctx context.Context, source string, baseCodeList []
 	return total, ignore, err
 }
 
-func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []string, pipe chan *model.Metadata, options []func(*model.Metadata) bool) (int64, int64, error) {
+func fetchMetadata(randomPeriod []int, baseCodeList []string, pipe chan *model.Metadata, options []func(*model.Metadata) bool) (int64, int64, error) {
 	defer func() {
 		close(pipe)
 	}()
-
-	fetch, ok := fetchFuncs[source]
-	if !ok {
-		return 0, 0, fmt.Errorf("not found fetchFunc, source = [%s]", source)
-	}
 
 	const (
 		size       = 30
@@ -155,11 +150,11 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 		codeList = append(codeList, code)
 		if len(codeList) == size {
 		retry_1:
-			data, err := fetch(codeList)
+			data, err := datasource.FetchMetadataFromSina(codeList)
 			if err != nil {
 				retrytimes++
 				if retrytimes == limitTimes {
-					return totalCount, ignoreCount, fmt.Errorf("FetchMeatadata failure, nest error: %v, source: [%v], codeList: %v", err, source, codeList)
+					return totalCount, ignoreCount, fmt.Errorf("FetchMeatadata failure, nest error: %v, codeList: %v", err, codeList)
 				} else {
 					time.Sleep(3 * time.Minute)
 					goto retry_1
@@ -182,7 +177,7 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 				totalCount++
 			}
 
-			if slow {
+			if len(randomPeriod) == 2 {
 				time.Sleep(time.Duration(mathutil.GenRandInt(randomPeriod[0], randomPeriod[1])) * time.Second)
 			} else {
 				time.Sleep(300 * time.Millisecond)
@@ -193,11 +188,11 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 	if len(codeList) != 0 {
 		retrytimes = 0
 	retry_2:
-		data, err := fetch(codeList)
+		data, err := datasource.FetchMetadataFromSina(codeList)
 		if err != nil {
 			retrytimes++
 			if retrytimes == limitTimes {
-				return totalCount, ignoreCount, fmt.Errorf("fetch metadata failure, nest error: %v, source: [%v], codeList: %v", err, source, codeList)
+				return totalCount, ignoreCount, fmt.Errorf("fetch metadata failure, nest error: %v, codeList: %v", err, codeList)
 			} else {
 				time.Sleep(3 * time.Minute)
 				goto retry_2
@@ -220,19 +215,18 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 	return totalCount, ignoreCount, nil
 }
 
-func persistenceMetadata(source string, pipe chan *model.Metadata) {
+func persistenceMetadata(ctx context.Context, source string, pipe chan *model.Metadata) {
 	const (
-		size    = 30
-		timeout = 10 * time.Second
+		size = 30
 	)
 	dataList := make([]*model.Metadata, 0, size)
 	for data := range pipe {
-		if _, err := db.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, timeout); err != nil {
+		if _, err := db.DeleteMetadataByDate(ctx, mongodb.DB, source, data.Code, data.Date); err != nil {
 			zlog.Error("delete metadata failure", zap.Error(err), zap.String("data", data.String()))
 		} else {
 			dataList = append(dataList, data)
 			if len(dataList) == size {
-				if _, err := db.InsertMetadataMany(mongodb.DB, source, dataList, timeout); err != nil {
+				if _, err := db.InsertMetadataMany(ctx, mongodb.DB, source, dataList); err != nil {
 					for _, d := range dataList {
 						zlog.Error("insert metadata failure", zap.Error(err), zap.String("data", d.String()))
 					}
@@ -245,7 +239,7 @@ func persistenceMetadata(source string, pipe chan *model.Metadata) {
 	cache := make([]*model.Metadata, 0, len(dataList))
 	if len(dataList) != 0 {
 		for _, data := range dataList {
-			if _, err := db.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, timeout); err != nil {
+			if _, err := db.DeleteMetadataByDate(ctx, mongodb.DB, source, data.Code, data.Date); err != nil {
 				zlog.Error("delete metadata failure", zap.Error(err), zap.String("data", data.String()))
 			} else {
 				cache = append(cache, data)
@@ -254,7 +248,7 @@ func persistenceMetadata(source string, pipe chan *model.Metadata) {
 	}
 
 	if len(cache) != 0 {
-		if _, err := db.InsertMetadataMany(mongodb.DB, source, cache, timeout); err != nil {
+		if _, err := db.InsertMetadataMany(ctx, mongodb.DB, source, cache); err != nil {
 			for _, d := range cache {
 				zlog.Error("insert metadata failure", zap.Error(err), zap.String("data", d.String()))
 			}

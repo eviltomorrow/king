@@ -17,7 +17,7 @@ const (
 	collectionName = "metadata"
 )
 
-func InsertMetadataMany(db *mongo.Client, source string, metadata []*model.Metadata, timeout time.Duration) (int64, error) {
+func InsertMetadataMany(ctx context.Context, db *mongo.Client, source string, metadata []*model.Metadata) (int64, error) {
 	if len(metadata) == 0 {
 		return 0, nil
 	}
@@ -43,9 +43,6 @@ func InsertMetadataMany(db *mongo.Client, source string, metadata []*model.Metad
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
 	result, err := collection.InsertMany(ctx, data)
 	if err != nil {
 		return 0, err
@@ -56,13 +53,11 @@ func InsertMetadataMany(db *mongo.Client, source string, metadata []*model.Metad
 	return int64(len(result.InsertedIDs)), nil
 }
 
-func DeleteMetadataByDate(db *mongo.Client, source string, code, date string, timeout time.Duration) (int64, error) {
+func DeleteMetadataByDate(ctx context.Context, db *mongo.Client, source string, code, date string) (int64, error) {
 	if date == "" {
 		return 0, nil
 	}
 	collection := db.Database(Database).Collection(collectionName)
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
 
 	result, err := collection.DeleteMany(ctx, bson.M{
 		"source": source,
@@ -78,16 +73,13 @@ func DeleteMetadataByDate(db *mongo.Client, source string, code, date string, ti
 	return result.DeletedCount, nil
 }
 
-func SelectMetadataRange(db *mongo.Client, offset, limit int64, date string, lastID string, timeout time.Duration) ([]*model.Metadata, error) {
+func SelectMetadataRange(ctx context.Context, db *mongo.Client, offset, limit int64, date string, lastID string) ([]*model.Metadata, error) {
 	if date == "" {
 		return nil, fmt.Errorf("invalid date")
 	}
 	if limit <= 0 {
 		return nil, fmt.Errorf("invalid limit")
 	}
-
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
 
 	collection := db.Database(Database).Collection(collectionName)
 	opt := &options.FindOptions{}

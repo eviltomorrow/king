@@ -6,18 +6,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/eviltomorrow/king/apps/king-collector/domain/datasource"
-	"github.com/eviltomorrow/king/lib/model"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.uber.org/zap"
 )
 
 var (
 	inFlightSem = make(chan struct{}, 1)
-	fetchFuncs  = map[string]func([]string) ([]*model.Metadata, error){
-		"sina":   datasource.FetchMetadataFromSina,
-		"net126": datasource.FetchMetadataFromNet126,
-	}
 )
 
 func genCode(baseCodeList []string) chan string {
