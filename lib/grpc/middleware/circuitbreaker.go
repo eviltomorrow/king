@@ -23,7 +23,7 @@ func UnaryClientCircuitbreakerInterceptor(ctx context.Context, method string, re
 		return invoker(ctx, method, req, reply, cc, opts...)
 	}, func(err error) error {
 		if err != nil {
-			zlog.Error("Circuitbreaker was wrong", zap.Error(err), zap.String("target", cc.Target()), zap.String("method", method))
+			zlog.Error("circuitbreaker was wrong", zap.Error(err), zap.String("target", cc.Target()), zap.String("method", method))
 		}
 		return nil
 	})

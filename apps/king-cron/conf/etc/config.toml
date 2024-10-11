@@ -1,7 +1,7 @@
 [grpc]
 access_ip = ""
 bind_ip = "0.0.0.0"
-bind_port = 50009
+bind_port = 50004
 
 [etcd]
 endpoints = ["etcd:2379"]

@@ -48,16 +48,16 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 
 		total, ignore, err := metadata.SynchronizeMetadataQuick(ctx, c.config.Source, c.config.CodeList, c.config.RandomPeriod)
 		if err != nil {
-			zlog.Error("Crawl metadata failure", zap.Error(err))
+			zlog.Error("crawl metadata failure", zap.Error(err))
 		} else {
-			zlog.Info("Crawl metadata completed", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Duration("cost", time.Since(begin)))
+			zlog.Info("crawl metadata completed", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Duration("cost", time.Since(begin)))
 		}
 
 		schedulerId, err := callback.Do(ctx, err)
 		if err != nil {
-			zlog.Error("Callback failure", zap.Error(err))
+			zlog.Error("callback failure", zap.Error(err))
 		} else {
-			zlog.Info("Callback success", zap.String("schedulerId", schedulerId))
+			zlog.Info("callback success", zap.String("schedulerId", schedulerId))
 		}
 	}()
 

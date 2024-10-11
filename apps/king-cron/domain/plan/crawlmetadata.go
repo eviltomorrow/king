@@ -10,8 +10,6 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	"github.com/eviltomorrow/king/lib/snowflake"
-	"github.com/eviltomorrow/king/lib/zlog"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -59,8 +57,6 @@ func CronWithCrawlMetadata() *domain.Plan {
 			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
 				return "", err
 			}
-
-			zlog.Info("CrawlMetadataAsync success", zap.String("scheduler_id", schedulerId))
 
 			return "", nil
 		},

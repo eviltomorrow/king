@@ -36,7 +36,7 @@ var StoreCommand = &cobra.Command{
 			if err != nil {
 				log.Printf("归档失败, nest error: %v, date: %v", err, date)
 			} else {
-				fmt.Printf("归档完成, 日期: %v, 股票数量: %v, 股票交易数量: %v, 花费: %v\r\n", date, stock, quote, time.Since(now))
+				fmt.Printf("归档完成, 日期: %v, 股票数量: %v, 交易数据: %v, 花费: %v\r\n", date, stock, quote, time.Since(now))
 			}
 			begin = begin.Add(24 * time.Hour)
 		}

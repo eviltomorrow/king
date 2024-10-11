@@ -96,17 +96,17 @@ func SchedulerRecordWithSelectOneById(ctx context.Context, exec mysql.Exec, id s
 
 // Scheduler Record
 type SchedulerRecord struct {
-	Id              string       `json:"id"`
-	Name            string       `json:"name"`
-	Date            time.Time    `json:"date"`
-	ServiceName     string       `json:"service_name"`
-	FuncName        string       `json:"func_name"`
-	Status          string       `json:"status"`
-	Code            string       `json:"code"`
-	ErrorMsg        string       `json:"error_msg"`
-	ParentId        string       `json:"parent_id"`
-	CreateTimestamp time.Time    `json:"create_timestamp"`
-	ModifyTimestamp sql.NullTime `json:"modify_timestamp"`
+	Id              string         `json:"id"`
+	Name            string         `json:"name"`
+	Date            time.Time      `json:"date"`
+	ServiceName     string         `json:"service_name"`
+	FuncName        string         `json:"func_name"`
+	Status          string         `json:"status"`
+	Code            sql.NullString `json:"code"`
+	ErrorMsg        sql.NullString `json:"error_msg"`
+	ParentId        sql.NullString `json:"parent_id"`
+	CreateTimestamp time.Time      `json:"create_timestamp"`
+	ModifyTimestamp sql.NullTime   `json:"modify_timestamp"`
 }
 
 func (s *SchedulerRecord) String() string {

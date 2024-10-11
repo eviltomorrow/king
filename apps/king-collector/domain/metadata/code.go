@@ -26,7 +26,7 @@ func genCode(baseCodeList []string) chan string {
 		for _, code := range baseCodeList {
 			result, err := genRangeCode(code)
 			if err != nil {
-				zlog.Error("Build range code failure", zap.Error(err))
+				zlog.Error("build range code failure", zap.Error(err))
 				continue
 			}
 			for _, r := range result {
@@ -42,7 +42,7 @@ func genRangeCode(baseCode string) ([]string, error) {
 	if len(baseCode) != 8 {
 		return nil, fmt.Errorf("code length must be 8, code is [%s]", baseCode)
 	}
-	if !strings.HasPrefix(baseCode, "sh") && !strings.HasPrefix(baseCode, "sz") {
+	if !strings.HasPrefix(baseCode, "sh") && !strings.HasPrefix(baseCode, "sz") && !strings.HasPrefix(baseCode, "bj") {
 		return nil, fmt.Errorf("code must be start with [sh/sz], code is [%s]", baseCode)
 	}
 

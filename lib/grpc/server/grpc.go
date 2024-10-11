@@ -104,7 +104,7 @@ func (g *GRPC) Serve() error {
 
 	go func() {
 		if err := g.server.Serve(listen); err != nil {
-			zlog.Fatal("GRPC Server startup failure", zap.Error(err))
+			zlog.Fatal("server(grpc) startup failure", zap.Error(err))
 		}
 	}()
 

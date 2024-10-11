@@ -49,8 +49,9 @@ CREATE TABLE `king_storage`.`stock` (
     `suspend` VARCHAR(32) NOT NULL COMMENT '停牌状态',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间',
-     PRIMARY KEY(`code`)
+    PRIMARY KEY(`code`)
 );
+
 
 CREATE DATABASE IF NOT EXISTS `king_auth` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 GRANT ALL ON king_auth.* TO 'admin'@'%';
@@ -164,7 +165,7 @@ CREATE TABLE `king_cron`.`scheduler_record` (
     `status` VARCHAR(16) NOT NULL COMMENT '状态', 
     `code` VARCHAR(16) COMMENT '终态',
     `error_msg` TEXT COMMENT '错误信息',
-    `parent_id` CHAR(19) COMMENT '父键'
+    `parent_id` CHAR(19) COMMENT '父键',
     `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );

@@ -1,22 +1,16 @@
 package controller
 
 import (
-	"context"
 	"fmt"
 	"io"
-	"sync"
 	"sync/atomic"
 	"time"
-
-	"go.uber.org/zap"
-	"golang.org/x/sync/semaphore"
 
 	"github.com/eviltomorrow/king/apps/king-storage/domain/db"
 	"github.com/eviltomorrow/king/apps/king-storage/domain/service"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/model"
-	"github.com/eviltomorrow/king/lib/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,8 +33,6 @@ func (g *Storage) Service() func(*grpc.Server) {
 
 const PER_COMMIT_LIMIT = 32
 
-var sema = semaphore.NewWeighted(32)
-
 func (g *Storage) StoreMetadata(ps pb.Storage_StoreMetadataServer) error {
 	type MetadataWrapper struct {
 		Date time.Time
@@ -52,7 +44,7 @@ func (g *Storage) StoreMetadata(ps pb.Storage_StoreMetadataServer) error {
 		as atomic.Int64
 		aq atomic.Int64
 
-		wg sync.WaitGroup
+		// wg sync.WaitGroup
 	)
 
 	for {
@@ -93,28 +85,27 @@ func (g *Storage) StoreMetadata(ps pb.Storage_StoreMetadataServer) error {
 		})
 
 		if len(wrapper.Data) == PER_COMMIT_LIMIT {
-			ch := make(chan *model.Metadata, PER_COMMIT_LIMIT)
+			// ch := make(chan *model.Metadata, PER_COMMIT_LIMIT)
 
-			sema.Acquire(context.Background(), 1)
-			wg.Add(1)
-			go func() {
-				defer sema.Release(1)
-				defer wg.Done()
+			// sema.Acquire(context.Background(), 1)
+			// wg.Add(1)
+			// go func() {
+			// 	defer sema.Release(1)
+			// 	defer wg.Done()
 
-				// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
-				// defer newspan.End()
-				s, q, err := service.StoreMetadata(wrapper.Date, ch)
-				if err != nil {
-					zlog.Error("Store metadata failure", zap.Error(err))
-					return
-				}
-				as.Add(s)
-				aq.Add(q)
-			}()
-			for _, md := range wrapper.Data {
-				ch <- md
+			// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
+			// defer newspan.End()
+			s, q, err := service.StoreMetadata(wrapper.Date, wrapper.Data)
+			if err != nil {
+				return err
 			}
-			close(ch)
+			as.Add(s)
+			aq.Add(q)
+			// }()
+			// for _, md := range wrapper.Data {
+			// 	ch <- md
+			// }
+			// close(ch)
 
 			wrapper.Data = wrapper.Data[:0]
 		}
@@ -122,36 +113,36 @@ func (g *Storage) StoreMetadata(ps pb.Storage_StoreMetadataServer) error {
 	}
 
 	for _, wrapper := range data {
-		ch := make(chan *model.Metadata, PER_COMMIT_LIMIT)
+		// ch := make(chan *model.Metadata, PER_COMMIT_LIMIT)
 
-		sema.Acquire(context.Background(), 1)
-		wg.Add(1)
-		go func() {
-			defer sema.Release(1)
-			defer wg.Done()
+		// sema.Acquire(context.Background(), 1)
+		// wg.Add(1)
+		// go func() {
+		// 	defer sema.Release(1)
+		// 	defer wg.Done()
 
-			// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
-			// defer newspan.End()
-			s, q, err := service.StoreMetadata(wrapper.Date, ch)
-			if err != nil {
-				zlog.Error("Store metadata failure", zap.Error(err))
-				// newspan.RecordError(err)
-				return
-			}
-			as.Add(s)
-			aq.Add(q)
-		}()
-		for _, md := range wrapper.Data {
-			ch <- md
+		// _, newspan := opentrace.DefaultTracer().Start(ps.Context(), "StoreMetadata")
+		// defer newspan.End()
+		s, q, err := service.StoreMetadata(wrapper.Date, wrapper.Data)
+		if err != nil {
+			// zlog.Error("store metadata failure", zap.Error(err))
+			// newspan.RecordError(err)
+			return err
 		}
-		close(ch)
+		as.Add(s)
+		aq.Add(q)
+		// }()
+		// for _, md := range wrapper.Data {
+		// 	ch <- md
+		// }
+		// close(ch)
 
 		wrapper.Data = wrapper.Data[:0]
 	}
 
-	wg.Wait()
+	// wg.Wait()
 
-	return ps.SendAndClose(nil)
+	return ps.SendAndClose(&pb.StoreResponse{Affected: &pb.StoreResponse_AffectedCount{Stock: as.Load(), Quote: aq.Load()}})
 }
 
 func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer) error {

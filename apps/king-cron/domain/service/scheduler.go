@@ -25,6 +25,8 @@ func NewScheduler() *scheduler {
 
 func (s *scheduler) Register(cron string, plan *domain.Plan) {
 	_, err := s.cron.AddFunc(cron, func() {
+		zlog.Info("plan exec begin", zap.String("name", plan.GetName()))
+
 		if plan.IsCompleted() {
 			return
 		}
@@ -37,7 +39,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		if plan.Precondition != nil {
 			status, err = plan.Precondition()
 			if err != nil {
-				zlog.Error("Check precondition failure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("precondition check failure", zap.Error(err), zap.String("name", plan.GetName()))
 				return
 			}
 
@@ -56,22 +58,22 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		msg := ""
 		msg, err = plan.Todo()
 		if err != nil {
-			zlog.Error("Todo execute failure", zap.Error(err), zap.String("name", plan.GetName()))
+			zlog.Error("execute plan failure", zap.Error(err), zap.String("name", plan.GetName()))
 		} else {
-			zlog.Info("Todo execute success", zap.String("name", plan.GetName()))
+			zlog.Info("execute plan success", zap.String("name", plan.GetName()))
 		}
 
 		if plan.NotifyWithError != nil && err != nil {
 			err = plan.NotifyWithError(err)
 			if err != nil {
-				zlog.Error("NotifyWithError failure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("notify with error failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
 
 		if plan.NotifyWithMsg != nil && msg != "" {
 			err = plan.NotifyWithMsg(msg)
 			if err != nil {
-				zlog.Error("NotifyWithMsg failure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("notify with msg failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
 
@@ -85,7 +87,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 }
 
 func (s *scheduler) Start() error {
-	if _, err := s.cron.AddFunc("00 16 * * MON,TUE,WED,THU,FRI", func() {
+	if _, err := s.cron.AddFunc("25 16 * * MON,TUE,WED,THU,FRI", func() {
 		for _, plan := range s.plans {
 			plan.Reset()
 		}

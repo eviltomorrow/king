@@ -56,20 +56,20 @@ func RegisterService(ctx context.Context, service string, host string, port int,
 	release:
 		leaseResp, err := Client.Grant(ctx, ttl)
 		if err != nil {
-			zlog.Error("Grant lease failure", zap.Error(err))
+			zlog.Error("grant lease failure", zap.Error(err))
 			goto release
 		}
 
 		key, value := fmt.Sprintf("/%s/%s:%d", service, host, port), fmt.Sprintf("%s:%d", host, port)
 		_, err = Client.Put(ctx, key, value, clientv3.WithLease(leaseResp.ID))
 		if err != nil {
-			zlog.Error("Put k/v failure", zap.Error(err), zap.String("key", key), zap.String("value", value))
+			zlog.Error("put k/v failure", zap.Error(err), zap.String("key", key), zap.String("value", value))
 			goto release
 		}
 
 		keepAlive, err = Client.KeepAlive(ctx, leaseResp.ID)
 		if err != nil {
-			zlog.Error("Keepalive failure", zap.Error(err), zap.Any("leaseID", leaseResp.ID))
+			zlog.Error("keepalive failure", zap.Error(err), zap.Any("leaseID", leaseResp.ID))
 			goto release
 		}
 		leaseID = &leaseResp.ID

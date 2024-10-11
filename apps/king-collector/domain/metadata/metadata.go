@@ -172,7 +172,7 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 			for _, d := range data {
 				for _, f := range options {
 					if ok := f(d); !ok {
-						zlog.Warn("Ignore metadata", zap.String("data", d.String()))
+						zlog.Warn("metadata ignore", zap.String("data", d.String()))
 						ignoreCount++
 						continue next1
 					}
@@ -197,7 +197,7 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 		if err != nil {
 			retrytimes++
 			if retrytimes == limitTimes {
-				return totalCount, ignoreCount, fmt.Errorf("FetchMetadata failure, nest error: %v, source: [%v], codeList: %v", err, source, codeList)
+				return totalCount, ignoreCount, fmt.Errorf("fetch metadata failure, nest error: %v, source: [%v], codeList: %v", err, source, codeList)
 			} else {
 				time.Sleep(3 * time.Minute)
 				goto retry_2
@@ -207,7 +207,7 @@ func fetchMetadata(source string, slow bool, randomPeriod []int, baseCodeList []
 		for _, d := range data {
 			for _, f := range options {
 				if ok := f(d); !ok {
-					zlog.Warn("Ignore data", zap.String("data", d.String()))
+					zlog.Warn("data ignore", zap.String("data", d.String()))
 					ignoreCount++
 					continue next2
 				}
@@ -228,13 +228,13 @@ func persistenceMetadata(source string, pipe chan *model.Metadata) {
 	dataList := make([]*model.Metadata, 0, size)
 	for data := range pipe {
 		if _, err := db.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, timeout); err != nil {
-			zlog.Error("DeleteMetadata by date failure", zap.Error(err), zap.String("data", data.String()))
+			zlog.Error("delete metadata failure", zap.Error(err), zap.String("data", data.String()))
 		} else {
 			dataList = append(dataList, data)
 			if len(dataList) == size {
 				if _, err := db.InsertMetadataMany(mongodb.DB, source, dataList, timeout); err != nil {
 					for _, d := range dataList {
-						zlog.Error("InsertMetadata many failure", zap.Error(err), zap.String("data", d.String()))
+						zlog.Error("insert metadata failure", zap.Error(err), zap.String("data", d.String()))
 					}
 				}
 				dataList = dataList[:0]
@@ -246,7 +246,7 @@ func persistenceMetadata(source string, pipe chan *model.Metadata) {
 	if len(dataList) != 0 {
 		for _, data := range dataList {
 			if _, err := db.DeleteMetadataByDate(mongodb.DB, source, data.Code, data.Date, timeout); err != nil {
-				zlog.Error("DeleteMetadata by date failure", zap.Error(err), zap.String("data", data.String()))
+				zlog.Error("delete metadata failure", zap.Error(err), zap.String("data", data.String()))
 			} else {
 				cache = append(cache, data)
 			}
@@ -256,7 +256,7 @@ func persistenceMetadata(source string, pipe chan *model.Metadata) {
 	if len(cache) != 0 {
 		if _, err := db.InsertMetadataMany(mongodb.DB, source, cache, timeout); err != nil {
 			for _, d := range cache {
-				zlog.Error("InsertMetadata many failure", zap.Error(err), zap.String("data", d.String()))
+				zlog.Error("insert metadata failure", zap.Error(err), zap.String("data", d.String()))
 			}
 		}
 	}

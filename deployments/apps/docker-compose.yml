@@ -1,4 +1,16 @@
-services:      
+services:
+  king-cron:   
+    restart: always                                      
+    volumes:
+      - ${DATA_HOME}/king-cron/log:/app/var/log/                       
+      - /etc/localtime:/etc/localtime:ro
+    image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-cron:${king_cron_version}
+    container_name: king-cron                
+    ports:                   
+      - "127.0.0.1:50004:50004"
+    expose:
+      - "50004"
+      
   king-collector:     
     restart: always                                    
     volumes:

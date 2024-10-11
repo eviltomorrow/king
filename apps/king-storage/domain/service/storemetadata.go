@@ -11,14 +11,14 @@ import (
 
 var DBExecTimeout = 30 * time.Second
 
-func StoreMetadata(date time.Time, metadata chan *model.Metadata) (int64, int64, error) {
+func StoreMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, error) {
 	var (
 		affectedStock, affectedQuote int64
 		i, size                      = 0, 50
 	)
 
 	data := make([]*model.Metadata, 0, size)
-	for md := range metadata {
+	for _, md := range metadata {
 		if md == nil {
 			continue
 		}
