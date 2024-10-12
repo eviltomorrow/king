@@ -9,6 +9,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-storage/domain/db"
 	"github.com/eviltomorrow/king/apps/king-storage/domain/service"
 	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/grpc/pb/entity"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/model"
 	"google.golang.org/grpc"
@@ -33,7 +34,7 @@ func (g *Storage) Service() func(*grpc.Server) {
 
 const PER_COMMIT_LIMIT = 32
 
-func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[pb.Metadata, pb.PushResponse]) error {
+func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, pb.PushResponse]) error {
 	type MetadataWrapper struct {
 		Date time.Time
 		Data []*model.Metadata

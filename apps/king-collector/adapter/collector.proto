@@ -4,7 +4,7 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 import "lib/entity/metadata.proto";
 
-option go_package = "./king-collector;pb";
+option go_package = "./;pb";
 package collector;
 
 service Collector {

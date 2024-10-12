@@ -10,6 +10,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
 	"github.com/eviltomorrow/king/lib/grpc/callback"
+	"github.com/eviltomorrow/king/lib/grpc/pb/entity"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.uber.org/zap"
@@ -79,7 +80,7 @@ func (c *Collector) CrawlMetadata(ctx context.Context, req *wrapperspb.StringVal
 	return &pb.CrawlMetadataResponse{Total: total, Ignore: ignore}, nil
 }
 
-func (c *Collector) FetchMetadata(req *wrapperspb.StringValue, resp grpc.ServerStreamingServer[pb.Metadata]) error {
+func (c *Collector) FetchMetadata(req *wrapperspb.StringValue, resp grpc.ServerStreamingServer[entity.Metadata]) error {
 	if req == nil {
 		return fmt.Errorf("invalid request, date is nil")
 	}
@@ -96,7 +97,7 @@ func (c *Collector) FetchMetadata(req *wrapperspb.StringValue, resp grpc.ServerS
 		}
 
 		for _, md := range metadata {
-			if err := resp.Send(&pb.Metadata{
+			if err := resp.Send(&entity.Metadata{
 				Source:          md.Source,
 				Code:            md.Code,
 				Name:            md.Name,

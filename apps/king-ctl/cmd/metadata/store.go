@@ -86,7 +86,12 @@ func store(ctx context.Context, date string) (int64, int64, error) {
 		}
 
 		if err := target.Send(md); err != nil {
-			return err
+			return 0, 0, err
 		}
 	}
+	resp, err := target.CloseAndRecv()
+	if err != nil {
+		return 0, 0, err
+	}
+	return resp.Affected.Stock, resp.Affected.Quote, nil
 }
