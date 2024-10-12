@@ -46,6 +46,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 		aq atomic.Int64
 	)
 
+	ctx := req.Context()
 	for {
 		md, err := req.Recv()
 		if err == io.EOF {
@@ -85,7 +86,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 		})
 
 		if len(wrapper.Data) == PER_COMMIT_LIMIT {
-			s, q, err := service.StoreMetadata(wrapper.Date, wrapper.Data)
+			s, q, err := service.StoreMetadata(ctx, wrapper.Date, wrapper.Data)
 			if err != nil {
 				return err
 			}
@@ -97,7 +98,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 	}
 
 	for _, wrapper := range data {
-		s, q, err := service.StoreMetadata(wrapper.Date, wrapper.Data)
+		s, q, err := service.StoreMetadata(ctx, wrapper.Date, wrapper.Data)
 		if err != nil {
 			return err
 		}
@@ -110,13 +111,11 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 }
 
 func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer) error {
-	var (
-		offset, limit int64 = 0, 100
-		timeout             = 10 * time.Second
-	)
+	var offset, limit int64 = 0, 100
 
+	ctx := gs.Context()
 	for {
-		stocks, err := db.StockWithSelectRange(mysql.DB, offset, limit, timeout)
+		stocks, err := db.StockWithSelectRange(ctx, mysql.DB, offset, limit)
 		if err != nil {
 			return status.Error(codes.InvalidArgument, "req is nil")
 		}
@@ -137,9 +136,8 @@ func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer)
 
 func (g *Storage) GetQuoteLatest(req *pb.GetQuoteLatestRequest, resp pb.Storage_GetQuoteLatestServer) error {
 	var (
-		limit   int64 = req.Limit
-		kind    string
-		timeout = 10 * time.Second
+		limit int64 = req.Limit
+		kind  string
 	)
 	if limit > 250 {
 		return fmt.Errorf("limit should be less than 250")
@@ -154,7 +152,8 @@ func (g *Storage) GetQuoteLatest(req *pb.GetQuoteLatestRequest, resp pb.Storage_
 		kind = db.Day
 	}
 
-	quotes, err := db.QuoteWithSelectManyLatest(mysql.DB, kind, req.Code, req.Date, limit, timeout)
+	ctx := resp.Context()
+	quotes, err := db.QuoteWithSelectManyLatest(ctx, mysql.DB, kind, req.Code, req.Date, limit)
 	if err != nil {
 		return err
 	}

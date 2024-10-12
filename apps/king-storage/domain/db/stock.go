@@ -11,7 +11,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*Stock, timeout time.Duration) (int64, error) {
+func StockWithInsertOrUpdateMany(ctx context.Context, exec mysql.Exec, stocks []*Stock) (int64, error) {
 	if len(stocks) == 0 {
 		return 0, nil
 	}
@@ -21,7 +21,7 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*Stock, timeout time.
 		codes = append(codes, stock.Code)
 	}
 
-	data, err := StockWithSelectMany(exec, codes, timeout)
+	data, err := StockWithSelectMany(ctx, exec, codes)
 	if err != nil {
 		return 0, err
 	}
@@ -41,14 +41,14 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*Stock, timeout time.
 
 	var count int64
 	for _, s := range shouldUpdateStocks {
-		affected, err := StockWithUpdateOne(exec, s.Code, s, timeout)
+		affected, err := StockWithUpdateOne(ctx, exec, s.Code, s)
 		if err != nil {
 			return 0, err
 		}
 		count += affected
 	}
 
-	affected, err := StockWithInsertMany(exec, shouldInsertStocks, timeout)
+	affected, err := StockWithInsertMany(ctx, exec, shouldInsertStocks)
 	if err != nil {
 		return 0, err
 	}
@@ -57,7 +57,7 @@ func StockWithInsertOrUpdateMany(exec mysql.Exec, stocks []*Stock, timeout time.
 	return count, nil
 }
 
-func StockWithInsertMany(exec mysql.Exec, stocks []*Stock, timeout time.Duration) (int64, error) {
+func StockWithInsertMany(ctx context.Context, exec mysql.Exec, stocks []*Stock) (int64, error) {
 	if len(stocks) == 0 {
 		return 0, nil
 	}
@@ -72,9 +72,6 @@ func StockWithInsertMany(exec mysql.Exec, stocks []*Stock, timeout time.Duration
 			exist[stock.Code] = struct{}{}
 		}
 	}
-
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
 
 	fields := make([]string, 0, len(data))
 	args := make([]interface{}, 0, 3*len(data))
@@ -93,13 +90,10 @@ func StockWithInsertMany(exec mysql.Exec, stocks []*Stock, timeout time.Duration
 	return result.RowsAffected()
 }
 
-func StockWithUpdateOne(exec mysql.Exec, code string, stock *Stock, timeout time.Duration) (int64, error) {
+func StockWithUpdateOne(ctx context.Context, exec mysql.Exec, code string, stock *Stock) (int64, error) {
 	if stock == nil {
 		return 0, nil
 	}
-
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
 
 	_sql := `update stock set name = ?, suspend = ?, modify_timestamp = now() where code = ?`
 	result, err := exec.ExecContext(ctx, _sql, stock.Name, stock.Suspend, code)
@@ -109,12 +103,10 @@ func StockWithUpdateOne(exec mysql.Exec, code string, stock *Stock, timeout time
 	return result.RowsAffected()
 }
 
-func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration) (map[string]*Stock, error) {
+func StockWithSelectMany(ctx context.Context, exec mysql.Exec, codes []string) (map[string]*Stock, error) {
 	if len(codes) == 0 {
 		return map[string]*Stock{}, nil
 	}
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
 
 	fields := make([]string, 0, len(codes))
 	args := make([]interface{}, 0, len(codes))
@@ -144,10 +136,7 @@ func StockWithSelectMany(exec mysql.Exec, codes []string, timeout time.Duration)
 	return stocks, nil
 }
 
-func StockWithSelectRange(exec mysql.Exec, offset, limit int64, timeout time.Duration) ([]*Stock, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
+func StockWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit int64) ([]*Stock, error) {
 	_sql := `select code, name, suspend, create_timestamp, modify_timestamp from stock limit ?, ?`
 	rows, err := exec.QueryContext(ctx, _sql, offset, limit)
 	if err != nil {

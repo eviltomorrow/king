@@ -17,13 +17,10 @@ const (
 	Week = "week"
 )
 
-func QuoteWithInsertMany(exec mysql.Exec, kind string, data []*Quote, timeout time.Duration) (int64, error) {
+func QuoteWithInsertMany(ctx context.Context, exec mysql.Exec, kind string, data []*Quote) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
-
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
 
 	FieldQuotes := make([]string, 0, len(data))
 	args := make([]interface{}, 0, 12*len(data))
@@ -51,13 +48,10 @@ func QuoteWithInsertMany(exec mysql.Exec, kind string, data []*Quote, timeout ti
 	return result.RowsAffected()
 }
 
-func QuoteWithDeleteManyByCodesAndDate(exec mysql.Exec, kind string, codes []string, date string, timeout time.Duration) (int64, error) {
+func QuoteWithDeleteManyByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, codes []string, date string) (int64, error) {
 	if len(codes) == 0 {
 		return 0, nil
 	}
-
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
 
 	FieldQuotes := make([]string, 0, len(codes))
 	args := make([]interface{}, 0, len(codes)+1)
@@ -75,13 +69,9 @@ func QuoteWithDeleteManyByCodesAndDate(exec mysql.Exec, kind string, codes []str
 	return result.RowsAffected()
 }
 
-func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, kind string, code string, begin, end string, timeout time.Duration) ([]*Quote, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
+func QuoteWithSelectBetweenByCodeAndDate(ctx context.Context, exec mysql.Exec, kind string, code string, begin, end string) ([]*Quote, error) {
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", kind)
 
-	fmt.Println(_sql, code, begin, end)
 	rows, err := exec.QueryContext(ctx, _sql, code, begin, end)
 	if err != nil {
 		return nil, err
@@ -146,20 +136,20 @@ func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, kind string, code stri
 	return result, nil
 }
 
-func QuoteWithSelectBetweenByCodesAndDate(exec mysql.Exec, kind string, code []string, begin, end string, timeout time.Duration) (map[string][]*Quote, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
-	codes := strings.Join(code, ",")
+func QuoteWithSelectBetweenByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, codes []string, begin, end string) (map[string][]*Quote, error) {
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code in (?) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", kind)
 
-	rows, err := exec.QueryContext(ctx, _sql, codes, begin, end)
+	args := make([]interface{}, 0, len(codes)+2)
+	args = append(args, codes)
+	args = append(args, begin)
+	args = append(args, end)
+	rows, err := exec.QueryContext(ctx, _sql, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	data := make([]*Quote, 0, 5)
+	data := make(map[string][]*Quote, len(codes))
 	for rows.Next() {
 		m := Quote{}
 		if err := rows.Scan(
@@ -180,47 +170,50 @@ func QuoteWithSelectBetweenByCodesAndDate(exec mysql.Exec, kind string, code []s
 		); err != nil {
 			return nil, err
 		}
-		data = append(data, &m)
+		v, ok := data[m.Code]
+		if !ok {
+			v = make([]*Quote, 0, 5)
+		}
+		v = append(v, &m)
+		data[m.Code] = v
 	}
 
-	result := make([]*Quote, len(data))
-	var xd float64 = 1.0
-	for i := len(data) - 1; i >= 0; i-- {
-		d := data[i]
-		if xd != 1.0 {
-			n := &Quote{
-				Id:              d.Id,
-				Code:            d.Code,
-				Open:            mathutil.Trunc2(d.Open * xd),
-				Close:           mathutil.Trunc2(d.Close * xd),
-				High:            mathutil.Trunc2(d.High * xd),
-				Low:             mathutil.Trunc2(d.Low * xd),
-				YesterdayClosed: mathutil.Trunc2(d.YesterdayClosed * xd),
-				Volume:          d.Volume,
-				Account:         d.Account,
-				Date:            d.Date,
-				NumOfYear:       d.NumOfYear,
-				Xd:              d.Xd,
-				CreateTimestamp: d.CreateTimestamp,
-				ModifyTimestamp: d.ModifyTimestamp,
+	for _, v := range data {
+		var xd float64 = 1.0
+		for i := len(v) - 1; i >= 0; i-- {
+			d := v[i]
+			if xd != 1.0 {
+				n := &Quote{
+					Id:              d.Id,
+					Code:            d.Code,
+					Open:            mathutil.Trunc2(d.Open * xd),
+					Close:           mathutil.Trunc2(d.Close * xd),
+					High:            mathutil.Trunc2(d.High * xd),
+					Low:             mathutil.Trunc2(d.Low * xd),
+					YesterdayClosed: mathutil.Trunc2(d.YesterdayClosed * xd),
+					Volume:          d.Volume,
+					Account:         d.Account,
+					Date:            d.Date,
+					NumOfYear:       d.NumOfYear,
+					Xd:              d.Xd,
+					CreateTimestamp: d.CreateTimestamp,
+					ModifyTimestamp: d.ModifyTimestamp,
+				}
+				v[i] = n
+			} else {
+				v[i] = d
 			}
-			result[i] = n
-		} else {
-			result[i] = d
-		}
 
-		if d.Xd != 1.0 {
-			xd = xd * d.Xd
+			if d.Xd != 1.0 {
+				xd = xd * d.Xd
+			}
 		}
 	}
 
-	return nil, nil
+	return data, nil
 }
 
-func QuoteWithSelectManyLatest(exec mysql.Exec, kind string, code string, date string, limit int64, timeout time.Duration) ([]*Quote, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
+func QuoteWithSelectManyLatest(ctx context.Context, exec mysql.Exec, kind string, code string, date string, limit int64) ([]*Quote, error) {
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? order by `date` desc limit ?", kind)
 	rows, err := exec.QueryContext(ctx, _sql, code, date, limit)
 	if err != nil {
@@ -285,10 +278,7 @@ func QuoteWithSelectManyLatest(exec mysql.Exec, kind string, code string, date s
 	return result, nil
 }
 
-func QuoteWithSelectRangeByDate(exec mysql.Exec, kind string, date string, offset, limit int64, timeout time.Duration) ([]*Quote, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
+func QuoteWithSelectRangeByDate(ctx context.Context, exec mysql.Exec, kind string, date string, offset, limit int64) ([]*Quote, error) {
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ? limit ?, ?", kind)
 	rows, err := exec.QueryContext(ctx, _sql, date, offset, limit)
 	if err != nil {
@@ -323,10 +313,7 @@ func QuoteWithSelectRangeByDate(exec mysql.Exec, kind string, date string, offse
 	return data, nil
 }
 
-func QuoteWithSelectOneByCodeAndDate(exec mysql.Exec, kind string, code string, date string, timeout time.Duration) (*Quote, error) {
-	ctx, cannel := context.WithTimeout(context.Background(), timeout)
-	defer cannel()
-
+func QuoteWithSelectOneByCodeAndDate(ctx context.Context, exec mysql.Exec, kind string, code string, date string) (*Quote, error) {
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') = ?", kind)
 	row := exec.QueryRowContext(ctx, _sql, code, date)
 	if row.Err() != nil {

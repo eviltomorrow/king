@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -32,7 +33,7 @@ func TestBuildQuoteDayWitchMetadata(t *testing.T) {
 	date, err := time.Parse(time.DateOnly, "2024-09-27")
 	assert.Nil(err)
 
-	quote, err := BuildQuoteDayWitchMetadata(data, date)
+	quote, err := BuildQuoteDayWitchMetadata(context.Background(), data, date)
 	assert.Nil(err)
 	assert.NotNil(quote)
 }

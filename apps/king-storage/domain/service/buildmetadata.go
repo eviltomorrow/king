@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -12,10 +13,8 @@ import (
 	"github.com/eviltomorrow/king/lib/timeutil"
 )
 
-// var ErrNoData = errors.New("no data")
-
-func BuildQuoteDayWitchMetadata(data *model.Metadata, date time.Time) (*db.Quote, error) {
-	latest, err := db.QuoteWithSelectManyLatest(mysql.DB, db.Day, data.Code, data.Date, 1, DBExecTimeout)
+func BuildQuoteDayWitchMetadata(ctx context.Context, data *model.Metadata, date time.Time) (*db.Quote, error) {
+	latest, err := db.QuoteWithSelectManyLatest(ctx, mysql.DB, db.Day, data.Code, data.Date, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +42,7 @@ func BuildQuoteDayWitchMetadata(data *model.Metadata, date time.Time) (*db.Quote
 	return quote, nil
 }
 
-func BuildQuoteWeekWithQuoteDay(code string, date time.Time) (*db.Quote, error) {
+func BuildQuoteWeekWithQuoteDay(ctx context.Context, code string, date time.Time) (*db.Quote, error) {
 	if date.Weekday() != time.Friday {
 		return nil, fmt.Errorf("panic: date is not friday")
 	}
@@ -52,7 +51,7 @@ func BuildQuoteWeekWithQuoteDay(code string, date time.Time) (*db.Quote, error) 
 		end   = date.Format(time.DateOnly)
 	)
 
-	days, err := db.QuoteWithSelectBetweenByCodeAndDate(mysql.DB, db.Day, code, begin, end, DBExecTimeout)
+	days, err := db.QuoteWithSelectBetweenByCodeAndDate(ctx, mysql.DB, db.Day, code, begin, end)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -9,9 +10,7 @@ import (
 	"github.com/eviltomorrow/king/lib/model"
 )
 
-var DBExecTimeout = 30 * time.Second
-
-func StoreMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, error) {
+func StoreMetadata(ctx context.Context, date time.Time, metadata []*model.Metadata) (int64, int64, error) {
 	var (
 		affectedStock, affectedQuote int64
 		i, size                      = 0, 30
@@ -23,7 +22,7 @@ func StoreMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 			continue
 		}
 		if i >= size {
-			s, q, err := storeMetadata(date, data)
+			s, q, err := storeMetadata(ctx, date, data)
 			if err != nil {
 				return 0, 0, err
 			}
@@ -35,7 +34,7 @@ func StoreMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 		}
 	}
 	if len(data) > 0 {
-		s, d, err := storeMetadata(date, data)
+		s, d, err := storeMetadata(ctx, date, data)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -45,7 +44,7 @@ func StoreMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 	return affectedStock, affectedQuote, nil
 }
 
-func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, error) {
+func storeMetadata(ctx context.Context, date time.Time, metadata []*model.Metadata) (int64, int64, error) {
 	var (
 		stocks = make([]*db.Stock, 0, len(metadata))
 		days   = make([]*db.Quote, 0, len(metadata))
@@ -61,7 +60,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 			CreateTimestamp: time.Now(),
 		})
 
-		day, err := BuildQuoteDayWitchMetadata(md, date)
+		day, err := BuildQuoteDayWitchMetadata(ctx, md, date)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -69,13 +68,13 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 	}
 
 	if len(stocks) != 0 {
-		affected, err := storeStock(stocks)
+		affected, err := storeStock(ctx, stocks)
 		if err != nil {
 			return 0, 0, err
 		}
 		affectedStock += affected
 
-		affected, err = storeQuote(days, db.Day, date)
+		affected, err = storeQuote(ctx, days, db.Day, date)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -86,14 +85,14 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 		var offset, limit int64 = 0, 30
 
 		for {
-			stocks, err := db.StockWithSelectRange(mysql.DB, offset, limit, DBExecTimeout)
+			stocks, err := db.StockWithSelectRange(ctx, mysql.DB, offset, limit)
 			if err != nil {
 				return 0, 0, err
 			}
 
 			weeks := make([]*db.Quote, 0, len(stocks))
 			for _, stock := range stocks {
-				week, err := BuildQuoteWeekWithQuoteDay(stock.Code, date)
+				week, err := BuildQuoteWeekWithQuoteDay(ctx, stock.Code, date)
 				if err != nil {
 					return affectedStock, affectedQuote, err
 				}
@@ -102,7 +101,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 				}
 			}
 
-			if _, err := storeQuote(weeks, db.Week, date); err != nil {
+			if _, err := storeQuote(ctx, weeks, db.Week, date); err != nil {
 				return affectedStock, affectedQuote, err
 			}
 
@@ -116,7 +115,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 	return affectedStock, affectedQuote, nil
 }
 
-func storeStock(data []*db.Stock) (int64, error) {
+func storeStock(ctx context.Context, data []*db.Stock) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -125,7 +124,7 @@ func storeStock(data []*db.Stock) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	affected, err := db.StockWithInsertOrUpdateMany(tx, data, DBExecTimeout)
+	affected, err := db.StockWithInsertOrUpdateMany(ctx, tx, data)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -137,7 +136,7 @@ func storeStock(data []*db.Stock) (int64, error) {
 	return affected, nil
 }
 
-func storeQuote(data []*db.Quote, kind string, date time.Time) (int64, error) {
+func storeQuote(ctx context.Context, data []*db.Quote, kind string, date time.Time) (int64, error) {
 	if len(data) == 0 {
 		return 0, nil
 	}
@@ -156,12 +155,12 @@ func storeQuote(data []*db.Quote, kind string, date time.Time) (int64, error) {
 	}
 
 	d := date.Format(time.DateOnly)
-	if _, err := db.QuoteWithDeleteManyByCodesAndDate(tx, kind, codes, d, DBExecTimeout); err != nil {
+	if _, err := db.QuoteWithDeleteManyByCodesAndDate(ctx, tx, kind, codes, d); err != nil {
 		tx.Rollback()
 		return 0, err
 	}
 
-	affected, err := db.QuoteWithInsertMany(tx, kind, data, DBExecTimeout)
+	affected, err := db.QuoteWithInsertMany(ctx, tx, kind, data)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
