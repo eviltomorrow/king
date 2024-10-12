@@ -84,7 +84,11 @@ func store(ctx context.Context, date string) (int64, int64, error) {
 		if err == io.EOF {
 			break
 		}
+		if err != nil {
+			return 0, 0, err
+		}
 
+		fmt.Println(md.String())
 		if err := target.Send(md); err != nil {
 			return 0, 0, err
 		}
@@ -94,4 +98,5 @@ func store(ctx context.Context, date string) (int64, int64, error) {
 		return 0, 0, err
 	}
 	return resp.Affected.Stock, resp.Affected.Quote, nil
+	// return 0, 0, nil
 }

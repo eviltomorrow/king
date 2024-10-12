@@ -14,7 +14,7 @@ var DBExecTimeout = 30 * time.Second
 func StoreMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, error) {
 	var (
 		affectedStock, affectedQuote int64
-		i, size                      = 0, 50
+		i, size                      = 0, 30
 	)
 
 	data := make([]*model.Metadata, 0, size)
@@ -83,7 +83,7 @@ func storeMetadata(date time.Time, metadata []*model.Metadata) (int64, int64, er
 	}
 
 	if date.Weekday() == time.Friday {
-		var offset, limit int64 = 0, 50
+		var offset, limit int64 = 0, 30
 
 		for {
 			stocks, err := db.StockWithSelectRange(mysql.DB, offset, limit, DBExecTimeout)

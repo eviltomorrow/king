@@ -32,7 +32,7 @@ func (g *Storage) Service() func(*grpc.Server) {
 	}
 }
 
-const PER_COMMIT_LIMIT = 32
+const PER_COMMIT_LIMIT = 30
 
 func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, pb.PushResponse]) error {
 	type MetadataWrapper struct {
@@ -54,6 +54,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 		if err != nil {
 			return err
 		}
+		fmt.Println(md.String())
 
 		wrapper, ok := data[md.Date]
 		if !ok {
@@ -63,7 +64,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 			}
 			wrapper = MetadataWrapper{
 				Date: d,
-				Data: make([]*model.Metadata, 0, 32),
+				Data: make([]*model.Metadata, 0, PER_COMMIT_LIMIT),
 			}
 			data[md.Date] = wrapper
 		}

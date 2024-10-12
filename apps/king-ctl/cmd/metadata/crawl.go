@@ -13,7 +13,7 @@ import (
 
 var CrawlCommand = &cobra.Command{
 	Use:   "crawl",
-	Short: "抓取指定数据源的数据[sina/net126]",
+	Short: "抓取指定数据源的数据[sina]",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := crawl(context.Background()); err != nil {
 			log.Printf("crawl data failure, nest error: %v", err)
@@ -27,7 +27,7 @@ var (
 )
 
 func init() {
-	CrawlCommand.PersistentFlags().StringVar(&source, "source", "sina", "指定数据源[sina/net126]")
+	CrawlCommand.PersistentFlags().StringVar(&source, "source", "sina", "指定数据源[sina]")
 	CrawlCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 

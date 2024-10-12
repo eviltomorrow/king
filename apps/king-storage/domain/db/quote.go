@@ -80,6 +80,8 @@ func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, kind string, code stri
 	defer cannel()
 
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", kind)
+
+	fmt.Println(_sql, code, begin, end)
 	rows, err := exec.QueryContext(ctx, _sql, code, begin, end)
 	if err != nil {
 		return nil, err
@@ -142,6 +144,77 @@ func QuoteWithSelectBetweenByCodeAndDate(exec mysql.Exec, kind string, code stri
 	}
 
 	return result, nil
+}
+
+func QuoteWithSelectBetweenByCodesAndDate(exec mysql.Exec, kind string, code []string, begin, end string, timeout time.Duration) (map[string][]*Quote, error) {
+	ctx, cannel := context.WithTimeout(context.Background(), timeout)
+	defer cannel()
+
+	codes := strings.Join(code, ",")
+	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code in (?) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", kind)
+
+	rows, err := exec.QueryContext(ctx, _sql, codes, begin, end)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data := make([]*Quote, 0, 5)
+	for rows.Next() {
+		m := Quote{}
+		if err := rows.Scan(
+			&m.Id,
+			&m.Code,
+			&m.Open,
+			&m.Close,
+			&m.High,
+			&m.Low,
+			&m.YesterdayClosed,
+			&m.Volume,
+			&m.Account,
+			&m.Date,
+			&m.NumOfYear,
+			&m.Xd,
+			&m.CreateTimestamp,
+			&m.ModifyTimestamp,
+		); err != nil {
+			return nil, err
+		}
+		data = append(data, &m)
+	}
+
+	result := make([]*Quote, len(data))
+	var xd float64 = 1.0
+	for i := len(data) - 1; i >= 0; i-- {
+		d := data[i]
+		if xd != 1.0 {
+			n := &Quote{
+				Id:              d.Id,
+				Code:            d.Code,
+				Open:            mathutil.Trunc2(d.Open * xd),
+				Close:           mathutil.Trunc2(d.Close * xd),
+				High:            mathutil.Trunc2(d.High * xd),
+				Low:             mathutil.Trunc2(d.Low * xd),
+				YesterdayClosed: mathutil.Trunc2(d.YesterdayClosed * xd),
+				Volume:          d.Volume,
+				Account:         d.Account,
+				Date:            d.Date,
+				NumOfYear:       d.NumOfYear,
+				Xd:              d.Xd,
+				CreateTimestamp: d.CreateTimestamp,
+				ModifyTimestamp: d.ModifyTimestamp,
+			}
+			result[i] = n
+		} else {
+			result[i] = d
+		}
+
+		if d.Xd != 1.0 {
+			xd = xd * d.Xd
+		}
+	}
+
+	return nil, nil
 }
 
 func QuoteWithSelectManyLatest(exec mysql.Exec, kind string, code string, date string, limit int64, timeout time.Duration) ([]*Quote, error) {

@@ -18,10 +18,10 @@ func Run(addr string) error {
 
 	format := "%s"
 	if strings.HasPrefix(addr, ":") {
-		format = fmt.Sprintf(format, addr)
+		format = fmt.Sprintf("127.0.0.1%s", addr)
 	}
 	log.Println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-	log.Printf("+ Sample pprof profiling will be open at: http://%s/debug/pprof           +\r\n", format)
+	log.Printf("+ Sample pprof profiling will be open at: http://%s/debug/pprof        +\r\n", format)
 	log.Println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 	fmt.Println()
 	return http.ListenAndServe(addr, httpMux)

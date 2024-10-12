@@ -88,13 +88,13 @@ func RunApp() error {
 		return fmt.Errorf("rewrite stderr to filre failure, nest error: %v", err)
 	}
 
-	zlog.Info("system info", zap.String("system", system.String()))
-	zlog.Info("config info", zap.String("config", c.String()))
-	zlog.Info("app start success", zap.String("version", buildinfo.MainVersion), zap.String("commited-id", buildinfo.GitSha))
+	zlog.Info("System info", zap.String("system", system.String()))
+	zlog.Info("Config info", zap.String("config", c.String()))
+	zlog.Info("App start success", zap.String("version", buildinfo.MainVersion), zap.String("commited-id", buildinfo.GitSha))
 
 	procutil.StopDaemon()
 	procutil.WaitForSigterm()
 
-	zlog.Info("app stop complete", zap.String("launched-time", system.LaunchTime()))
+	zlog.Info("App stop complete", zap.String("launched-time", system.LaunchTime()))
 	return nil
 }
