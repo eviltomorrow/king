@@ -53,7 +53,7 @@ for name in $(ls ${root_dir}/apps); do
         done
 
         if [ ${ok}=true ]; then
-            pb_dir=${root_dir}/lib/grpc/pb/${app_name}
+            pb_dir=${root_dir}/lib/grpc/pb/
             if [ -d ${pb_dir} ]; then
                 rm -rf ${pb_dir}
             fi
@@ -61,9 +61,9 @@ for name in $(ls ${root_dir}/apps); do
 
             for name in $(ls ${adapter_dir}); do
                 file_name=${adapter_dir}/${name}
-                lib_path=$(cat ${file_name} | grep "lib/protobuf" | awk '{print $2}' | awk -F '"' '{print $2}' | tr '\n' ' ')
+                lib_path=$(cat ${file_name} | grep "lib/entity" | awk '{print $2}' | awk -F '"' '{print $2}' | tr '\n' ' ')
 
-                ${root_dir}/tools/protoc/${GOOS}_${GOARCH}/bin/protoc --proto_path="${root_dir}" --proto_path="${adapter_dir}" --go_out=${pb_dir} --go-grpc_out=${pb_dir} ${name} ${lib_path}
+                ${root_dir}/tools/protoc/${GOOS}_${GOARCH}/bin/protoc --proto_path="${root_dir}" --proto_path="${root_dir}" --go_out=${root_dir} --go-grpc_out=${pb_dir} ${name} ${lib_path}
                 code=$(echo $?)
                 if [ $code = 0 ]; then
                     echo -e "编译文件: ${file_name} => [\033[32m成功\033[0m] "

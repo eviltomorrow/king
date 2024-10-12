@@ -2,9 +2,9 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
-import "lib/protobuf/metadata.proto";
+import "lib/entity/metadata.proto";
 
-option go_package = "./;pb";
+option go_package = "./king-collector;pb";
 package collector;
 
 service Collector {

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./lib;lib";
+option go_package = "github.com/eviltomorrow/lib/grpc/pb/entity;entity";
 
 message Metadata {
     string source = 1;

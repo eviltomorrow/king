@@ -8,6 +8,7 @@ package pb
 
 import (
 	context "context"
+	entity "github.com/eviltomorrow/lib/grpc/pb/entity"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -31,7 +32,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StorageClient interface {
-	PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Metadata, PushResponse], error)
+	PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[entity.Metadata, PushResponse], error)
 	GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error)
 	GetStockAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Stock], error)
 	GetQuoteLatest(ctx context.Context, in *GetQuoteLatestRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Quote], error)
@@ -45,18 +46,18 @@ func NewStorageClient(cc grpc.ClientConnInterface) StorageClient {
 	return &storageClient{cc}
 }
 
-func (c *storageClient) PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Metadata, PushResponse], error) {
+func (c *storageClient) PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[entity.Metadata, PushResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Storage_ServiceDesc.Streams[0], Storage_PushMetadata_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[Metadata, PushResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[entity.Metadata, PushResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Storage_PushMetadataClient = grpc.ClientStreamingClient[Metadata, PushResponse]
+type Storage_PushMetadataClient = grpc.ClientStreamingClient[entity.Metadata, PushResponse]
 
 func (c *storageClient) GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -110,7 +111,7 @@ type Storage_GetQuoteLatestClient = grpc.ServerStreamingClient[Quote]
 // All implementations must embed UnimplementedStorageServer
 // for forward compatibility.
 type StorageServer interface {
-	PushMetadata(grpc.ClientStreamingServer[Metadata, PushResponse]) error
+	PushMetadata(grpc.ClientStreamingServer[entity.Metadata, PushResponse]) error
 	GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error)
 	GetStockAll(*emptypb.Empty, grpc.ServerStreamingServer[Stock]) error
 	GetQuoteLatest(*GetQuoteLatestRequest, grpc.ServerStreamingServer[Quote]) error
@@ -124,7 +125,7 @@ type StorageServer interface {
 // pointer dereference when methods are called.
 type UnimplementedStorageServer struct{}
 
-func (UnimplementedStorageServer) PushMetadata(grpc.ClientStreamingServer[Metadata, PushResponse]) error {
+func (UnimplementedStorageServer) PushMetadata(grpc.ClientStreamingServer[entity.Metadata, PushResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method PushMetadata not implemented")
 }
 func (UnimplementedStorageServer) GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error) {
@@ -158,11 +159,11 @@ func RegisterStorageServer(s grpc.ServiceRegistrar, srv StorageServer) {
 }
 
 func _Storage_PushMetadata_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(StorageServer).PushMetadata(&grpc.GenericServerStream[Metadata, PushResponse]{ServerStream: stream})
+	return srv.(StorageServer).PushMetadata(&grpc.GenericServerStream[entity.Metadata, PushResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Storage_PushMetadataServer = grpc.ClientStreamingServer[Metadata, PushResponse]
+type Storage_PushMetadataServer = grpc.ClientStreamingServer[entity.Metadata, PushResponse]
 
 func _Storage_GetStockOne_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)

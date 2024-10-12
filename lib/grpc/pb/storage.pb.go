@@ -7,6 +7,7 @@
 package pb
 
 import (
+	entity "github.com/eviltomorrow/lib/grpc/pb/entity"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -504,7 +505,7 @@ var file_storage_proto_goTypes = []any{
 	(*GetQuoteLatestRequest)(nil),      // 3: storage.GetQuoteLatestRequest
 	(*Quote)(nil),                      // 4: storage.Quote
 	(*PushResponse_AffectedCount)(nil), // 5: storage.PushResponse.AffectedCount
-	(*Metadata)(nil),                   // 6: Metadata
+	(*entity.Metadata)(nil),            // 6: Metadata
 	(*wrapperspb.StringValue)(nil),     // 7: google.protobuf.StringValue
 	(*emptypb.Empty)(nil),              // 8: google.protobuf.Empty
 }
@@ -531,7 +532,6 @@ func file_storage_proto_init() {
 	if File_storage_proto != nil {
 		return
 	}
-	file_lib_protobuf_metadata_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
