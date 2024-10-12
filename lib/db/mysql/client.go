@@ -13,6 +13,8 @@ import (
 
 var DB *sql.DB
 
+const QueryPerSize int64 = 50
+
 func InitMySQL(c *Config) (func() error, error) {
 	client, err := tryConnect(c)
 	if err != nil {
