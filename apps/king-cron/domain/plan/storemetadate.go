@@ -11,11 +11,6 @@ import (
 	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/grpc/client"
-	"github.com/eviltomorrow/king/lib/snowflake"
-	"github.com/eviltomorrow/king/lib/zlog"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
@@ -54,34 +49,34 @@ func CronWithStoreMetadata() *domain.Plan {
 		},
 
 		Todo: func() (string, error) {
-			stub, shutdown, err := client.NewCollectorWithEtcd()
-			if err != nil {
-				return "", err
-			}
-			defer shutdown()
+			// stub, shutdown, err := client.NewCollectorWithEtcd()
+			// if err != nil {
+			// 	return "", err
+			// }
+			// defer shutdown()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-			defer cancel()
+			// ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			// defer cancel()
 
-			now := time.Now()
-			resp, err := stub.StoreMetadata(ctx, &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
-			if err != nil {
-				return "", err
-			}
+			// now := time.Now()
+			// resp, err := stub.PushMetadata(ctx, &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
+			// if err != nil {
+			// 	return "", err
+			// }
 
-			schedulerId := snowflake.GenerateID()
-			record := &db.SchedulerRecord{
-				Id:          schedulerId,
-				Name:        NameWithStoreMetadata,
-				Date:        now,
-				ServiceName: "collector",
-				FuncName:    "StoreMetadata",
-				Status:      domain.StatusCompleted,
-			}
-			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
-				return "", err
-			}
-			zlog.Info("store metadata success", zap.String("scheduler_id", schedulerId), zap.Int64("stock", resp.Affected.Stock), zap.Int64("quote", resp.Affected.Quote))
+			// schedulerId := snowflake.GenerateID()
+			// record := &db.SchedulerRecord{
+			// 	Id:          schedulerId,
+			// 	Name:        NameWithStoreMetadata,
+			// 	Date:        now,
+			// 	ServiceName: "collector",
+			// 	FuncName:    "StoreMetadata",
+			// 	Status:      domain.StatusCompleted,
+			// }
+			// if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
+			// 	return "", err
+			// }
+			// zlog.Info("store metadata success", zap.String("scheduler_id", schedulerId), zap.Int64("stock", resp.Affected.Stock), zap.Int64("quote", resp.Affected.Quote))
 
 			return "", nil
 		},

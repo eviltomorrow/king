@@ -2,17 +2,18 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
+import "lib/protobuf/metadata.proto";
 
 option go_package = "./;pb";
 package collector;
 
 service Collector {
-    // Crawl last metadata with specify source(sina, net126)
+    // Crawl latest metadata from sina web(async)
     rpc CrawlMetadataAsync(google.protobuf.StringValue) returns (google.protobuf.Empty){}
-    // Crawl last metadata with specify source(sina, net126)
+    // Crawl latest metadata from sina web
     rpc CrawlMetadata(google.protobuf.StringValue) returns (CrawlMetadataResponse){}
-    // Store metadata to storage
-    rpc StoreMetadata(google.protobuf.StringValue) returns (StoreMetadataResponse){}
+    // Fetch metadata from collector
+    rpc FetchMetadata(google.protobuf.StringValue) returns (stream Metadata){}
 }
 
 message CrawlMetadataResponse {

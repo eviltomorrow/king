@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+# set -eo pipefail
 
 os=$(uname -s)
 GOOS=""
@@ -32,6 +32,7 @@ esac
 root_dir=$(pwd)
 PATH=$PATH:${root_dir}/tools/protoc-gen-go/${GOOS}_${GOARCH}
 
+rm -rf ${root_dir}/lib/grpc/pb
 for name in $(ls ${root_dir}/apps); do
     # echo ${name}
     if echo "${name}" | grep -q -E '\-web$'
@@ -57,11 +58,12 @@ for name in $(ls ${root_dir}/apps); do
                 rm -rf ${pb_dir}
             fi
             mkdir -p ${pb_dir}
-            cd ${adapter_dir}
 
             for name in $(ls ${adapter_dir}); do
                 file_name=${adapter_dir}/${name}
-                ${root_dir}/tools/protoc/${GOOS}_${GOARCH}/bin/protoc --proto_path="" -I . --go_out=${pb_dir} --go-grpc_out=${pb_dir} ${name}
+                lib_path=$(cat ${file_name} | grep "lib/protobuf" | awk '{print $2}' | awk -F '"' '{print $2}' | tr '\n' ' ')
+
+                ${root_dir}/tools/protoc/${GOOS}_${GOARCH}/bin/protoc --proto_path="${root_dir}" --proto_path="${adapter_dir}" --go_out=${pb_dir} --go-grpc_out=${pb_dir} ${name} ${lib_path}
                 code=$(echo $?)
                 if [ $code = 0 ]; then
                     echo -e "编译文件: ${file_name} => [\033[32m成功\033[0m] "
@@ -74,3 +76,4 @@ for name in $(ls ${root_dir}/apps); do
         fi
     fi
 done
+

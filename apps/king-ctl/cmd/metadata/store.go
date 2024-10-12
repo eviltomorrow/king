@@ -3,6 +3,7 @@ package metadata
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"time"
 
@@ -57,15 +58,35 @@ func init() {
 }
 
 func store(ctx context.Context, date string) (int64, int64, error) {
-	stub, closeFunc, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
+	stubStorage, closeFuncStorage, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
 	if err != nil {
 		return 0, 0, err
 	}
-	defer closeFunc()
+	defer closeFuncStorage()
 
-	resp, err := stub.StoreMetadata(ctx, &wrapperspb.StringValue{Value: date})
+	target, err := stubStorage.PushMetadata(ctx)
 	if err != nil {
 		return 0, 0, err
 	}
-	return resp.Affected.Stock, resp.Affected.Quote, nil
+
+	stubCollector, closeFuncCollector, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
+	if err != nil {
+		return 0, 0, err
+	}
+	defer closeFuncCollector()
+
+	source, err := stubCollector.FetchMetadata(ctx, &wrapperspb.StringValue{Value: date})
+	if err != nil {
+		return 0, 0, err
+	}
+	for {
+		md, err := source.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		if err := target.Send(md); err != nil {
+			return err
+		}
+	}
 }
