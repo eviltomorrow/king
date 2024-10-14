@@ -153,7 +153,7 @@ func (g *Storage) GetQuoteLatest(req *pb.GetQuoteLatestRequest, resp pb.Storage_
 	}
 
 	ctx := resp.Context()
-	quotes, err := db.QuoteWithSelectManyLatest(ctx, mysql.DB, kind, req.Code, req.Date, limit)
+	quotes, err := db.QuoteWithSelectLatestByCodeAndDate(ctx, mysql.DB, kind, req.Code, req.Date, limit)
 	if err != nil {
 		return err
 	}

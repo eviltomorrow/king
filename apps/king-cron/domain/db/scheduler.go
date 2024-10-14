@@ -8,7 +8,7 @@ import (
 
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/orm"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -27,7 +27,7 @@ func SchedulerRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record *
 		FieldSchedulerRecordCode:        record.Code,
 		FieldSchedulerRecordErrorMsg:    record.ErrorMsg,
 	}
-	return orm.TableWithInsertOne(ctx, exec, TableSchedulerRecordName, value)
+	return sqlutil.TableWithInsertOne(ctx, exec, TableSchedulerRecordName, value)
 }
 
 func SchedulerRecordWithUpdateStatus(ctx context.Context, exec mysql.Exec, status, code, errorMsg string, id string) (int64, error) {
@@ -45,7 +45,7 @@ func SchedulerRecordWithUpdateStatus(ctx context.Context, exec mysql.Exec, statu
 	if errorMsg != "" {
 		value[FieldSchedulerRecordErrorMsg] = errorMsg
 	}
-	return orm.TableWithUpdate(ctx, exec, TableSchedulerRecordName, value, map[string]interface{}{FieldSchedulerRecordId: id})
+	return sqlutil.TableWithUpdate(ctx, exec, TableSchedulerRecordName, value, map[string]interface{}{FieldSchedulerRecordId: id})
 }
 
 func SchedulerRecordWithSelectOneByDateName(ctx context.Context, exec mysql.Exec, name, date string) (*SchedulerRecord, error) {
@@ -65,7 +65,7 @@ func SchedulerRecordWithSelectOneByDateName(ctx context.Context, exec mysql.Exec
 			&record.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TableSchedulerRecordName, schedulerRecordFields, map[string]interface{}{FieldSchedulerRecordName: name, fmt.Sprintf("DATE_FORMAT(`%s`, '%%Y-%%m-%%d')", FieldSchedulerRecordDate): date}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TableSchedulerRecordName, schedulerRecordFields, map[string]interface{}{FieldSchedulerRecordName: name, fmt.Sprintf("DATE_FORMAT(`%s`, '%%Y-%%m-%%d')", FieldSchedulerRecordDate): date}, scan); err != nil {
 		return nil, err
 	}
 	return &record, nil
@@ -88,7 +88,7 @@ func SchedulerRecordWithSelectOneById(ctx context.Context, exec mysql.Exec, id s
 			&record.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TableSchedulerRecordName, schedulerRecordFields, map[string]interface{}{FieldSchedulerRecordId: id}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TableSchedulerRecordName, schedulerRecordFields, map[string]interface{}{FieldSchedulerRecordId: id}, scan); err != nil {
 		return nil, err
 	}
 	return &record, nil

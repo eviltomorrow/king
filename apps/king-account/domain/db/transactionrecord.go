@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/orm"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 )
 
 func TransactionRecordWithSelectManyByOpenId(ctx context.Context, exec mysql.Exec, openId string) ([]*TransactionRecord, error) {
@@ -37,7 +37,7 @@ func TransactionRecordWithSelectManyByOpenId(ctx context.Context, exec mysql.Exe
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectMany(ctx, exec, TableTransactionRecordName, TransactionRecordFields, map[string]interface{}{FieldTransactionRecordOpenId: openId}, nil, scan); err != nil {
+	if err := sqlutil.TableWithSelectMany(ctx, exec, TableTransactionRecordName, TransactionRecordFields, map[string]interface{}{FieldTransactionRecordOpenId: openId}, nil, scan); err != nil {
 		return nil, err
 	}
 	return records, nil
@@ -70,7 +70,7 @@ func TransactionRecordWithSelectManyByUserId(ctx context.Context, exec mysql.Exe
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectMany(ctx, exec, TableTransactionRecordName, TransactionRecordFields, map[string]interface{}{FieldTransactionRecordUserId: userId}, nil, scan); err != nil {
+	if err := sqlutil.TableWithSelectMany(ctx, exec, TableTransactionRecordName, TransactionRecordFields, map[string]interface{}{FieldTransactionRecordUserId: userId}, nil, scan); err != nil {
 		return nil, err
 	}
 	return records, nil
@@ -103,7 +103,7 @@ func TransactionRecordWithSelectManyByFundNo(ctx context.Context, exec mysql.Exe
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectMany(ctx, exec, TableTransactionRecordName, TransactionRecordFields, map[string]interface{}{FieldTransactionRecordFundNo: fundNo}, nil, scan); err != nil {
+	if err := sqlutil.TableWithSelectMany(ctx, exec, TableTransactionRecordName, TransactionRecordFields, map[string]interface{}{FieldTransactionRecordFundNo: fundNo}, nil, scan); err != nil {
 		return nil, err
 	}
 	return records, nil
@@ -128,7 +128,7 @@ func TransactionRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record
 		FieldTransactionRecordStatus:     record.Status,
 		FieldAssetsOpenId:                record.OpenId,
 	}
-	return orm.TableWithInsertOne(ctx, exec, TableTransactionRecordName, value)
+	return sqlutil.TableWithInsertOne(ctx, exec, TableTransactionRecordName, value)
 }
 
 type TransactionRecord struct {

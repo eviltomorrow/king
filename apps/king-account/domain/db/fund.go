@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/orm"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 )
 
 func FundWithCountByUserId(ctx context.Context, exec mysql.Exec, userId string) (int64, error) {
@@ -15,7 +15,7 @@ func FundWithCountByUserId(ctx context.Context, exec mysql.Exec, userId string) 
 		return 0, fmt.Errorf("user_id is nil")
 	}
 
-	return orm.TableWithCount(ctx, exec, TableFundName, map[string]interface{}{FieldFundUserId: userId})
+	return sqlutil.TableWithCount(ctx, exec, TableFundName, map[string]interface{}{FieldFundUserId: userId})
 }
 
 func FundWithSelectOne(ctx context.Context, exec mysql.Exec, fundNo string) (*Fund, error) {
@@ -35,7 +35,7 @@ func FundWithSelectOne(ctx context.Context, exec mysql.Exec, fundNo string) (*Fu
 			&fund.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundFundNo: fundNo}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundFundNo: fundNo}, scan); err != nil {
 		return nil, err
 	}
 	return &fund, nil
@@ -65,7 +65,7 @@ func FundWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId str
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectMany(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundUserId: userId}, nil, scan); err != nil {
+	if err := sqlutil.TableWithSelectMany(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldFundUserId: userId}, nil, scan); err != nil {
 		return nil, err
 	}
 	return funds, nil
@@ -82,7 +82,7 @@ func FundWithUpdateAliasName(ctx context.Context, exec mysql.Exec, aliasName, fu
 	value := map[string]interface{}{
 		FieldFundAliasName: aliasName,
 	}
-	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo})
+	return sqlutil.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo})
 }
 
 func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, fundNo string, version int64) (int64, error) {
@@ -101,14 +101,14 @@ func FundWithUpdateOne(ctx context.Context, exec mysql.Exec, fund *Fund, fundNo 
 		FieldFundStatus:           fund.Status,
 		FieldFundVersion:          fund.Version + 1,
 	}
-	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo, FieldFundVersion: version})
+	return sqlutil.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldFundFundNo: fundNo, FieldFundVersion: version})
 }
 
 func FundWithDeleteOne(ctx context.Context, exec mysql.Exec, fundNo string) (int64, error) {
 	if fundNo == "" {
 		return 0, fmt.Errorf("fund_no is nil")
 	}
-	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldFundFundNo: fundNo})
+	return sqlutil.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldFundFundNo: fundNo})
 }
 
 func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64, error) {
@@ -127,7 +127,7 @@ func FundWithInsertOne(ctx context.Context, exec mysql.Exec, fund *Fund) (int64,
 		FieldFundInitDatetime:     fund.InitDatetime,
 		FieldFundVersion:          0,
 	}
-	return orm.TableWithInsertOne(ctx, exec, TableFundName, value)
+	return sqlutil.TableWithInsertOne(ctx, exec, TableFundName, value)
 }
 
 type Fund struct {

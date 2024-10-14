@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/orm"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 )
 
 func PassportWithSelectOneByAccount(ctx context.Context, exec mysql.Exec, account string) (*Passport, error) {
@@ -26,7 +26,7 @@ func PassportWithSelectOneByAccount(ctx context.Context, exec mysql.Exec, accoun
 			&passport.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TablePassportName, PassportFields, map[string]interface{}{FieldPassportAccount: account}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TablePassportName, PassportFields, map[string]interface{}{FieldPassportAccount: account}, scan); err != nil {
 		return nil, err
 	}
 	return &passport, nil
@@ -48,7 +48,7 @@ func PassportWithSelectOneById(ctx context.Context, exec mysql.Exec, id string) 
 			&passport.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TablePassportName, PassportFields, map[string]interface{}{FieldPassportId: id}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TablePassportName, PassportFields, map[string]interface{}{FieldPassportId: id}, scan); err != nil {
 		return nil, err
 	}
 	return &passport, nil
@@ -77,7 +77,7 @@ func PassportWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectRange(ctx, exec, TablePassportName, PassportFields, nil, nil, offset, limit, scan); err != nil {
+	if err := sqlutil.TableWithSelectRange(ctx, exec, TablePassportName, PassportFields, nil, nil, offset, limit, scan); err != nil {
 		return nil, err
 	}
 	return passports, nil
@@ -91,7 +91,7 @@ func PassportWithUpdateStatus(ctx context.Context, exec mysql.Exec, status int8,
 	value := map[string]interface{}{
 		FieldPassportStatus: status,
 	}
-	return orm.TableWithUpdate(ctx, exec, TablePassportName, value, map[string]interface{}{FieldPassportId: id})
+	return sqlutil.TableWithUpdate(ctx, exec, TablePassportName, value, map[string]interface{}{FieldPassportId: id})
 }
 
 func PassportWithUpdatePassword(ctx context.Context, exec mysql.Exec, salt, saltPassword string, id string) (int64, error) {
@@ -103,14 +103,14 @@ func PassportWithUpdatePassword(ctx context.Context, exec mysql.Exec, salt, salt
 		FieldPassportSalt:         salt,
 		FieldPassportSaltPassword: saltPassword,
 	}
-	return orm.TableWithUpdate(ctx, exec, TablePassportName, value, map[string]interface{}{FieldPassportId: id})
+	return sqlutil.TableWithUpdate(ctx, exec, TablePassportName, value, map[string]interface{}{FieldPassportId: id})
 }
 
 func PassportWithDeleteOne(ctx context.Context, exec mysql.Exec, id string) (int64, error) {
 	if id == "" {
 		return 0, fmt.Errorf("id is nil")
 	}
-	return orm.TableWithDelete(ctx, exec, TablePassportName, map[string]interface{}{FieldPassportId: id})
+	return sqlutil.TableWithDelete(ctx, exec, TablePassportName, map[string]interface{}{FieldPassportId: id})
 }
 
 func PassportWithInsertOne(ctx context.Context, exec mysql.Exec, passport *Passport) (int64, error) {
@@ -128,7 +128,7 @@ func PassportWithInsertOne(ctx context.Context, exec mysql.Exec, passport *Passp
 		FieldPassportPhone:        passport.Phone,
 		FieldPassportStatus:       passport.Status,
 	}
-	return orm.TableWithInsertOne(ctx, exec, TablePassportName, value)
+	return sqlutil.TableWithInsertOne(ctx, exec, TablePassportName, value)
 }
 
 type Passport struct {

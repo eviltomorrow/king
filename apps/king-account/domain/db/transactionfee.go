@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/orm"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 )
 
 func TransactionFeeWithSelectManyByRecordId(ctx context.Context, exec mysql.Exec, recordId string) (*TransactionFee, error) {
@@ -22,7 +22,7 @@ func TransactionFeeWithSelectManyByRecordId(ctx context.Context, exec mysql.Exec
 			&fee.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TableTransactionFeeName, TransactionFeeFields, map[string]interface{}{FieldTransactionFeeRecordId: recordId}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TableTransactionFeeName, TransactionFeeFields, map[string]interface{}{FieldTransactionFeeRecordId: recordId}, scan); err != nil {
 		return nil, err
 	}
 	return &fee, nil
@@ -47,7 +47,7 @@ func TransactionFeeWithInsertOne(ctx context.Context, exec mysql.Exec, fee *Tran
 		FieldTransactionFeeItem:     fee.Item,
 		FieldTransactionFeeMoney:    fee.Money,
 	}
-	return orm.TableWithInsertOne(ctx, exec, TableTransactionFeeName, value)
+	return sqlutil.TableWithInsertOne(ctx, exec, TableTransactionFeeName, value)
 }
 
 type TransactionFee struct {

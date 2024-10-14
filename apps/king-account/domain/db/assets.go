@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/orm"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 )
 
 func AssetsWithSelectOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, userId, fundNo, code string) (*Assets, error) {
@@ -27,7 +27,7 @@ func AssetsWithSelectOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 			&assets.ModifyTimestamp,
 		)
 	}
-	if err := orm.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code}, scan); err != nil {
+	if err := sqlutil.TableWithSelectOne(ctx, exec, TableFundName, FundFields, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code}, scan); err != nil {
 		return nil, err
 	}
 	return &assets, nil
@@ -57,7 +57,7 @@ func AssetsWithSelectManyByUserId(ctx context.Context, exec mysql.Exec, userId s
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectMany(ctx, exec, TableAssetsName, AssetsFields, map[string]interface{}{FieldAssetsUserId: userId}, nil, scan); err != nil {
+	if err := sqlutil.TableWithSelectMany(ctx, exec, TableAssetsName, AssetsFields, map[string]interface{}{FieldAssetsUserId: userId}, nil, scan); err != nil {
 		return nil, err
 	}
 	return data, nil
@@ -87,7 +87,7 @@ func AssetsWithSelectManyByFundNo(ctx context.Context, exec mysql.Exec, fundNo s
 		}
 		return nil
 	}
-	if err := orm.TableWithSelectMany(ctx, exec, TableAssetsName, AssetsFields, map[string]interface{}{FieldAssetsFundNo: fundNo}, nil, scan); err != nil {
+	if err := sqlutil.TableWithSelectMany(ctx, exec, TableAssetsName, AssetsFields, map[string]interface{}{FieldAssetsFundNo: fundNo}, nil, scan); err != nil {
 		return nil, err
 	}
 	return data, nil
@@ -103,7 +103,7 @@ func AssetsWithUpdateOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 		FieldAssetsCashPosition: assets.CashPosition,
 		FieldAssetsOpenInterest: assets.OpenInterest,
 	}
-	return orm.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
+	return sqlutil.TableWithUpdate(ctx, exec, TableFundName, value, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
 }
 
 func AssetsWithDeleteOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec, assets *Assets, userId, fundNo, code string) (int64, error) {
@@ -111,7 +111,7 @@ func AssetsWithDeleteOneByUserIdFundNoCode(ctx context.Context, exec mysql.Exec,
 		return 0, fmt.Errorf("assets is nil")
 	}
 
-	return orm.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
+	return sqlutil.TableWithDelete(ctx, exec, TableFundName, map[string]interface{}{FieldAssetsFundNo: fundNo, FieldAssetsUserId: userId, FieldAssetsCode: code})
 }
 
 func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (int64, error) {
@@ -130,7 +130,7 @@ func AssetsWithInsertOne(ctx context.Context, exec mysql.Exec, assets *Assets) (
 		FieldAssetsOpenId:           assets.OpenId,
 		FieldAssetsFirstBuyDatetime: assets.FirstBuyDatetime,
 	}
-	return orm.TableWithInsertOne(ctx, exec, TableAssetsName, value)
+	return sqlutil.TableWithInsertOne(ctx, exec, TableAssetsName, value)
 }
 
 type Assets struct {

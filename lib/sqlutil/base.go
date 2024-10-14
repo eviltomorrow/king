@@ -1,4 +1,4 @@
-package orm
+package sqlutil
 
 import (
 	"context"
@@ -52,7 +52,7 @@ func TableWithUpdate(ctx context.Context, exec mysql.Exec, table string, value, 
 		fieldsValue = append(fieldsValue, fmt.Sprintf("%s = ?", k))
 		argsValue = append(argsValue, v)
 	}
-	fieldsValue = append(fieldsValue, fmt.Sprintf("modify_timestamp = now()"))
+	fieldsValue = append(fieldsValue, "modify_timestamp = now()")
 
 	fieldsWhere := make([]string, 0, len(where))
 	argsWhere := make([]interface{}, 0, len(where))

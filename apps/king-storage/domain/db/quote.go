@@ -9,6 +9,7 @@ import (
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/mathutil"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -213,7 +214,51 @@ func QuoteWithSelectBetweenByCodesAndDate(ctx context.Context, exec mysql.Exec, 
 	return data, nil
 }
 
-func QuoteWithSelectManyLatest(ctx context.Context, exec mysql.Exec, kind string, code string, date string, limit int64) ([]*Quote, error) {
+func QuoteWithSelectLatestByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, code []string, date string) ([]*Quote, error) {
+	fields := make([]string, 0, len(code))
+	args := make([]interface{}, 0, len(code))
+	for _, c := range code {
+		fields = append(fields, "?")
+		args = append(args, c)
+	}
+	args = append(args, date)
+
+	_sql := fmt.Sprintf("select d1.id, d1.code, d1.open, d1.close, d1.high, d1.low, d1.yesterday_closed, d1.volume, d1.account, d1.date, d1.num_of_year, d1.xd, d1.create_timestamp, d1.modify_timestamp from quote_%s d1 inner join (select code, max(date) `date` from quote_day where code in (%s) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? group by code) d2 on d1.code = d2.code and d1.`date` = d2.`date`; ", kind, strings.Join(fields, ","))
+	data := make([]*Quote, 0, len(code))
+	scan := func(rows *sql.Rows) error {
+		for rows.Next() {
+			m := Quote{}
+			if err := rows.Scan(
+				&m.Id,
+				&m.Code,
+				&m.Open,
+				&m.Close,
+				&m.High,
+				&m.Low,
+				&m.YesterdayClosed,
+				&m.Volume,
+				&m.Account,
+				&m.Date,
+				&m.NumOfYear,
+				&m.Xd,
+				&m.CreateTimestamp,
+				&m.ModifyTimestamp,
+			); err != nil {
+				return err
+			}
+			data = append(data, &m)
+		}
+		return nil
+	}
+
+	if err := sqlutil.ExecQueryMany(ctx, exec, _sql, args, scan); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func QuoteWithSelectLatestByCodeAndDate(ctx context.Context, exec mysql.Exec, kind string, code string, date string, limit int64) ([]*Quote, error) {
 	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code = ? and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? order by `date` desc limit ?", kind)
 	rows, err := exec.QueryContext(ctx, _sql, code, date, limit)
 	if err != nil {

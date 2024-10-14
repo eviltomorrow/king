@@ -14,7 +14,7 @@ import (
 )
 
 func BuildQuoteDayWitchMetadata(ctx context.Context, data *model.Metadata, date time.Time) (*db.Quote, error) {
-	latest, err := db.QuoteWithSelectManyLatest(ctx, mysql.DB, db.Day, data.Code, data.Date, 1)
+	latest, err := db.QuoteWithSelectLatestByCodeAndDate(ctx, mysql.DB, db.Day, data.Code, data.Date, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -40,6 +40,10 @@ func BuildQuoteDayWitchMetadata(ctx context.Context, data *model.Metadata, date 
 		CreateTimestamp: time.Now(),
 	}
 	return quote, nil
+}
+
+func BuildQuoteDaysWitchMetadata(ctx context.Context, data []*model.Metadata, date time.Time) (*db.Quote, error) {
+	return nil, nil
 }
 
 func BuildQuoteWeekWithQuoteDay(ctx context.Context, code string, date time.Time) (*db.Quote, error) {

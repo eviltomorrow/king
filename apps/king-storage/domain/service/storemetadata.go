@@ -13,7 +13,7 @@ import (
 func StoreMetadata(ctx context.Context, date time.Time, metadata []*model.Metadata) (int64, int64, error) {
 	var (
 		affectedStock, affectedQuote int64
-		i, size                      int64 = 0, mysql.QueryPerSize
+		i, size                      int64 = 0, mysql.QueryPerLimit
 	)
 
 	data := make([]*model.Metadata, 0, size)
@@ -82,7 +82,7 @@ func storeMetadata(ctx context.Context, date time.Time, metadata []*model.Metada
 	}
 
 	if date.Weekday() == time.Friday {
-		var offset, limit int64 = 0, mysql.QueryPerSize
+		var offset, limit int64 = 0, mysql.QueryPerLimit
 
 		for {
 			stocks, err := db.StockWithSelectRange(ctx, mysql.DB, offset, limit)
