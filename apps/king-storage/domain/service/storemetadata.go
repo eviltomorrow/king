@@ -10,109 +10,48 @@ import (
 	"github.com/eviltomorrow/king/lib/model"
 )
 
-func StoreMetadata(ctx context.Context, date time.Time, metadata []*model.Metadata) (int64, int64, error) {
-	var (
-		affectedStock, affectedQuote int64
-		i, size                      int64 = 0, mysql.QueryPerLimit
-	)
+func StoreMetadata(ctx context.Context, metadata []*model.Metadata, date time.Time) (int64, int64, int64, error) {
+	var affectedStock, affectedDay, affectedWeek int64
 
-	data := make([]*model.Metadata, 0, size)
-	for _, md := range metadata {
-		if md == nil {
-			continue
-		}
-		if i >= size {
-			s, q, err := storeMetadata(ctx, date, data)
-			if err != nil {
-				return 0, 0, err
-			}
-			affectedStock, affectedQuote = affectedStock+s, affectedQuote+q
-			i = 0
-			data = data[:0]
-		} else {
-			data = append(data, md)
-		}
-	}
-	if len(data) > 0 {
-		s, d, err := storeMetadata(ctx, date, data)
-		if err != nil {
-			return 0, 0, err
-		}
-		affectedStock, affectedQuote = affectedStock+s, affectedQuote+d
-	}
-
-	return affectedStock, affectedQuote, nil
-}
-
-func storeMetadata(ctx context.Context, date time.Time, metadata []*model.Metadata) (int64, int64, error) {
-	var (
-		stocks = make([]*db.Stock, 0, len(metadata))
-		days   = make([]*db.Quote, 0, len(metadata))
-
-		affectedStock, affectedQuote int64
-	)
-
-	for _, md := range metadata {
-		stocks = append(stocks, &db.Stock{
-			Code:            md.Code,
-			Name:            md.Name,
-			Suspend:         md.Suspend,
-			CreateTimestamp: time.Now(),
-		})
-
-		day, err := BuildQuoteDayWitchMetadata(ctx, md, date)
-		if err != nil {
-			return 0, 0, err
-		}
-		days = append(days, day)
+	stocks, err := BuildStocksWithMetadata(ctx, metadata)
+	if err != nil {
+		return 0, 0, 0, err
 	}
 
 	if len(stocks) != 0 {
 		affected, err := storeStock(ctx, stocks)
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 		affectedStock += affected
+	}
 
-		affected, err = storeQuote(ctx, days, db.Day, date)
+	days, err := BuildQuoteDaysWitchMetadata(ctx, metadata, date)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	if len(days) != 0 {
+		affected, err := storeQuote(ctx, days, db.Day, date)
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
-		affectedQuote += affected
+		affectedDay += affected
 	}
 
 	if date.Weekday() == time.Friday {
-		var offset, limit int64 = 0, mysql.QueryPerLimit
-
-		for {
-			stocks, err := db.StockWithSelectRange(ctx, mysql.DB, offset, limit)
-			if err != nil {
-				return 0, 0, err
-			}
-
-			weeks := make([]*db.Quote, 0, len(stocks))
-			for _, stock := range stocks {
-				week, err := BuildQuoteWeekWithQuoteDay(ctx, stock.Code, date)
-				if err != nil {
-					return affectedStock, affectedQuote, err
-				}
-				if week != nil {
-					weeks = append(weeks, week)
-				}
-			}
-
-			if _, err := storeQuote(ctx, weeks, db.Week, date); err != nil {
-				return affectedStock, affectedQuote, err
-			}
-
-			if int64(len(stocks)) < limit {
-				break
-			}
-			offset += limit
+		weeks, err := BuildQuoteWeeksWithMetadata(ctx, metadata, date)
+		if err != nil {
+			return 0, 0, 0, err
 		}
-
+		if len(weeks) != 0 {
+			affected, err := storeQuote(ctx, weeks, db.Week, date)
+			if err != nil {
+				return 0, 0, 0, err
+			}
+			affectedWeek += affected
+		}
 	}
-	return affectedStock, affectedQuote, nil
+	return affectedStock, affectedDay, affectedWeek, nil
 }
 
 func storeStock(ctx context.Context, data []*db.Stock) (int64, error) {

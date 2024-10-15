@@ -2,15 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/eviltomorrow/king/apps/king-ctl/cmd/metadata"
 	"github.com/eviltomorrow/king/lib/buildinfo"
-	"github.com/eviltomorrow/king/lib/etcd"
-	"github.com/eviltomorrow/king/lib/finalizer"
-	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc/resolver"
 )
 
 var RootCommand = &cobra.Command{
@@ -36,19 +31,6 @@ func init() {
 
 func RunApp() error {
 	RootCommand.Use = buildinfo.AppName
-
-	closeFunc, err := etcd.InitEtcd(&etcd.Config{
-		Endpoints:          []string{"127.0.0.1:2379"},
-		ConnectTimeout:     5 * time.Second,
-		StartupRetryTimes:  1,
-		StartupRetryPeriod: 5 * time.Second,
-	})
-	if err != nil {
-		return err
-	}
-	finalizer.RegisterCleanupFuncs(closeFunc)
-
-	resolver.Register(lb.NewBuilder(etcd.Client))
 
 	return RootCommand.Execute()
 }

@@ -17,8 +17,9 @@ service Storage {
 
 message PushResponse {
     message AffectedCount {
-        int64 stock = 1;
-        int64 quote = 2;
+        int64 stocks = 1;
+        int64 days = 2;
+        int64 weeks = 3;
     }
     AffectedCount affected = 1;
 }

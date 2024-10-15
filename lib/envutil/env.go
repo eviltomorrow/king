@@ -37,7 +37,7 @@ func InitLog(log *log.Config) error {
 		File: zlog.FileLogConfig{
 			Filename:    filepath.Join(system.Directory.LogDir, "data.log"),
 			MaxSize:     100,
-			MaxDays:     90,
+			MaxDays:     30,
 			MaxBackups:  90,
 			Compression: "gzip",
 		},
@@ -57,7 +57,7 @@ func InitLog(log *log.Config) error {
 		File: zlog.FileLogConfig{
 			Filename:    filepath.Join(system.Directory.LogDir, "access.log"),
 			MaxSize:     100,
-			MaxDays:     90,
+			MaxDays:     30,
 			MaxBackups:  90,
 			Compression: "gzip",
 		},
