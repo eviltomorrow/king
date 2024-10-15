@@ -223,7 +223,7 @@ func QuoteWithSelectLatestByCodesAndDate(ctx context.Context, exec mysql.Exec, k
 	}
 	args = append(args, date)
 
-	_sql := fmt.Sprintf("select d1.id, d1.code, d1.open, d1.close, d1.high, d1.low, d1.yesterday_closed, d1.volume, d1.account, d1.date, d1.num_of_year, d1.xd, d1.create_timestamp, d1.modify_timestamp from quote_%s d1 inner join (select code, max(date) `date` from quote_day where code in (%s) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? group by code) d2 on d1.code = d2.code and d1.`date` = d2.`date`; ", kind, strings.Join(fields, ","))
+	_sql := fmt.Sprintf("select d1.id, d1.code, d1.open, d1.close, d1.high, d1.low, d1.yesterday_closed, d1.volume, d1.account, d1.date, d1.num_of_year, d1.xd, d1.create_timestamp, d1.modify_timestamp from quote_%s d1 inner join (select code, max(date) `date` from quote_day where code in (%s) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') <= ? group by code) d2 on d1.code = d2.code and d1.`date` = d2.`date`", kind, strings.Join(fields, ","))
 	data := make([]*Quote, 0, len(code))
 	scan := func(rows *sql.Rows) error {
 		for rows.Next() {

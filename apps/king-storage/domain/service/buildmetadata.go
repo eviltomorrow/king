@@ -42,8 +42,51 @@ func BuildQuoteDayWitchMetadata(ctx context.Context, data *model.Metadata, date 
 	return quote, nil
 }
 
-func BuildQuoteDaysWitchMetadata(ctx context.Context, data []*model.Metadata, date time.Time) (*db.Quote, error) {
-	return nil, nil
+func BuildQuoteDaysWitchMetadata(ctx context.Context, data []*model.Metadata, date time.Time) ([]*db.Quote, error) {
+	codes := make([]string, 0, len(data))
+	for _, d := range data {
+		codes = append(codes, d.Code)
+	}
+
+	latest, err := db.QuoteWithSelectLatestByCodesAndDate(ctx, mysql.DB, db.Day, codes, date.Format(time.DateOnly))
+	if err != nil {
+		return nil, err
+	}
+
+	md := make(map[string]*db.Quote, len(latest))
+	for _, l := range latest {
+		md[l.Code] = l
+	}
+
+	result := make([]*db.Quote, 0, len(data))
+	for _, d := range data {
+		var xd float64 = 1.0
+
+		m, ok := md[d.Code]
+		if ok {
+			if m.Close != 0 && m.Date.Format(time.DateOnly) != d.Date && m.Close != d.YesterdayClosed {
+				xd = d.YesterdayClosed / m.Close
+			}
+		}
+
+		quote := &db.Quote{
+			Id:              snowflake.GenerateID(),
+			Code:            d.Code,
+			Open:            d.Open,
+			Close:           d.Latest,
+			High:            d.High,
+			Low:             d.Low,
+			YesterdayClosed: d.YesterdayClosed,
+			Volume:          d.Volume,
+			Account:         d.Account,
+			Date:            date,
+			NumOfYear:       date.YearDay(),
+			Xd:              xd,
+			CreateTimestamp: time.Now(),
+		}
+		result = append(result, quote)
+	}
+	return result, nil
 }
 
 func BuildQuoteWeekWithQuoteDay(ctx context.Context, code string, date time.Time) (*db.Quote, error) {
