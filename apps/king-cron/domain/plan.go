@@ -61,11 +61,12 @@ func DefaultNotifyWithError(title string, err error, tags []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	now := time.Now()
 	var e error
-	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, err.Error()); err != nil {
+	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, fmt.Sprintf("日期:%v, %s", now.Format(time.DateOnly), err.Error())); err != nil {
 		e = errors.Join(e, fmt.Errorf("send email failure, nest error: %v", err))
 	}
-	if err := notification.SendNtfy(ctx, title, err.Error(), "SrxOPwCBiRWZUOq0", tags); err != nil {
+	if err := notification.SendNtfy(ctx, title, fmt.Sprintf("日期:%v, %s", now.Format(time.DateOnly), err.Error()), "SrxOPwCBiRWZUOq0", tags); err != nil {
 		e = errors.Join(e, fmt.Errorf("send ntfy failure, nest error: %v", err))
 	}
 	return e
@@ -75,11 +76,12 @@ func DefaultNotifyWithMsg(title, body string, tags []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
+	now := time.Now()
 	var e error
-	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, body); err != nil {
+	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, fmt.Sprintf("日期:%v, %s", now.Format(time.DateOnly), body)); err != nil {
 		e = errors.Join(e, fmt.Errorf("send email failure, nest error: %v", err))
 	}
-	if err := notification.SendNtfy(ctx, title, body, "SrxOPwCBiRWZUOq0", tags); err != nil {
+	if err := notification.SendNtfy(ctx, title, fmt.Sprintf("日期:%v, %s", now.Format(time.DateOnly), body), "SrxOPwCBiRWZUOq0", tags); err != nil {
 		e = errors.Join(e, fmt.Errorf("send ntfy failure, nest error: %v", err))
 	}
 	return e
