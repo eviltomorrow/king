@@ -43,7 +43,8 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 
 	var (
 		as atomic.Int64
-		aq atomic.Int64
+		ad atomic.Int64
+		aw atomic.Int64
 	)
 
 	ctx := req.Context()
@@ -86,28 +87,30 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 		})
 
 		if len(wrapper.Data) == PER_COMMIT_LIMIT {
-			s, q, err := service.StoreMetadata(ctx, wrapper.Date, wrapper.Data)
+			s, d, w, err := service.StoreMetadata(ctx, wrapper.Data, wrapper.Date)
 			if err != nil {
 				return err
 			}
 			as.Add(s)
-			aq.Add(q)
+			ad.Add(d)
+			aw.Add(w)
 			wrapper.Data = wrapper.Data[:0]
 		}
 		data[md.Date] = wrapper
 	}
 
 	for _, wrapper := range data {
-		s, q, err := service.StoreMetadata(ctx, wrapper.Date, wrapper.Data)
+		s, d, w, err := service.StoreMetadata(ctx, wrapper.Data, wrapper.Date)
 		if err != nil {
 			return err
 		}
 		as.Add(s)
-		aq.Add(q)
+		ad.Add(d)
+		aw.Add(w)
 		wrapper.Data = wrapper.Data[:0]
 	}
 
-	return req.SendAndClose(&pb.PushResponse{Affected: &pb.PushResponse_AffectedCount{Stock: as.Load(), Quote: aq.Load()}})
+	return req.SendAndClose(&pb.PushResponse{Affected: &pb.PushResponse_AffectedCount{Stocks: as.Load(), Days: ad.Load(), Weeks: aw.Load()}})
 }
 
 func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer) error {

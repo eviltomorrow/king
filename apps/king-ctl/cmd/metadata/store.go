@@ -33,11 +33,11 @@ var StoreCommand = &cobra.Command{
 				now  = time.Now()
 			)
 
-			stock, quote, err := store(context.Background(), date)
+			stocks, days, weeks, err := store(context.Background(), date)
 			if err != nil {
 				log.Printf("归档失败, nest error: %v, date: %v", err, date)
 			} else {
-				fmt.Printf("归档完成, 日期: %v, 股票数量: %v, 交易数据: %v, 花费: %v\r\n", date, stock, quote, time.Since(now))
+				fmt.Printf("归档完成, 日期: %v, 股票数: %v, 日交易数据: %v, 周交易数据: %v, 花费: %v\r\n", date, stocks, days, weeks, time.Since(now))
 			}
 			begin = begin.Add(24 * time.Hour)
 		}
@@ -57,27 +57,27 @@ func init() {
 	StoreCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
-func store(ctx context.Context, date string) (int64, int64, error) {
+func store(ctx context.Context, date string) (int64, int64, int64, error) {
 	stubStorage, closeFuncStorage, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	defer closeFuncStorage()
 
 	target, err := stubStorage.PushMetadata(ctx)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
 	stubCollector, closeFuncCollector, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	defer closeFuncCollector()
 
 	source, err := stubCollector.FetchMetadata(ctx, &wrapperspb.StringValue{Value: date})
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	for {
 		md, err := source.Recv()
@@ -85,18 +85,18 @@ func store(ctx context.Context, date string) (int64, int64, error) {
 			break
 		}
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 
 		fmt.Println(md.String())
 		if err := target.Send(md); err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 	}
 	resp, err := target.CloseAndRecv()
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
-	return resp.Affected.Stock, resp.Affected.Quote, nil
+	return resp.Affected.Stocks, resp.Affected.Days, resp.Affected.Weeks, nil
 	// return 0, 0, nil
 }
