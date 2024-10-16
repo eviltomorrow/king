@@ -1,9 +1,16 @@
 package service
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
+	"github.com/eviltomorrow/king/lib/codes"
+	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/setting"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
@@ -24,9 +31,11 @@ func NewScheduler() *scheduler {
 }
 
 func (s *scheduler) Register(cron string, plan *domain.Plan) {
+	if err := plan.Check(); err != nil {
+		panic(fmt.Sprintf("check plan failure, nest error: %v, name: %v", err, plan.Name))
+	}
 	_, err := s.cron.AddFunc(cron, func() {
-		zlog.Info("plan exec begin", zap.String("name", plan.GetName()))
-
+		now := time.Now()
 		if plan.IsCompleted() {
 			return
 		}
@@ -39,7 +48,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		if plan.Precondition != nil {
 			status, err = plan.Precondition()
 			if err != nil {
-				zlog.Error("precondition check failure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("name", plan.GetName()))
 				return
 			}
 
@@ -76,8 +85,37 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 				zlog.Error("notify with msg failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
-
 		plan.SetStatus(domain.Completed)
+
+		// 数据库
+		currentStatus, currentCode := func() (string, sql.NullString) {
+			if plan.Type == domain.ASYNC {
+				return domain.StatusProcessing, sql.NullString{}
+			}
+			if err == nil {
+				return domain.StatusCompleted, sql.NullString{String: codes.SUCCESS, Valid: true}
+			} else {
+				return domain.StatusCompleted, sql.NullString{String: codes.FAILURE, Valid: true}
+			}
+		}()
+
+		record := &db.SchedulerRecord{
+			Id:          "",
+			Name:        plan.Name,
+			Date:        now,
+			ServiceName: plan.CallFuncInfo.ServiceName,
+			FuncName:    plan.CallFuncInfo.FuncName,
+			Code:        currentCode,
+			Status:      currentStatus,
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
+		defer cancel()
+
+		if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
+			zlog.Error("scheduler record insert failure, nest error: %v", zap.Error(err), zap.String("name", plan.Name))
+		}
+
 	})
 	if err != nil {
 		panic(fmt.Errorf("register plan failure, nest error: %v", err))

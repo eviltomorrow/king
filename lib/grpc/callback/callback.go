@@ -2,26 +2,13 @@ package callback
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-cron"
 	"github.com/eviltomorrow/king/lib/setting"
-	"google.golang.org/grpc/metadata"
 )
 
-func Do(ctx context.Context, e error) (string, error) {
-	params, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", fmt.Errorf("context has no value")
-	}
-
-	data := params["scheduler_id"]
-	if len(data) == 0 {
-		return "", fmt.Errorf("context has no scheduler_id")
-	}
-	schedulerId := data[0]
-
+func Do(schedulerId string, e error) (string, error) {
 	stub, shutdown, err := client.NewSchedulerWithEtcd()
 	if err != nil {
 		return "", err

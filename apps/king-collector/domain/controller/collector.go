@@ -38,13 +38,13 @@ func (c *Collector) Service() func(*grpc.Server) {
 
 func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	if req == nil {
-		return nil, fmt.Errorf("invalid request, source is nil")
+		return nil, fmt.Errorf("invalid request, scheduler_id is nil")
 	}
-	if req.Value != "sina" {
-		return nil, fmt.Errorf("invalid request, source is %s", req.Value)
+	if req.Value == "" {
+		return nil, fmt.Errorf("invalid request, scheduler_id is %s", req.Value)
 	}
 
-	go func() {
+	go func(id string) {
 		begin := time.Now()
 
 		// total, ignore, err := service.CrawlMetadataSlow(ctx, c.config.Source, c.config.CodeList, c.config.RandomPeriod)
@@ -55,13 +55,13 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 			zlog.Info("crawl metadata completed", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Duration("cost", time.Since(begin)))
 		}
 
-		schedulerId, err := callback.Do(context.Background(), err)
+		schedulerId, err := callback.Do(id, err)
 		if err != nil {
 			zlog.Error("callback failure", zap.Error(err))
 		} else {
 			zlog.Info("callback success", zap.String("schedulerId", schedulerId))
 		}
-	}()
+	}(req.Value)
 
 	return &emptypb.Empty{}, nil
 }

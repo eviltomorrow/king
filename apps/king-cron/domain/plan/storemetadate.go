@@ -14,7 +14,6 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	"github.com/eviltomorrow/king/lib/setting"
-	"github.com/eviltomorrow/king/lib/snowflake"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -42,7 +41,7 @@ func CronWithStoreMetadata() *domain.Plan {
 			}
 
 			record, err = db.SchedulerRecordWithSelectOneByDateName(ctx, mysql.DB, NameWithCrawlMetadata, time.Now().Format(time.DateOnly))
-			if err != nil {
+			if err != nil && err != sql.ErrNoRows {
 				return 0, err
 			}
 
@@ -74,6 +73,7 @@ func CronWithStoreMetadata() *domain.Plan {
 			defer closeFuncCollector()
 
 			now := time.Now()
+
 			source, err := stubCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
 				return "", err
@@ -97,29 +97,18 @@ func CronWithStoreMetadata() *domain.Plan {
 				return "", err
 			}
 
-			schedulerId := snowflake.GenerateID()
-			record := &db.SchedulerRecord{
-				Id:          schedulerId,
-				Name:        NameWithStoreMetadata,
-				Date:        now,
-				ServiceName: "collector",
-				FuncName:    "StoreMetadata",
-				Status:      domain.StatusCompleted,
-			}
-
-			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
-			defer cancel()
-
-			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
-				return "", err
-			}
-			zlog.Info("store metadata success", zap.String("scheduler_id", schedulerId), zap.Int64("stocks", resp.Affected.Stocks), zap.Int64("days", resp.Affected.Days), zap.Int64("weeks", resp.Affected.Weeks))
+			zlog.Info("store metadata success", zap.Int64("stocks", resp.Affected.Stocks), zap.Int64("days", resp.Affected.Days), zap.Int64("weeks", resp.Affected.Weeks))
 
 			return "", nil
 		},
 
 		NotifyWithError: func(err error) error {
 			return domain.DefaultNotifyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
+		},
+
+		CallFuncInfo: domain.CallFuncInfo{
+			ServiceName: "collector/storage",
+			FuncName:    "FetchMetadata/PushMetadata",
 		},
 
 		Status: domain.Ready,
