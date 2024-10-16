@@ -15,14 +15,12 @@ func StoreMetadata(ctx context.Context, metadata []*model.Metadata, date time.Ti
 
 	stocks, err := BuildStocksWithMetadata(ctx, metadata)
 	if err != nil {
-		fmt.Println("e1", err)
 		return 0, 0, 0, err
 	}
 
 	if len(stocks) != 0 {
 		affected, err := storeStock(ctx, stocks)
 		if err != nil {
-			fmt.Println("e2", err)
 			return 0, 0, 0, err
 		}
 		affectedStock += affected
@@ -30,13 +28,11 @@ func StoreMetadata(ctx context.Context, metadata []*model.Metadata, date time.Ti
 
 	days, err := BuildQuoteDaysWitchMetadata(ctx, metadata, date)
 	if err != nil {
-		fmt.Println("e3", err)
 		return 0, 0, 0, err
 	}
 	if len(days) != 0 {
 		affected, err := storeQuote(ctx, days, db.Day, date)
 		if err != nil {
-			fmt.Println("e4", err)
 			return 0, 0, 0, err
 		}
 		affectedDay += affected
@@ -45,13 +41,11 @@ func StoreMetadata(ctx context.Context, metadata []*model.Metadata, date time.Ti
 	if date.Weekday() == time.Friday {
 		weeks, err := BuildQuoteWeeksWithMetadata(ctx, metadata, date)
 		if err != nil {
-			fmt.Println("e5", err)
 			return 0, 0, 0, err
 		}
 		if len(weeks) != 0 {
 			affected, err := storeQuote(ctx, weeks, db.Week, date)
 			if err != nil {
-				fmt.Println("e6", err)
 				return 0, 0, 0, err
 			}
 			affectedWeek += affected

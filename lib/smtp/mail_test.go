@@ -1,7 +1,6 @@
 package smtp
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/eviltomorrow/king/apps/king-notification/conf"
@@ -13,7 +12,6 @@ func TestSendEmail(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(smtp.String())
 
 	if err := SendWithSSL(smtp.Server, smtp.Username, smtp.Password, &Message{
 		From: Contact{

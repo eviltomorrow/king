@@ -84,7 +84,7 @@ func RunApp() error {
 	finalizer.RegisterCleanupFuncs(s.Stop)
 
 	cron := service.NewScheduler()
-	cron.Register("52 10 * * MON,TUE,WED,THU,FRI", plan.CronWithCrawlMetadata())
+	cron.Register("59 10 * * MON,TUE,WED,THU,FRI", plan.CronWithCrawlMetadata())
 	cron.Register("0/5 09-23 * * MON,TUE,WED,THU,FRI", plan.CronWithStoreMetadata())
 
 	if err := cron.Start(); err != nil {

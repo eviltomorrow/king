@@ -85,19 +85,16 @@ func store(ctx context.Context, date string) (int64, int64, int64, error) {
 			break
 		}
 		if err != nil {
-			fmt.Println("recive", err)
 			return 0, 0, 0, err
 		}
 
 		if err := target.Send(md); err != nil {
-			fmt.Println("send", err)
 			return 0, 0, 0, err
 		}
 	}
 
 	resp, err := target.CloseAndRecv()
 	if err != nil {
-		fmt.Println("close", err)
 		return 0, 0, 0, err
 	}
 	return resp.Affected.Stocks, resp.Affected.Days, resp.Affected.Weeks, nil

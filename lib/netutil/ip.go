@@ -46,14 +46,13 @@ func GetInterfaceIPv6First() (string, error) {
 }
 
 func GetLocalareaIP(network, address string) (string, error) {
-	conn, err := net.DialTimeout(network, address, setting.DEFUALT_HANDLE_TIMEOUT)
+	conn, err := net.DialTimeout(network, address, setting.DEFUALT_HANDLE_10TIMEOUT)
 	if err != nil {
 		return "", err
 	}
 	defer conn.Close()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	fmt.Println(localAddr)
 	hostPort := strings.Split(localAddr.String(), ":")
 	if len(hostPort) != 2 {
 		return "", fmt.Errorf("panic: invalid host_port, value: %v", hostPort)

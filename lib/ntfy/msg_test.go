@@ -13,7 +13,6 @@ func TestSend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(ntfy.String())
 
 	data, err := Send(fmt.Sprintf("%s://%s:%d", ntfy.Scheme, ntfy.Server, ntfy.Port), ntfy.Username, ntfy.Password, "SrxOPwCBiRWZUOq0", &Msg{
 		Title:    "Hi",

@@ -51,7 +51,7 @@ var (
 func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
 	url := fmt.Sprintf("https://hq.sinajs.cn/list=%s", strings.Join(codes, ","))
 
-	data, err := client.Get(url, setting.DEFUALT_HANDLE_TIMEOUT, SinaHeader, nil)
+	data, err := client.Get(url, setting.DEFUALT_HANDLE_10TIMEOUT, SinaHeader, nil)
 	if err != nil {
 		return nil, fmt.Errorf("url: %v, nest error: %v", url, err)
 	}
