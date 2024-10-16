@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain/notification"
+	"github.com/eviltomorrow/king/lib/setting"
 )
 
 type Plan struct {
@@ -58,7 +59,7 @@ const (
 )
 
 func DefaultNotifyWithError(title string, err error, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 	defer cancel()
 
 	now := time.Now()
@@ -73,7 +74,7 @@ func DefaultNotifyWithError(title string, err error, tags []string) error {
 }
 
 func DefaultNotifyWithMsg(title, body string, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_30SECOND)
 	defer cancel()
 
 	now := time.Now()

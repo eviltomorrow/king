@@ -11,6 +11,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/setting"
 )
 
 const (
@@ -20,7 +21,7 @@ const (
 func CronWithStoreMetadata() *domain.Plan {
 	p := &domain.Plan{
 		Precondition: func() (domain.StatusCode, error) {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 			defer cancel()
 
 			record, err := db.SchedulerRecordWithSelectOneByDateName(ctx, mysql.DB, NameWithStoreMetadata, time.Now().Format(time.DateOnly))

@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/eviltomorrow/king/lib/http/client"
 	"github.com/eviltomorrow/king/lib/model"
+	"github.com/eviltomorrow/king/lib/setting"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.uber.org/zap"
 )
@@ -51,7 +51,7 @@ var (
 func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
 	url := fmt.Sprintf("https://hq.sinajs.cn/list=%s", strings.Join(codes, ","))
 
-	data, err := client.Get(url, 20*time.Second, SinaHeader, nil)
+	data, err := client.Get(url, setting.DEFUALT_HANDLE_TIMEOUT, SinaHeader, nil)
 	if err != nil {
 		return nil, fmt.Errorf("url: %v, nest error: %v", url, err)
 	}

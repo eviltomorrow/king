@@ -1,0 +1,13 @@
+package setting
+
+import "time"
+
+const (
+	DEFUALT_HANDLE_TIMEOUT = 10 * time.Second
+
+	BATCH_HANDLE_LIMIT          = 50
+	DB_QUERY_LIMIT              = 50
+	GRPC_UNARY_TIMEOUT_10SECOND = DEFUALT_HANDLE_TIMEOUT
+	GRPC_UNARY_TIMEOUT_30SECOND = 30 * time.Second
+	GRPC_UNARY_TIMEOUT_60SECOND = 60 * time.Second
+)

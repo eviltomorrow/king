@@ -2,10 +2,10 @@ package notification
 
 import (
 	"context"
-	"time"
 
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
+	"github.com/eviltomorrow/king/lib/setting"
 )
 
 func SendEmail(ctx context.Context, name, address, subject, body string) error {
@@ -15,7 +15,7 @@ func SendEmail(ctx context.Context, name, address, subject, body string) error {
 	}
 	defer closeFunc()
 
-	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10SECOND)
 	defer cancel()
 
 	if _, err = stub.Send(ctx, &pb.Mail{
@@ -38,7 +38,7 @@ func SendNtfy(ctx context.Context, title, msg string, topic string, tags []strin
 	}
 	defer closeFunc()
 
-	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10SECOND)
 	defer cancel()
 
 	if _, err = stub.Send(ctx, &pb.Msg{

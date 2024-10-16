@@ -12,6 +12,7 @@ import (
 	"github.com/eviltomorrow/king/lib/grpc/pb/entity"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/model"
+	"github.com/eviltomorrow/king/lib/setting"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,8 +32,6 @@ func (g *Storage) Service() func(*grpc.Server) {
 		pb.RegisterStorageServer(server, g)
 	}
 }
-
-const PER_COMMIT_LIMIT = 30
 
 func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, pb.PushResponse]) error {
 	type MetadataWrapper struct {
@@ -65,7 +64,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 			}
 			wrapper = MetadataWrapper{
 				Date: d,
-				Data: make([]*model.Metadata, 0, PER_COMMIT_LIMIT),
+				Data: make([]*model.Metadata, 0, setting.BATCH_HANDLE_LIMIT),
 			}
 			data[md.Date] = wrapper
 		}
@@ -85,7 +84,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 			Suspend:         md.Suspend,
 		})
 
-		if len(wrapper.Data) == PER_COMMIT_LIMIT {
+		if len(wrapper.Data) == setting.BATCH_HANDLE_LIMIT {
 			s, d, w, err := service.StoreMetadata(ctx, wrapper.Data, wrapper.Date)
 			if err != nil {
 				return err

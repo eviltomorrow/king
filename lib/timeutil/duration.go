@@ -36,11 +36,6 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 }
 
-var (
-	MinDuration = 10 * time.Second
-	MaxDuration = 30 * time.Second
-)
-
 func ParseDurationWithString(text string, defaultDuration time.Duration) time.Duration {
 	if text == "" {
 		return defaultDuration

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"net"
 	"strings"
-	"time"
+
+	"github.com/eviltomorrow/king/lib/setting"
 )
 
 type IPType int
@@ -45,7 +46,7 @@ func GetInterfaceIPv6First() (string, error) {
 }
 
 func GetLocalareaIP(network, address string) (string, error) {
-	conn, err := net.DialTimeout(network, address, 3*time.Second)
+	conn, err := net.DialTimeout(network, address, setting.DEFUALT_HANDLE_TIMEOUT)
 	if err != nil {
 		return "", err
 	}

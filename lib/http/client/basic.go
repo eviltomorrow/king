@@ -10,10 +10,11 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/language"
+	"github.com/eviltomorrow/king/lib/setting"
 )
 
 var HTTPDefault = &http.Client{
-	Timeout: 30 * time.Second,
+	Timeout: setting.DEFUALT_HANDLE_TIMEOUT,
 }
 
 // DefaultHeader default header

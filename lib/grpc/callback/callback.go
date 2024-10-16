@@ -3,10 +3,10 @@ package callback
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-cron"
+	"github.com/eviltomorrow/king/lib/setting"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -28,7 +28,7 @@ func Do(ctx context.Context, e error) (string, error) {
 	}
 	defer shutdown()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 	defer cancel()
 
 	code := pb.CallbackRequest_SUCCESS

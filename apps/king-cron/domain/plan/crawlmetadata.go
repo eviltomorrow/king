@@ -9,6 +9,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
+	"github.com/eviltomorrow/king/lib/setting"
 	"github.com/eviltomorrow/king/lib/snowflake"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -30,7 +31,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 
 			schedulerId := snowflake.GenerateID()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 			defer cancel()
 
 			md := metadata.MD{
