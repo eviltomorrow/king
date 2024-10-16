@@ -8,6 +8,7 @@ import (
 
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	"github.com/eviltomorrow/king/lib/timeutil"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -30,19 +31,31 @@ var ShowCommand = &cobra.Command{
 		for begin.Before(end) {
 			var (
 				date = begin.Format(time.DateOnly)
-				now  = time.Now()
 			)
 
+			status := BoldGreen.Sprint("正常")
 			days, weeks, err := show(context.Background(), date)
 			if err != nil {
 				log.Printf("数据统计失败, nest error: %v, date: %v", err, date)
 			} else {
-				fmt.Printf("=> 数据统计, 日期: %v(%v), 日交易数据: %4v, 周交易数据: %4v, 花费: %v\r\n", date, timeutil.ParseWeekday(begin), days, weeks, time.Since(now))
+				if days == 0 && (begin.Weekday() == time.Monday ||
+					begin.Weekday() == time.Tuesday ||
+					begin.Weekday() == time.Wednesday ||
+					begin.Weekday() == time.Thursday ||
+					begin.Weekday() == time.Friday) {
+					status = BoldRed.Sprint("缺失")
+				}
+				fmt.Printf("=> 数据统计, 日期: %v(%v), 日交易数据: %4v, 周交易数据: %4v, 状态: (%v)\r\n", date, timeutil.ParseWeekday(begin), days, weeks, status)
 			}
 			begin = begin.Add(24 * time.Hour)
 		}
 	},
 }
+
+var (
+	BoldGreen = color.New(color.FgGreen, color.Bold)
+	BoldRed   = color.New(color.FgRed, color.Bold)
+)
 
 func init() {
 	ShowCommand.PersistentFlags().StringVar(&begin, "begin", "", "指定开始日期")
