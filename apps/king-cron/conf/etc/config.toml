@@ -14,3 +14,12 @@ level = "info"
 
 [mysql]
 dsn = "admin:admin123@tcp(mysql:3306)/king_cron?charset=utf8mb4&parseTime=true&loc=Local"
+
+[crons]
+    [crons.1]
+    crontab = "30 17 * * MON,TUE,WED,THU,FRI"
+    plan = "CronWithCrawlMetadata"
+    
+    [crons.2]
+    crontab = "0/5 20-23 * * MON,TUE,WED,THU,FRI"
+    plan = "CronWithStoreMetadata"

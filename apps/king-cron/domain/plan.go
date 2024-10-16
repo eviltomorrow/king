@@ -10,6 +10,20 @@ import (
 	"github.com/eviltomorrow/king/lib/setting"
 )
 
+var cache map[string]func() *Plan
+
+func RegisterPlan(name string, f func() *Plan) {
+	cache[name] = f
+}
+
+func GetPlan(name string) (*Plan, bool) {
+	f, ok := cache[name]
+	if !ok {
+		return nil, false
+	}
+	return f(), true
+}
+
 type CallFuncInfo struct {
 	ServiceName string
 	FuncName    string

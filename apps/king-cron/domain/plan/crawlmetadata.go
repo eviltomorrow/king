@@ -20,6 +20,10 @@ const (
 	NameWithCrawlMetadata = "爬取数据"
 )
 
+func init() {
+	domain.RegisterPlan(NameWithCrawlMetadata, CronWithCrawlMetadata)
+}
+
 func CronWithCrawlMetadata() *domain.Plan {
 	p := &domain.Plan{
 		Precondition: func() (domain.StatusCode, error) {

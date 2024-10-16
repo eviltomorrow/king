@@ -129,7 +129,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 }
 
 func (s *scheduler) Start() error {
-	if _, err := s.cron.AddFunc("25 16 * * MON,TUE,WED,THU,FRI", func() {
+	if _, err := s.cron.AddFunc("00 15 * * MON,TUE,WED,THU,FRI", func() {
 		for _, plan := range s.plans {
 			plan.Reset()
 		}

@@ -23,6 +23,10 @@ const (
 	NameWithStoreMetadata = "存储数据"
 )
 
+func init() {
+	domain.RegisterPlan(NameWithStoreMetadata, CronWithStoreMetadata)
+}
+
 func CronWithStoreMetadata() *domain.Plan {
 	p := &domain.Plan{
 		Precondition: func() (domain.StatusCode, error) {

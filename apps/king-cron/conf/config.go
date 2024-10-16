@@ -19,6 +19,12 @@ type Config struct {
 	MySQL *mysql.Config     `json:"mysql" toml:"mysql" mapstructure:"mysql"`
 	GRPC  *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
 	Otel  *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
+	Crons map[int]Crons     `json:"crons" toml:"crons" mapstructure:"crons"`
+}
+
+type Crons struct {
+	Crontab string `json:"crontab" toml:"crontab" mapstructure:"crontab"`
+	Plan    string `json:"plan" toml:"plan" mapstructure:"plan"`
 }
 
 func (c *Config) String() string {

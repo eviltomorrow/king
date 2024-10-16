@@ -8,7 +8,6 @@ import (
 	"github.com/eviltomorrow/king/apps/king-cron/conf"
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
 	"github.com/eviltomorrow/king/apps/king-cron/domain/controller"
-	"github.com/eviltomorrow/king/apps/king-cron/domain/plan"
 	"github.com/eviltomorrow/king/apps/king-cron/domain/service"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
@@ -85,17 +84,14 @@ func RunApp() error {
 	finalizer.RegisterCleanupFuncs(s.Stop)
 
 	cron := service.NewScheduler()
-
-	var plans = map[string]*domain.Plan{
-		"30 17 * * MON,TUE,WED,THU,FRI":     plan.CronWithCrawlMetadata(),
-		"0/5 20-23 * * MON,TUE,WED,THU,FRI": plan.CronWithStoreMetadata(),
-	}
-	for k, v := range plans {
-		if err := cron.Register(k, v); err != nil {
-			return err
+	for _, c := range c.Crons {
+		plan, ok := domain.GetPlan(c.Plan)
+		if ok {
+			if err := cron.Register(c.Crontab, plan); err != nil {
+				return err
+			}
 		}
 	}
-
 	if err := cron.Start(); err != nil {
 		return fmt.Errorf("cron start failure, nest error: %v", err)
 	}
