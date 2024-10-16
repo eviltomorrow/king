@@ -31,9 +31,9 @@ func NewScheduler() *scheduler {
 	}
 }
 
-func (s *scheduler) Register(cron string, plan *domain.Plan) {
+func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 	if err := plan.Check(); err != nil {
-		panic(fmt.Sprintf("check plan failure, nest error: %v, name: %v", err, plan.Name))
+		return fmt.Errorf("plan check failure, nest error: %v", err)
 	}
 	_, err := s.cron.AddFunc(cron, func() {
 		now := time.Now()
@@ -70,9 +70,9 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		msg := ""
 		msg, err = plan.Todo(schedulerId)
 		if err != nil {
-			zlog.Error("execute plan failure", zap.Error(err), zap.String("name", plan.GetName()))
+			zlog.Error("plan execute failure", zap.Error(err), zap.String("name", plan.GetName()))
 		} else {
-			zlog.Info("execute plan success", zap.String("name", plan.GetName()))
+			zlog.Info("plan execute success", zap.String("name", plan.GetName()))
 		}
 
 		if plan.NotifyWithError != nil && err != nil {
@@ -121,10 +121,11 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 
 	})
 	if err != nil {
-		panic(fmt.Errorf("register plan failure, nest error: %v", err))
+		return fmt.Errorf("plan register failure, nest error: %v", err)
 	}
 
 	s.plans = append(s.plans, plan)
+	return nil
 }
 
 func (s *scheduler) Start() error {

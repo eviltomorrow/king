@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"sync/atomic"
@@ -17,6 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type Storage struct {
@@ -109,6 +111,24 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 	}
 
 	return req.SendAndClose(&pb.PushResponse{Affected: &pb.PushResponse_AffectedCount{Stocks: as.Load(), Days: ad.Load(), Weeks: aw.Load()}})
+}
+
+func (g *Storage) ShowMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.ShowResponse, error) {
+	if req == nil {
+		return nil, fmt.Errorf("invalid request, date is nil")
+	}
+
+	days, err := db.QuoteWithCountByDate(ctx, mysql.DB, db.Day, req.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	weeks, err := db.QuoteWithCountByDate(ctx, mysql.DB, db.Week, req.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ShowResponse{Queried: &pb.ShowResponse_QueriedCount{Days: days, Weeks: weeks}}, nil
 }
 
 func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer) error {

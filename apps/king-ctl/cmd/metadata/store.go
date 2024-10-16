@@ -44,11 +44,6 @@ var StoreCommand = &cobra.Command{
 	},
 }
 
-var (
-	begin string
-	end   string
-)
-
 func init() {
 	StoreCommand.PersistentFlags().StringVar(&begin, "begin", "", "指定开始日期")
 	StoreCommand.MarkPersistentFlagRequired("begin")

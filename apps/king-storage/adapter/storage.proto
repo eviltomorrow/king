@@ -9,6 +9,7 @@ package storage;
 
 service Storage {
     rpc PushMetadata(stream Metadata) returns (PushResponse);
+    rpc ShowMetadata(google.protobuf.StringValue) returns (ShowResponse);
 
     rpc GetStockOne(google.protobuf.StringValue) returns (Stock);
     rpc GetStockAll(google.protobuf.Empty) returns (stream Stock);
@@ -22,6 +23,14 @@ message PushResponse {
         int64 weeks = 3;
     }
     AffectedCount affected = 1;
+}
+
+message ShowResponse {
+    message QueriedCount {
+        int64 days = 2;
+        int64 weeks = 3;
+    }
+    QueriedCount queried = 1;
 }
 
 message Stock {

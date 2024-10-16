@@ -390,6 +390,14 @@ func QuoteWithSelectOneByCodeAndDate(ctx context.Context, exec mysql.Exec, kind 
 	return &m, nil
 }
 
+func QuoteWithCountByDate(ctx context.Context, exec mysql.Exec, kind string, date string) (int64, error) {
+	if date == "" {
+		return 0, fmt.Errorf("date is nil")
+	}
+
+	return sqlutil.TableWithCount(ctx, exec, fmt.Sprintf("quote_%s", kind), map[string]interface{}{FieldQuoteDate: date})
+}
+
 type Quote struct {
 	Id              string       `json:"id"`
 	Code            string       `json:"code"`

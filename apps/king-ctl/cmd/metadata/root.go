@@ -1,3 +1,8 @@
 package metadata
 
-var IP string
+var (
+	IP string
+
+	begin string
+	end   string
+)
