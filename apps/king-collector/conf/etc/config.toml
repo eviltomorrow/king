@@ -47,4 +47,4 @@ code_list = [
 	"bj899050",
 ]
 source = "sina"
-random_period = [10,35] # unit: s
+random_period = [5,25] # unit: s
