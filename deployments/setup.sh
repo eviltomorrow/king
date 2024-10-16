@@ -96,6 +96,9 @@ export king_cron_version="latest"
 name=""
 action=""
 
+export uid=$(id -u)
+export gid=$(id -g)
+
 case $# in
 0)
     help;
