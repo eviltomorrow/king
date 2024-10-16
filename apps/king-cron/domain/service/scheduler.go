@@ -11,6 +11,7 @@ import (
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/setting"
+	"github.com/eviltomorrow/king/lib/snowflake"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
@@ -42,7 +43,9 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 
 		var (
 			status = domain.Ready
-			err    error
+
+			err         error
+			schedulerId = snowflake.GenerateID()
 		)
 
 		if plan.Precondition != nil {
@@ -65,7 +68,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		}
 
 		msg := ""
-		msg, err = plan.Todo()
+		msg, err = plan.Todo(schedulerId)
 		if err != nil {
 			zlog.Error("execute plan failure", zap.Error(err), zap.String("name", plan.GetName()))
 		} else {
@@ -100,7 +103,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) {
 		}()
 
 		record := &db.SchedulerRecord{
-			Id:          "",
+			Id:          schedulerId,
 			Name:        plan.Name,
 			Date:        now,
 			ServiceName: plan.CallFuncInfo.ServiceName,

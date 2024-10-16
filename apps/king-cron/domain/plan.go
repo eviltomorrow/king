@@ -17,7 +17,7 @@ type CallFuncInfo struct {
 
 type Plan struct {
 	Precondition func() (StatusCode, error)
-	Todo         func() (string, error)
+	Todo         func(string) (string, error)
 
 	mutex        sync.Mutex
 	Name         string

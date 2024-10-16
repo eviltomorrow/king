@@ -13,7 +13,6 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	"github.com/eviltomorrow/king/lib/setting"
-	"github.com/eviltomorrow/king/lib/snowflake"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -40,14 +39,13 @@ func CronWithCrawlMetadata() *domain.Plan {
 
 			return domain.Ready, nil
 		},
-		Todo: func() (string, error) {
+		Todo: func(schedulerId string) (string, error) {
 			stub, shutdown, err := client.NewCollectorWithEtcd()
 			if err != nil {
 				return "", err
 			}
 			defer shutdown()
 
-			schedulerId := snowflake.GenerateID()
 			ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 			defer cancel()
 

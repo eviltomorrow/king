@@ -54,7 +54,7 @@ func CronWithStoreMetadata() *domain.Plan {
 			return domain.Pending, nil
 		},
 
-		Todo: func() (string, error) {
+		Todo: func(schedulerId string) (string, error) {
 			stubStorage, closeFuncStorage, err := client.NewStorageWithEtcd()
 			if err != nil {
 				return "", err
