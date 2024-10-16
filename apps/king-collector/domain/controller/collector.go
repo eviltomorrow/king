@@ -120,5 +120,6 @@ func (c *Collector) FetchMetadata(req *wrapperspb.StringValue, resp grpc.ServerS
 		}
 		offset += limit
 	}
+
 	return nil
 }

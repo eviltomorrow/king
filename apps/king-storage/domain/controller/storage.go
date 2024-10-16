@@ -56,7 +56,6 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 		if err != nil {
 			return err
 		}
-		fmt.Println(md.String())
 
 		wrapper, ok := data[md.Date]
 		if !ok {

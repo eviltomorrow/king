@@ -138,12 +138,16 @@ func QuoteWithSelectBetweenByCodeAndDate(ctx context.Context, exec mysql.Exec, k
 }
 
 func QuoteWithSelectBetweenByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, codes []string, begin, end string) (map[string][]*Quote, error) {
-	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code in (?) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", kind)
-
+	fields := make([]string, 0, len(codes))
 	args := make([]interface{}, 0, len(codes)+2)
-	args = append(args, codes)
+	for _, code := range codes {
+		fields = append(fields, "?")
+		args = append(args, code)
+	}
 	args = append(args, begin)
 	args = append(args, end)
+
+	_sql := fmt.Sprintf("select id, code, open, close, high, low, yesterday_closed, volume, account, date, num_of_year, xd, create_timestamp, modify_timestamp from quote_%s where code in (%s) and DATE_FORMAT(`date`, '%%Y-%%m-%%d') between ? and ? order by date asc", kind, strings.Join(fields, ","))
 	rows, err := exec.QueryContext(ctx, _sql, args...)
 	if err != nil {
 		return nil, err
@@ -216,7 +220,7 @@ func QuoteWithSelectBetweenByCodesAndDate(ctx context.Context, exec mysql.Exec, 
 
 func QuoteWithSelectLatestByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, code []string, date string) ([]*Quote, error) {
 	fields := make([]string, 0, len(code))
-	args := make([]interface{}, 0, len(code))
+	args := make([]interface{}, 0, len(code)+1)
 	for _, c := range code {
 		fields = append(fields, "?")
 		args = append(args, c)
