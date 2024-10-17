@@ -2,7 +2,7 @@ services:
   king-cron:   
     restart: always                                      
     volumes:
-      - ${DATA_HOME}/king-cron/log:/app/var/log/                       
+      - ${DATA_HOME}/king-cron/log:/app/var/log/
       - /etc/localtime:/etc/localtime:ro
     image: registry.cn-beijing.aliyuncs.com/eviltomorrow/king-cron:${king_cron_version}
     container_name: king-cron                
