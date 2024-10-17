@@ -8,6 +8,7 @@ import (
 	"github.com/eviltomorrow/king/apps/king-cron/conf"
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
 	"github.com/eviltomorrow/king/apps/king-cron/domain/controller"
+	_ "github.com/eviltomorrow/king/apps/king-cron/domain/plan"
 	"github.com/eviltomorrow/king/apps/king-cron/domain/service"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"

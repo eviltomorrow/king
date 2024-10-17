@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	NameWithStoreMetadata = "存储数据"
+	NameWithStoreMetadata  = "CronWithStoreMetadata"
+	AliasWithStoreMetadata = "存储数据"
 )
 
 func init() {
@@ -137,6 +138,7 @@ func CronWithStoreMetadata() *domain.Plan {
 
 		Status: domain.Ready,
 		Name:   NameWithStoreMetadata,
+		Alias:  AliasWithCrawlMetadata,
 	}
 	return p
 }

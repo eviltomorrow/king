@@ -43,7 +43,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		if plan.Precondition != nil {
 			status, err = plan.Precondition()
 			if err != nil {
-				zlog.Error("precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("name", plan.GetName()))
+				zlog.Error("precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("name", plan.GetAlias()))
 				return
 			}
 
@@ -62,28 +62,28 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		data := ""
 		data, err = plan.Todo(schedulerId)
 		if err != nil {
-			zlog.Error("plan execute failure", zap.Error(err), zap.String("name", plan.GetName()))
+			zlog.Error("plan execute failure", zap.Error(err), zap.String("name", plan.GetAlias()))
 		} else {
-			zlog.Info("plan execute success", zap.String("name", plan.GetName()))
+			zlog.Info("plan execute success", zap.String("name", plan.GetAlias()))
 		}
 
 		if plan.WriteToDB != nil {
 			if err := plan.WriteToDB(schedulerId, err); err != nil {
-				zlog.Error("WriteToDB failure", zap.String("name", plan.Name), zap.String("schedulerId", schedulerId), zap.Error(err))
+				zlog.Error("WriteToDB failure", zap.String("alias", plan.Alias), zap.String("schedulerId", schedulerId), zap.Error(err))
 			}
 		}
 
 		if plan.NotifyWithError != nil && err != nil {
 			err := plan.NotifyWithError(err)
 			if err != nil {
-				zlog.Error("notify with error failure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("notify with error failure", zap.Error(err), zap.String("name", plan.GetAlias()))
 			}
 		}
 
 		if plan.NotifyWithData != nil && data != "" {
 			err := plan.NotifyWithData(data)
 			if err != nil {
-				zlog.Error("notify with msg failure", zap.Error(err), zap.String("name", plan.GetName()))
+				zlog.Error("notify with msg failure", zap.Error(err), zap.String("name", plan.GetAlias()))
 			}
 		}
 		plan.SetStatus(domain.Completed)

@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	NameWithCrawlMetadata = "爬取数据"
+	NameWithCrawlMetadata  = "CronWithCrawlMetadata"
+	AliasWithCrawlMetadata = "爬取数据"
 )
 
 func init() {
@@ -102,6 +103,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 
 		Status: domain.Ready,
 		Name:   NameWithCrawlMetadata,
+		Alias:  AliasWithCrawlMetadata,
 	}
 	return p
 }

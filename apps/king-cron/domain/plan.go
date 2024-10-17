@@ -10,7 +10,7 @@ import (
 	"github.com/eviltomorrow/king/lib/setting"
 )
 
-var cache map[string]func() *Plan
+var cache = make(map[string]func() *Plan, 32)
 
 func RegisterPlan(name string, f func() *Plan) {
 	cache[name] = f
@@ -35,6 +35,7 @@ type Plan struct {
 	WriteToDB    func(string, error) error
 
 	mutex  sync.Mutex
+	Alias  string
 	Name   string
 	Status StatusCode
 
@@ -60,6 +61,10 @@ func (p *Plan) Check() error {
 
 func (p *Plan) GetName() string {
 	return p.Name
+}
+
+func (p *Plan) GetAlias() string {
+	return p.Alias
 }
 
 func (p *Plan) Reset() {
