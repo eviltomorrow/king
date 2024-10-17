@@ -1,16 +1,9 @@
 package service
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
-	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
-	"github.com/eviltomorrow/king/lib/codes"
-	"github.com/eviltomorrow/king/lib/db/mysql"
-	"github.com/eviltomorrow/king/lib/setting"
 	"github.com/eviltomorrow/king/lib/snowflake"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"github.com/robfig/cron/v3"
@@ -36,7 +29,6 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		return fmt.Errorf("plan check failure, nest error: %v", err)
 	}
 	_, err := s.cron.AddFunc(cron, func() {
-		now := time.Now()
 		if plan.IsCompleted() {
 			return
 		}
@@ -67,57 +59,34 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 			}
 		}
 
-		msg := ""
-		msg, err = plan.Todo(schedulerId)
+		data := ""
+		data, err = plan.Todo(schedulerId)
 		if err != nil {
 			zlog.Error("plan execute failure", zap.Error(err), zap.String("name", plan.GetName()))
 		} else {
 			zlog.Info("plan execute success", zap.String("name", plan.GetName()))
 		}
 
+		if plan.WriteToDB != nil {
+			if err := plan.WriteToDB(schedulerId, err); err != nil {
+				zlog.Error("WriteToDB failure", zap.String("name", plan.Name), zap.String("schedulerId", schedulerId), zap.Error(err))
+			}
+		}
+
 		if plan.NotifyWithError != nil && err != nil {
-			err = plan.NotifyWithError(err)
+			err := plan.NotifyWithError(err)
 			if err != nil {
 				zlog.Error("notify with error failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
 
-		if plan.NotifyWithMsg != nil && msg != "" {
-			err = plan.NotifyWithMsg(msg)
+		if plan.NotifyWithData != nil && data != "" {
+			err := plan.NotifyWithData(data)
 			if err != nil {
 				zlog.Error("notify with msg failure", zap.Error(err), zap.String("name", plan.GetName()))
 			}
 		}
 		plan.SetStatus(domain.Completed)
-
-		// 数据库
-		currentStatus, currentCode := func() (string, sql.NullString) {
-			if plan.Type == domain.ASYNC {
-				return domain.StatusProcessing, sql.NullString{}
-			}
-			if err == nil {
-				return domain.StatusCompleted, sql.NullString{String: codes.SUCCESS, Valid: true}
-			} else {
-				return domain.StatusCompleted, sql.NullString{String: codes.FAILURE, Valid: true}
-			}
-		}()
-
-		record := &db.SchedulerRecord{
-			Id:          schedulerId,
-			Name:        plan.Name,
-			Date:        now,
-			ServiceName: plan.CallFuncInfo.ServiceName,
-			FuncName:    plan.CallFuncInfo.FuncName,
-			Code:        currentCode,
-			Status:      currentStatus,
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
-		defer cancel()
-
-		if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
-			zlog.Error("scheduler record insert failure, nest error: %v", zap.Error(err), zap.String("name", plan.Name))
-		}
 
 	})
 	if err != nil {

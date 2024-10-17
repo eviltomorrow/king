@@ -84,9 +84,9 @@ func fetchMetadata(randomPeriod []int, baseCodeList []string, pipe chan *model.M
 		limitTimes = 5
 	)
 	var (
+		codeList                      = make([]string, 0, size)
 		retrytimes                    = 0
 		totalCount, ignoreCount int64 = 0, 0
-		codeList                      = make([]string, 0, size)
 	)
 
 	for code := range genCode(baseCodeList) {

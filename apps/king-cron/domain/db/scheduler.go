@@ -34,7 +34,7 @@ func SchedulerRecordWithUpdateStatus(ctx context.Context, exec mysql.Exec, statu
 	if status == "" {
 		return 0, fmt.Errorf("status is invalid")
 	}
-	if code != codes.SUCCESS && errorMsg != "" {
+	if code != codes.SUCCESS && errorMsg == "" {
 		return 0, fmt.Errorf("code is invalid, msg: %s", errorMsg)
 	}
 

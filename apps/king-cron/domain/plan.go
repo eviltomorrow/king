@@ -24,7 +24,7 @@ func GetPlan(name string) (*Plan, bool) {
 	return f(), true
 }
 
-type CallFuncInfo struct {
+type CallInfo struct {
 	ServiceName string
 	FuncName    string
 }
@@ -32,32 +32,28 @@ type CallFuncInfo struct {
 type Plan struct {
 	Precondition func() (StatusCode, error)
 	Todo         func(string) (string, error)
+	WriteToDB    func(string, error) error
 
-	mutex        sync.Mutex
-	Name         string
-	Type         TypeCode
-	Status       StatusCode
-	CallFuncInfo CallFuncInfo
+	mutex  sync.Mutex
+	Name   string
+	Status StatusCode
 
 	NotifyWithError func(error) error
-	NotifyWithMsg   func(string) error
+	NotifyWithData  func(string) error
 }
 
 func (p *Plan) Check() error {
 	if p.Todo == nil {
 		return fmt.Errorf("plan's todo func is nil")
 	}
+	if p.WriteToDB == nil {
+		return fmt.Errorf("plan's write to db is nil")
+	}
 	if p.Name == "" {
 		return fmt.Errorf("plan's name is nil")
 	}
 	if p.Status != Ready {
 		return fmt.Errorf("plan's status is not ready")
-	}
-	if p.CallFuncInfo.ServiceName == "" {
-		return fmt.Errorf("plan's service name is nil")
-	}
-	if p.CallFuncInfo.FuncName == "" {
-		return fmt.Errorf("plan's func name is nil")
 	}
 	return nil
 }
@@ -84,13 +80,7 @@ func (p *Plan) SetStatus(status StatusCode) {
 	p.Status = status
 }
 
-const (
-	StatusProcessing = "processing"
-	StatusCompleted  = "completed"
-)
-
 type StatusCode int
-type TypeCode int
 
 const (
 	Pending StatusCode = iota
@@ -99,8 +89,8 @@ const (
 )
 
 const (
-	SYNC TypeCode = iota
-	ASYNC
+	ProgressProcessing = "processing"
+	ProgressCompleted  = "completed"
 )
 
 func DefaultNotifyWithError(title string, err error, tags []string) error {

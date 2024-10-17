@@ -14,8 +14,6 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
 	"github.com/eviltomorrow/king/lib/setting"
-	"github.com/eviltomorrow/king/lib/zlog"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -37,7 +35,8 @@ func CronWithStoreMetadata() *domain.Plan {
 			if err != nil && err != sql.ErrNoRows {
 				return 0, err
 			}
-			if record != nil && record.Status == domain.StatusCompleted {
+
+			if record != nil && record.Status == domain.ProgressCompleted {
 				if record.Code.String == codes.SUCCESS {
 					return domain.Completed, nil
 				}
@@ -49,7 +48,7 @@ func CronWithStoreMetadata() *domain.Plan {
 				return 0, err
 			}
 
-			if record.Status == domain.StatusCompleted {
+			if record.Status == domain.ProgressCompleted {
 				if record.Code.String == codes.SUCCESS {
 					return domain.Ready, nil
 				}
@@ -96,23 +95,44 @@ func CronWithStoreMetadata() *domain.Plan {
 				}
 			}
 
-			resp, err := target.CloseAndRecv()
-			if err != nil {
+			if _, err := target.CloseAndRecv(); err != nil {
 				return "", err
 			}
-
-			zlog.Info("store metadata success", zap.Int64("stocks", resp.Affected.Stocks), zap.Int64("days", resp.Affected.Days), zap.Int64("weeks", resp.Affected.Weeks))
 
 			return "", nil
 		},
 
-		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
+		WriteToDB: func(schedulerId string, err error) error {
+			status, code, errormsg := func() (string, sql.NullString, sql.NullString) {
+				if err == nil {
+					return domain.ProgressCompleted, sql.NullString{String: codes.SUCCESS, Valid: true}, sql.NullString{}
+				}
+				return domain.ProgressCompleted, sql.NullString{String: codes.FAILURE, Valid: true}, sql.NullString{String: err.Error(), Valid: true}
+			}()
+
+			now := time.Now()
+			record := &db.SchedulerRecord{
+				Id:          schedulerId,
+				Name:        NameWithCrawlMetadata,
+				Date:        now,
+				ServiceName: "storage",
+				FuncName:    "PushMetadata",
+				Status:      status,
+				Code:        code,
+				ErrorMsg:    errormsg,
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
+			defer cancel()
+
+			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
+				return err
+			}
+			return nil
 		},
 
-		CallFuncInfo: domain.CallFuncInfo{
-			ServiceName: "collector/storage",
-			FuncName:    "FetchMetadata/PushMetadata",
+		NotifyWithError: func(err error) error {
+			return domain.DefaultNotifyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
 		},
 
 		Status: domain.Ready,

@@ -31,17 +31,27 @@ func CronWithCrawlMetadata() *domain.Plan {
 			defer cancel()
 
 			record, err := db.SchedulerRecordWithSelectOneByDateName(ctx, mysql.DB, NameWithCrawlMetadata, time.Now().Format(time.DateOnly))
-			if err != nil && err != sql.ErrNoRows {
+			if err == sql.ErrNoRows {
+				return domain.Ready, nil
+			}
+			if err != nil {
 				return 0, err
 			}
-			if record != nil && record.Status == domain.StatusCompleted {
+
+			switch record.Status {
+			case domain.ProgressCompleted:
 				if record.Code.String == codes.SUCCESS {
 					return domain.Completed, nil
 				}
 				return 0, errors.New(record.ErrorMsg.String)
+
+			case domain.ProgressProcessing:
+				return domain.Completed, nil
+
+			default:
+				return 0, fmt.Errorf("panic: unknown status, nest status: %v", record.Status)
 			}
 
-			return domain.Ready, nil
 		},
 		Todo: func(schedulerId string) (string, error) {
 			stub, shutdown, err := client.NewCollectorWithEtcd()
@@ -57,15 +67,39 @@ func CronWithCrawlMetadata() *domain.Plan {
 			return "", err
 		},
 
+		WriteToDB: func(schedulerId string, err error) error {
+			status, code, errormsg := func() (string, sql.NullString, sql.NullString) {
+				if err == nil {
+					return domain.ProgressProcessing, sql.NullString{}, sql.NullString{}
+				}
+				return domain.ProgressCompleted, sql.NullString{String: codes.FAILURE, Valid: true}, sql.NullString{String: err.Error(), Valid: true}
+			}()
+
+			now := time.Now()
+			record := &db.SchedulerRecord{
+				Id:          schedulerId,
+				Name:        NameWithCrawlMetadata,
+				Date:        now,
+				ServiceName: "collector",
+				FuncName:    "CrawlMetadataAsync",
+				Status:      status,
+				Code:        code,
+				ErrorMsg:    errormsg,
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
+			defer cancel()
+
+			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
+				return err
+			}
+			return nil
+		},
+
 		NotifyWithError: func(err error) error {
 			return domain.DefaultNotifyWithError(NameWithCrawlMetadata, fmt.Errorf("failure: %v", err), []string{"原始数据", "网络"})
 		},
 
-		CallFuncInfo: domain.CallFuncInfo{
-			ServiceName: "collector",
-			FuncName:    "CrawlMetadataAsync",
-		},
-		Type:   domain.ASYNC,
 		Status: domain.Ready,
 		Name:   NameWithCrawlMetadata,
 	}

@@ -41,7 +41,7 @@ func (g *Cron) Callback(ctx context.Context, req *pb.CallbackRequest) (*pb.Callb
 			return codes.FAILURE
 		}
 	}()
-	if _, err := db.SchedulerRecordWithUpdateStatus(ctx, mysql.DB, domain.StatusCompleted, code, req.ErrorMsg, req.SchedulerId); err != nil {
+	if _, err := db.SchedulerRecordWithUpdateStatus(ctx, mysql.DB, domain.ProgressCompleted, code, req.ErrorMsg, req.SchedulerId); err != nil {
 		return nil, err
 	}
 	return &pb.CallbackResponse{}, nil
