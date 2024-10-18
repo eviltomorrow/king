@@ -114,6 +114,7 @@ func CronWithStoreMetadata() *domain.Plan {
 			now := time.Now()
 			record := &db.SchedulerRecord{
 				Id:          schedulerId,
+				Alias:       AliasWithStoreMetadata,
 				Name:        NameWithCrawlMetadata,
 				Date:        now,
 				ServiceName: "storage",

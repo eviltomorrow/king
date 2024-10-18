@@ -79,6 +79,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 			now := time.Now()
 			record := &db.SchedulerRecord{
 				Id:          schedulerId,
+				Alias:       AliasWithCrawlMetadata,
 				Name:        NameWithCrawlMetadata,
 				Date:        now,
 				ServiceName: "collector",

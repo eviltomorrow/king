@@ -19,6 +19,7 @@ func SchedulerRecordWithInsertOne(ctx context.Context, exec mysql.Exec, record *
 
 	value := map[string]interface{}{
 		FieldSchedulerRecordId:          record.Id,
+		FieldSchedulerRecordAlias:       record.Alias,
 		FieldSchedulerRecordName:        record.Name,
 		FieldSchedulerRecordDate:        record.Date,
 		FieldSchedulerRecordServiceName: record.ServiceName,
@@ -53,6 +54,7 @@ func SchedulerRecordWithSelectOneByDateName(ctx context.Context, exec mysql.Exec
 	scan := func(row *sql.Row) error {
 		return row.Scan(
 			&record.Id,
+			&record.Alias,
 			&record.Name,
 			&record.Date,
 			&record.ServiceName,
@@ -76,6 +78,7 @@ func SchedulerRecordWithSelectOneById(ctx context.Context, exec mysql.Exec, id s
 	scan := func(row *sql.Row) error {
 		return row.Scan(
 			&record.Id,
+			&record.Alias,
 			&record.Name,
 			&record.Date,
 			&record.ServiceName,
@@ -97,6 +100,7 @@ func SchedulerRecordWithSelectOneById(ctx context.Context, exec mysql.Exec, id s
 // Scheduler Record
 type SchedulerRecord struct {
 	Id              string         `json:"id"`
+	Alias           string         `json:"alias"`
 	Name            string         `json:"name"`
 	Date            time.Time      `json:"date"`
 	ServiceName     string         `json:"service_name"`
@@ -118,6 +122,7 @@ const (
 	TableSchedulerRecordName = "scheduler_record"
 
 	FieldSchedulerRecordId              = "id"
+	FieldSchedulerRecordAlias           = "alias"
 	FieldSchedulerRecordName            = "name"
 	FieldSchedulerRecordDate            = "date"
 	FieldSchedulerRecordServiceName     = "service_name"
@@ -132,6 +137,7 @@ const (
 
 var schedulerRecordFields = []string{
 	FieldSchedulerRecordId,
+	FieldSchedulerRecordAlias,
 	FieldSchedulerRecordName,
 	FieldSchedulerRecordDate,
 	FieldSchedulerRecordServiceName,

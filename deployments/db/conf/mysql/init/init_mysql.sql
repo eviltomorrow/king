@@ -158,6 +158,7 @@ GRANT ALL ON king_cron.* TO 'admin'@'%';
 DROP TABLE IF EXISTS `king_cron`.`scheduler_record`;
 CREATE TABLE `king_cron`.`scheduler_record` (
     `id` CHAR(19) NOT NULL PRIMARY KEY,
+    `alias` VARCHAR(64) NOT NULL COMMENT '别名',
     `name` VARCHAR(64) NOT NULL COMMENT '名称',
     `date` TIMESTAMP NOT NULL COMMENT '日期',
     `service_name` VARCHAR(512) NOT NULL COMMENT '服务名',
