@@ -13,7 +13,7 @@ import (
 
 var CrawlCommand = &cobra.Command{
 	Use:   "crawl",
-	Short: "抓取指定数据源的数据[sina]",
+	Short: "抓取数据",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := crawl(context.Background()); err != nil {
 			log.Printf("crawl data failure, nest error: %v", err)

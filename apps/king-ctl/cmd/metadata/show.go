@@ -13,9 +13,9 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-var ShowCommand = &cobra.Command{
-	Use:   "show",
-	Short: "显示数据",
+var CheckCommand = &cobra.Command{
+	Use:   "check",
+	Short: "检查数据",
 	Run: func(cmd *cobra.Command, args []string) {
 		begin, err := time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", begin))
 		if err != nil {
@@ -34,7 +34,7 @@ var ShowCommand = &cobra.Command{
 			)
 
 			status := BoldGreen.Sprint("正常")
-			days, weeks, err := show(context.Background(), date)
+			days, weeks, err := check(context.Background(), date)
 			if err != nil {
 				log.Printf("数据统计失败, nest error: %v, date: %v", err, date)
 			} else {
@@ -58,14 +58,14 @@ var (
 )
 
 func init() {
-	ShowCommand.PersistentFlags().StringVar(&begin, "begin", "", "指定开始日期")
-	ShowCommand.MarkPersistentFlagRequired("begin")
+	CheckCommand.PersistentFlags().StringVar(&begin, "begin", "", "指定开始日期")
+	CheckCommand.MarkPersistentFlagRequired("begin")
 
-	ShowCommand.PersistentFlags().StringVar(&end, "end", time.Now().Format(time.DateOnly), "指定结束日期")
-	ShowCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
+	CheckCommand.PersistentFlags().StringVar(&end, "end", time.Now().Format(time.DateOnly), "指定结束日期")
+	CheckCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
-func show(ctx context.Context, date string) (int64, int64, error) {
+func check(ctx context.Context, date string) (int64, int64, error) {
 	stub, closeFunc, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
 	if err != nil {
 		return 0, 0, err
