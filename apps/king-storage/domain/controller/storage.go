@@ -113,7 +113,7 @@ func (g *Storage) PushMetadata(req grpc.ClientStreamingServer[entity.Metadata, p
 	return req.SendAndClose(&pb.PushResponse{Affected: &pb.PushResponse_AffectedCount{Stocks: as.Load(), Days: ad.Load(), Weeks: aw.Load()}})
 }
 
-func (g *Storage) ShowMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.ShowResponse, error) {
+func (g *Storage) StatMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.ShowResponse, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, date is nil")
 	}

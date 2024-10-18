@@ -25,9 +25,9 @@ func init() {
 		},
 	})
 
-	RootCommand.AddCommand(metadata.CheckCommand)
-	RootCommand.AddCommand(metadata.StoreCommand)
 	RootCommand.AddCommand(metadata.CrawlCommand)
+	RootCommand.AddCommand(metadata.StatCommand)
+	RootCommand.AddCommand(metadata.StoreCommand)
 }
 
 func RunApp() error {
