@@ -49,7 +49,7 @@ func CronWithStoreMetadata() *domain.Plan {
 				return 0, err
 			}
 
-			if record.Status == domain.ProgressCompleted {
+			if record != nil && record.Status == domain.ProgressCompleted {
 				if record.Code.String == codes.SUCCESS {
 					return domain.Ready, nil
 				}

@@ -18,7 +18,7 @@ import (
 
 const (
 	NameWithCrawlMetadata  = "CronWithCrawlMetadata"
-	AliasWithCrawlMetadata = "爬取数据"
+	AliasWithCrawlMetadata = "抓取数据"
 )
 
 func init() {
