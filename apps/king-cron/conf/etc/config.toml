@@ -17,7 +17,7 @@ dsn = "admin:admin123@tcp(mysql:3306)/king_cron?charset=utf8mb4&parseTime=true&l
 
 [crons]
     [crons.1]
-    crontab = "00 09 * * MON,TUE,WED,THU,FRI"
+    crontab = "45 17 * * MON,TUE,WED,THU,FRI"
     plan = "CronWithCrawlMetadata"
     
     [crons.2]

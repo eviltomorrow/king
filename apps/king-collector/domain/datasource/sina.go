@@ -144,7 +144,7 @@ loop:
 		}
 	}
 	if !support {
-		return nil, fmt.Errorf("panic: no support code[%v]", code)
+		return nil, fmt.Errorf("not support code[%v]", code)
 	}
 	// switch {
 	// case strings.HasPrefix(code, "sh68"):
