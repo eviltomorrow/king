@@ -21,6 +21,7 @@ CREATE TABLE `king_storage`.`quote_day` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_code_date ON `king_storage`.`quote_day`(`code`,`date`);
+CREATE INDEX idx_date_code ON `king_storage`.`quote_day`(`date`,`code`);
 
 DROP TABLE IF EXISTS `king_storage`.`quote_week`;
 CREATE TABLE `king_storage`.`quote_week` (
@@ -40,6 +41,7 @@ CREATE TABLE `king_storage`.`quote_week` (
     `modify_timestamp` TIMESTAMP COMMENT '修改时间'
 );
 CREATE INDEX idx_code_date ON `king_storage`.`quote_week`(`code`,`date`);
+CREATE INDEX idx_date_code ON `king_storage`.`quote_week`(`date`,`code`);
 
 -- CREATE TABLE stock
 DROP TABLE IF EXISTS `king_storage`.`stock`;
