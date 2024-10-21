@@ -62,9 +62,9 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		data := ""
 		data, err = plan.Todo(schedulerId)
 		if err != nil {
-			zlog.Error("plan execute failure", zap.Error(err), zap.String("name", plan.GetAlias()))
+			zlog.Error("plan execute failure", zap.Error(err), zap.String("alias", plan.GetAlias()))
 		} else {
-			zlog.Info("plan execute success", zap.String("name", plan.GetAlias()))
+			zlog.Info("plan execute success", zap.String("alias", plan.GetAlias()))
 		}
 
 		if plan.WriteToDB != nil {
