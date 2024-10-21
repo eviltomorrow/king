@@ -11,6 +11,11 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+const (
+	DAY  = "day"
+	WEEK = "week"
+)
+
 func FetchStock(ctx context.Context, pipe chan *Stock) error {
 	if pipe == nil {
 		return fmt.Errorf("panic: invalid pipe")
@@ -66,6 +71,16 @@ func FetchQuote(ctx context.Context, date time.Time, code string, kind string) (
 		Code:  code,
 		Date:  date.Format(time.DateOnly),
 		Limit: limit,
+		Kind: func() pb.GetQuoteLatestRequest_Kind {
+			switch kind {
+			case "day":
+				return pb.GetQuoteLatestRequest_Day
+			case "week":
+				return pb.GetQuoteLatestRequest_Week
+			default:
+				return pb.GetQuoteLatestRequest_Day
+			}
+		}(),
 	})
 	if err != nil {
 		return nil, err
