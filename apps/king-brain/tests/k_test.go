@@ -12,7 +12,7 @@ import (
 )
 
 func TestNewK(t *testing.T) {
-	quotes, err := data.FetchQuote(context.Background(), time.Now(), "sh600519")
+	quotes, err := data.FetchQuote(context.Background(), time.Now(), "sh600519", "day")
 	if err != nil {
 		log.Fatal(err)
 	}

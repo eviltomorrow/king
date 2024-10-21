@@ -47,7 +47,7 @@ func FetchStock(ctx context.Context, pipe chan *Stock) error {
 	return e
 }
 
-func FetchQuote(ctx context.Context, date time.Time, code string) ([]*Quote, error) {
+func FetchQuote(ctx context.Context, date time.Time, code string, kind string) ([]*Quote, error) {
 	reverse := func(quotes []*Quote) []*Quote {
 		for i, j := 0, len(quotes)-1; i < j; i, j = i+1, j-1 {
 			quotes[i], quotes[j] = quotes[j], quotes[i]
