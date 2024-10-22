@@ -30,7 +30,7 @@ case ${arch} in
 esac
 
 root_dir=$(pwd)
-PATH=$PATH:${root_dir}/tools/protoc-gen-go/${GOOS}_${GOARCH}
+PATH=${root_dir}/tools/protoc-gen-go/${GOOS}_${GOARCH}:$PATH
 
 for name in $(ls ${root_dir}/lib/entity); do
     # echo ${name}

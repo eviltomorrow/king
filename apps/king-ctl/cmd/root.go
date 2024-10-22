@@ -26,7 +26,7 @@ func init() {
 	})
 
 	RootCommand.AddCommand(metadata.CrawlCommand)
-	RootCommand.AddCommand(metadata.StatCommand)
+	RootCommand.AddCommand(metadata.StatsCommand)
 	RootCommand.AddCommand(metadata.StoreCommand)
 }
 
