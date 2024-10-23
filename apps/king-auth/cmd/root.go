@@ -77,6 +77,7 @@ func RunApp() error {
 
 	s := server.NewGRPC(
 		c.GRPC,
+		c.Log,
 		controller.NewPassport().Service(),
 	)
 	if err := s.Serve(); err != nil {

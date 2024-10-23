@@ -72,7 +72,9 @@ func RunApp() error {
 		return fmt.Errorf("init mongodb failure, nest error: %v", err)
 	}
 
-	s := server.NewGRPC(c.GRPC,
+	s := server.NewGRPC(
+		c.GRPC,
+		c.Log,
 		controller.NewCollector(c.Collector).Service(),
 	)
 	if err := s.Serve(); err != nil {

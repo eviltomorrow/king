@@ -12,7 +12,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/eviltomorrow/king/lib/netutil"
+	"github.com/eviltomorrow/king/lib/network"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -59,7 +59,7 @@ func RunAppInBackground(args []string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	port, err := netutil.GetAvailablePort()
+	port, err := network.GetAvailablePort()
 	if err != nil {
 		return fmt.Errorf("get available port failure, nest error: %v", err)
 	}

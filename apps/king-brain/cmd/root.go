@@ -69,7 +69,9 @@ func RunApp() error {
 		return fmt.Errorf("init etcd failure, nest error: %v", err)
 	}
 
-	s := server.NewGRPC(c.GRPC,
+	s := server.NewGRPC(
+		c.GRPC,
+		c.Log,
 		controller.NewFinder().Service(),
 	)
 	if err := s.Serve(); err != nil {

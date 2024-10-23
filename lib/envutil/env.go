@@ -8,9 +8,8 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
-	"github.com/eviltomorrow/king/lib/grpc/middleware"
-	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/log"
+	"github.com/eviltomorrow/king/lib/network"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/redis"
 	"github.com/eviltomorrow/king/lib/system"
@@ -50,39 +49,20 @@ func InitLog(log *log.Config) error {
 	zlog.ReplaceGlobals(global, prop)
 	finalizer.RegisterCleanupFuncs(global.Sync)
 
-	// middleware log
-	midlog, err := middleware.InitLogger(&zlog.Config{
-		Level:  log.Level,
-		Format: "json",
-		File: zlog.FileLogConfig{
-			Filename:    filepath.Join(system.Directory.LogDir, "access.log"),
-			MaxSize:     100,
-			MaxDays:     30,
-			MaxBackups:  90,
-			Compression: "gzip",
-		},
-		DisableStacktrace: true,
-		DisableStdlog:     log.DisableStdlog,
-	})
-	if err != nil {
-		return fmt.Errorf("init midlog failure, nest error: %v", err)
-	}
-	finalizer.RegisterCleanupFuncs(midlog)
-
 	return nil
 }
 
-func InitNetwork(server *server.Config) error {
+func InitNetwork(network *network.Config) error {
 	system.Network.AccessIP = func() string {
-		if server.AccessIP != "" {
-			return server.AccessIP
+		if network.AccessIP != "" {
+			return network.AccessIP
 		} else {
 			return system.Network.BindIP
 		}
 	}()
 	system.Network.BindIP = func() string {
-		if server.BindIP != "0.0.0.0" {
-			return server.BindIP
+		if network.BindIP != "0.0.0.0" {
+			return network.BindIP
 		} else {
 			return system.Network.BindIP
 		}

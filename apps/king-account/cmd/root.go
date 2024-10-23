@@ -75,7 +75,9 @@ func RunApp() error {
 	}
 
 	resolver.Register(lb.NewBuilder(etcd.Client))
-	s := server.NewGRPC(c.GRPC,
+	s := server.NewGRPC(
+		c.GRPC,
+		c.Log,
 		controller.NewAssets().Service(),
 		controller.NewFund().Service(),
 		controller.NewTransaction().Service(),

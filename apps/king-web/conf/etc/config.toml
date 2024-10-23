@@ -1,0 +1,10 @@
+[http]
+access_ip = ""
+bind_ip = "0.0.0.0"
+bind_port = 50002
+
+[otel]
+dsn = "otel-collector:4317"
+
+[log]
+level = "info"

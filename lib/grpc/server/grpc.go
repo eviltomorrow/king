@@ -9,8 +9,11 @@ import (
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/certificate"
 	"github.com/eviltomorrow/king/lib/etcd"
+	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
+	"github.com/eviltomorrow/king/lib/log"
+	"github.com/eviltomorrow/king/lib/network"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -22,37 +25,50 @@ import (
 )
 
 type GRPC struct {
-	DisableTLS bool
-
-	AccessIP string
-	BindIP   string
-	BindPort int
-
-	RegisteredAPI []func(*grpc.Server)
+	network *network.Config
+	log     *log.Config
 
 	server     *grpc.Server
 	ctx        context.Context
 	cancel     func()
 	revokeFunc func() error
+
+	RegisteredAPI []func(*grpc.Server)
 }
 
-func NewGRPC(c *Config, supported ...func(*grpc.Server)) *GRPC {
+func NewGRPC(network *network.Config, log *log.Config, supported ...func(*grpc.Server)) *GRPC {
 	return &GRPC{
-		DisableTLS: c.DisableTLS,
-		AccessIP:   c.AccessIP,
-		BindIP:     c.BindIP,
-		BindPort:   c.BindPort,
+		network: network,
+		log:     log,
 
 		RegisteredAPI: supported,
 	}
 }
 
 func (g *GRPC) Serve() error {
+	midlog, err := middleware.InitLogger(&zlog.Config{
+		Level:  g.log.Level,
+		Format: "json",
+		File: zlog.FileLogConfig{
+			Filename:    filepath.Join(system.Directory.LogDir, "access.log"),
+			MaxSize:     100,
+			MaxDays:     30,
+			MaxBackups:  90,
+			Compression: "gzip",
+		},
+		DisableStacktrace: true,
+		DisableStdlog:     g.log.DisableStdlog,
+	})
+	if err != nil {
+		return fmt.Errorf("init middleware log failure, nest error: %v", err)
+	}
+	finalizer.RegisterCleanupFuncs(midlog)
+
 	var creds credentials.TransportCredentials
-	if !g.DisableTLS {
+	if !g.network.DisableTLS {
 		ipList := make([]string, 0, 4)
 		ipList = append(ipList, system.Network.BindIP)
-		ipList = append(ipList, g.BindIP)
+		ipList = append(ipList, g.network.BindIP)
 		if system.Network.AccessIP == "" {
 			ipList = append(ipList, system.Network.AccessIP)
 		}
@@ -79,7 +95,7 @@ func (g *GRPC) Serve() error {
 		}
 	}
 
-	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", g.BindIP, g.BindPort))
+	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", g.network.BindIP, g.network.BindPort))
 	if err != nil {
 		return err
 	}
@@ -112,7 +128,7 @@ func (g *GRPC) Serve() error {
 	if etcd.Client != nil {
 		resolver.Register(lb.NewBuilder(etcd.Client))
 
-		g.revokeFunc, err = etcd.RegisterService(g.ctx, buildinfo.AppName, system.Network.AccessIP, g.BindPort, 10)
+		g.revokeFunc, err = etcd.RegisterService(g.ctx, buildinfo.AppName, system.Network.AccessIP, g.network.BindPort, 10)
 		if err != nil {
 			return err
 		}

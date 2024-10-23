@@ -7,8 +7,8 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
-	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/log"
+	"github.com/eviltomorrow/king/lib/network"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	jsoniter "github.com/json-iterator/go"
 )
@@ -18,7 +18,7 @@ type Config struct {
 	Etcd   *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
 	Log    *log.Config       `json:"log" toml:"log" mapstructure:"log"`
 	MySQL  *mysql.Config     `json:"mysql" toml:"mysql" mapstructure:"mysql"`
-	GRPC   *server.Config    `json:"grpc" toml:"grpc" mapstructure:"grpc"`
+	GRPC   *network.Config   `json:"grpc" toml:"grpc" mapstructure:"grpc"`
 	Otel   *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
 }
 
@@ -99,7 +99,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			Level:         "info",
 			DisableStdlog: false,
 		},
-		GRPC: &server.Config{
+		GRPC: &network.Config{
 			AccessIP:   "",
 			BindIP:     "0.0.0.0",
 			BindPort:   50005,

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/eviltomorrow/king/lib/netutil"
+	netutil "github.com/eviltomorrow/king/lib/network"
 )
 
 func LoadRuntime() error {

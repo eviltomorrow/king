@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/config"
-	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/network"
@@ -13,9 +12,8 @@ import (
 )
 
 type Config struct {
-	Etcd *etcd.Config      `json:"etcd" toml:"etcd" mapstructure:"etcd"`
+	HTTP *network.Config   `json:"http" toml:"http" mapstructure:"http"`
 	Log  *log.Config       `json:"log" toml:"log" mapstructure:"log"`
-	GRPC *network.Config   `json:"grpc" toml:"grpc" mapstructure:"grpc"`
 	Otel *opentrace.Config `json:"otel" toml:"otel" mapstructure:"otel"`
 }
 
@@ -35,10 +33,9 @@ func ReadConfig(opts *flagsutil.Flags) (*Config, error) {
 
 func (c *Config) IsConfigValid() error {
 	for _, f := range []func() error{
-		c.Etcd.VerifyConfig,
 		c.Otel.VerifyConfig,
 		c.Log.VerifyConfig,
-		c.GRPC.VerifyConfig,
+		c.HTTP.VerifyConfig,
 	} {
 		if err := f(); err != nil {
 			return err
@@ -49,14 +46,6 @@ func (c *Config) IsConfigValid() error {
 
 func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 	return &Config{
-		Etcd: &etcd.Config{
-			Endpoints: []string{
-				"127.0.0.1:2379",
-			},
-			ConnectTimeout:     5 * time.Second,
-			StartupRetryTimes:  3,
-			StartupRetryPeriod: 5 * time.Second,
-		},
 		Otel: &opentrace.Config{
 			Enable:         true,
 			DSN:            "127.0.0.1:4317",
@@ -66,12 +55,11 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			Level:         "info",
 			DisableStdlog: opts.DisableStdlog,
 		},
-		GRPC: &network.Config{
+		HTTP: &network.Config{
 			AccessIP:   "",
 			BindIP:     "0.0.0.0",
-			BindPort:   50006,
+			BindPort:   50005,
 			DisableTLS: true,
 		},
 	}
-
 }

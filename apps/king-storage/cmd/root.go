@@ -72,7 +72,9 @@ func RunApp() error {
 		return fmt.Errorf("init mysql failure, nest error: %v", err)
 	}
 
-	s := server.NewGRPC(c.GRPC,
+	s := server.NewGRPC(
+		c.GRPC,
+		c.Log,
 		controller.NewStorage().Service(),
 	)
 	if err := s.Serve(); err != nil {
