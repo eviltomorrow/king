@@ -13,12 +13,8 @@ type Holiday struct {
 	Note string
 }
 
-var (
-	regTitle = regexp.MustCompile(`(\d{4}).*节假日安排的通知`)
-)
-
 func LoadHolidayFromFile(path string) (string, map[string]Holiday, error) {
-	file, err := os.OpenFile(path, os.O_RDONLY, 0644)
+	file, err := os.OpenFile(path, os.O_RDONLY, 0o644)
 	if err != nil {
 		return "", nil, err
 	}
@@ -36,13 +32,17 @@ func LoadHolidayFromFile(path string) (string, map[string]Holiday, error) {
 		}
 	}
 
-	if len(lines) == 0 {
+	if len(lines) <= 3 {
 		return "", nil, fmt.Errorf("no content from holiday text")
 	}
 
 	// title
 	year, err := func() (string, error) {
-		data := regTitle.FindStringSubmatch(lines[0])
+		reg, err := regexp.Compile(`(\d{4}).*节假日安排的通知`)
+		if err != nil {
+			return "", fmt.Errorf("compile title regexp failure, nest error: %v", err)
+		}
+		data := reg.FindStringSubmatch(lines[0])
 		if len(data) != 2 {
 			return "", fmt.Errorf("not found year, nest data: %s", data)
 		}
@@ -52,35 +52,59 @@ func LoadHolidayFromFile(path string) (string, map[string]Holiday, error) {
 		return "", nil, fmt.Errorf("parse year failure, nest error: %v", err)
 	}
 
-	for _, line := range lines[1:] {
-		isList(line)
-	}
+	// target
+	// target, err := func() ([]string, error) {
+	// 	// 各省、自治区、直辖市人民政府，国务院各部委、各直属机构：
+	// 	pattern := "[\u4e00-\u9fa5]+(、[\u4e00-\u9fa5]+)*"
+	// 	reg, err := regexp.Compile(pattern)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("compilre target regexp failure, nest error: %v", err)
+	// 	}
 
+	// 	return reg.FindAllString(lines[1], -1), nil
+	// }()
+	// if err != nil {
+	// 	return "", nil, fmt.Errorf("parse target failure, nest error: %v", err)
+	// }
+	// fmt.Println(year, target)
+
+	pattern := `^[一二三四五六七]、`
+	reg, err := regexp.Compile(pattern)
+	if err != nil {
+		return "", nil, err
+	}
+	for _, line := range lines[1:] {
+		if reg.MatchString(line) {
+			line = reg.ReplaceAllString(line, "")
+			data, err := parseLineHoliday(line)
+			if err != nil {
+				return "", nil, err
+			}
+			_ = data
+		}
+	}
 	return year, nil, nil
 }
 
-func parseLineHoliday(text string) (map[string]Holiday, error) {
-	return nil, nil
-}
+func parseLineHoliday(line string) (map[string]Holiday, error) {
+	festival, err := func() (string, error) {
+		pattern := "[\u4e00-\u9fa5]{2,3}："
+		reg, err := regexp.Compile(pattern)
+		if err != nil {
+			return "", err
+		}
+		festival := reg.FindString(line)
+		festival = strings.Trim(festival, "：")
 
-func isList(text string) bool {
-	for _, s := range text {
-		// for _, no := range noList {
-		// 	for _, v := range no.value {
-		// 		if r == v {
-
-		// 		}
-		// 	}
-		// }
+		if festival == "" {
+			return "", fmt.Errorf("parse festival failure, nest error: nil")
+		}
+		return festival, nil
+	}()
+	if err != nil {
+		return nil, err
 	}
 
-	return true
-}
-
-type No struct {
-	value []string
-}
-
-var noList = map[string]No{
-	"1": {value: []string{"一", "1"}},
+	fmt.Println(festival)
+	return nil, nil
 }
