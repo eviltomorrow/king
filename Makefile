@@ -6,7 +6,7 @@ CGREEN:=$(shell tput setaf 2 2>/dev/null)
 CYELLOW:=$(shell tput setaf 3 2>/dev/null)
 CEND:=$(shell tput sgr0 2>/dev/null)
 
-MAINVERSION=$(shell cat version)
+MAINVERSION=$(shell cat version | sed 's/^[ \t]*//g')
 GITSHA := $(shell git rev-parse HEAD)
 BUILDTIME=$(shell date +%FT%T%z)
 REGISTRY=registry.cn-beijing.aliyuncs.com
@@ -49,6 +49,7 @@ endif
 docker: vendor
 docker: fmt
 ifeq (${app},)
+	cp -f version deployments/version
 	@bash build/docker_build.sh ${MAINVERSION} ${GITSHA} ${BUILDTIME}
 else
 	docker build --target prod -t ${REGISTRY}/${ACCOUNT}/${app} . --build-arg APPNAME=${app} --build-arg MAINVERSION=${MAINVERSION} --build-arg GITSHA=${GITSHA} --build-arg BUILDTIME=${BUILDTIME}

@@ -87,11 +87,12 @@ export loki_promtail_version="3.1.0"
 export cassandra_version="4.1.5"
 export ntfy_version="latest"
 
-export king_collector_version="latest"
-export king_notification_version="latest"
-export king_storage_version="latest"
-export king_auth_version="latest"
-export king_cron_version="latest"
+king_version=$(cat version | sed 's/^[ \t]*//g')
+export king_collector_version="${king_version}"
+export king_notification_version="${king_version}"
+export king_storage_version="${king_version}"
+export king_auth_version="${king_version}"
+export king_cron_version="${king_version}"
 
 name=""
 action=""

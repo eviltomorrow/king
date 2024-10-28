@@ -78,7 +78,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 			StartupRetryPeriod: 5 * time.Second,
 		},
 		Otel: &opentrace.Config{
-			Enable:         true,
+			Enable:         false,
 			DSN:            "127.0.0.1:4317",
 			ConnectTimeout: 5 * time.Second,
 		},

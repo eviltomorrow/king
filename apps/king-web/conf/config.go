@@ -47,7 +47,7 @@ func (c *Config) IsConfigValid() error {
 func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 	return &Config{
 		Otel: &opentrace.Config{
-			Enable:         true,
+			Enable:         false,
 			DSN:            "127.0.0.1:4317",
 			ConnectTimeout: 5 * time.Second,
 		},
