@@ -53,7 +53,7 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 		if err != nil {
 			return nil, err
 		}
-		var c = &Candlestick{
+		c := &Candlestick{
 			Date:    date,
 			High:    quote.High,
 			Low:     quote.Low,
@@ -69,16 +69,16 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 			c.MA[Ma_10] = calculateMa(closed[i-10+1 : i+1])
 		}
 		if len(closed) >= 50 {
-			c.MA[Ma_50] = calculateMa(closed[i-50+1 : i-1])
+			c.MA[Ma_50] = calculateMa(closed[i-50+1 : i+1])
 		}
 		if len(closed) >= 100 {
-			c.MA[Ma100] = calculateMa(closed[i-100+1 : i-1])
+			c.MA[Ma100] = calculateMa(closed[i-100+1 : i+1])
 		}
 		if len(closed) >= 150 {
-			c.MA[Ma150] = calculateMa(closed[i-150+1 : i-1])
+			c.MA[Ma150] = calculateMa(closed[i-150+1 : i+1])
 		}
 		if len(closed) >= 200 {
-			c.MA[Ma200] = calculateMa(closed[i-200+1 : i-1])
+			c.MA[Ma200] = calculateMa(closed[i-200+1 : i+1])
 		}
 		candlesticks = append(candlesticks, c)
 	}

@@ -52,7 +52,7 @@ func FetchStock(ctx context.Context, pipe chan *Stock) error {
 	return e
 }
 
-func FetchQuote(ctx context.Context, date time.Time, code string, kind string) ([]*Quote, error) {
+func GetQuote(ctx context.Context, date time.Time, code string, kind string) ([]*Quote, error) {
 	reverse := func(quotes []*Quote) []*Quote {
 		for i, j := 0, len(quotes)-1; i < j; i, j = i+1, j-1 {
 			quotes[i], quotes[j] = quotes[j], quotes[i]
@@ -86,7 +86,7 @@ func FetchQuote(ctx context.Context, date time.Time, code string, kind string) (
 		return nil, err
 	}
 
-	var data = make([]*Quote, 0, limit)
+	data := make([]*Quote, 0, limit)
 	for {
 		quote, err := resp.Recv()
 		if err == io.EOF {
@@ -96,7 +96,7 @@ func FetchQuote(ctx context.Context, date time.Time, code string, kind string) (
 			return nil, err
 		}
 
-		var q = &Quote{
+		q := &Quote{
 			Code:            quote.Code,
 			Open:            quote.Open,
 			Close:           quote.Close,

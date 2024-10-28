@@ -12,12 +12,12 @@ import (
 )
 
 func TestNewK(t *testing.T) {
-	quotes, err := data.FetchQuote(context.Background(), time.Now(), "sh600519", "day")
+	quotes, err := data.GetQuote(context.Background(), time.Now(), "sz300004", "day")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	k, err := chart.NewK(context.Background(), &data.Stock{Name: "贵州茅台", Code: "sh600519"}, quotes)
+	k, err := chart.NewK(context.Background(), &data.Stock{Name: "贵州茅台", Code: "sz300004"}, quotes)
 	if err != nil {
 		log.Fatal(err)
 	}
