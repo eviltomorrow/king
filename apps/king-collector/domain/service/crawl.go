@@ -158,18 +158,18 @@ func fetchMetadata(randomPeriod []int, baseCodeList []string, pipe chan *model.M
 	return totalCount, ignoreCount, nil
 }
 
-func persistenceMetadata(ctx context.Context, source string, pipe chan *model.Metadata) {
+func persistenceMetadata(_ context.Context, source string, pipe chan *model.Metadata) {
 	const (
 		size = 30
 	)
 	dataList := make([]*model.Metadata, 0, size)
 	for data := range pipe {
-		if _, err := db.DeleteMetadataByDate(ctx, mongodb.DB, source, data.Code, data.Date); err != nil {
+		if _, err := db.DeleteMetadataByDate(context.Background(), mongodb.DB, source, data.Code, data.Date); err != nil {
 			zlog.Error("delete metadata failure", zap.Error(err), zap.String("data", data.String()))
 		} else {
 			dataList = append(dataList, data)
 			if len(dataList) == size {
-				if _, err := db.InsertMetadataMany(ctx, mongodb.DB, source, dataList); err != nil {
+				if _, err := db.InsertMetadataMany(context.Background(), mongodb.DB, source, dataList); err != nil {
 					for _, d := range dataList {
 						zlog.Error("insert metadata failure", zap.Error(err), zap.String("data", d.String()))
 					}
@@ -182,7 +182,7 @@ func persistenceMetadata(ctx context.Context, source string, pipe chan *model.Me
 	cache := make([]*model.Metadata, 0, len(dataList))
 	if len(dataList) != 0 {
 		for _, data := range dataList {
-			if _, err := db.DeleteMetadataByDate(ctx, mongodb.DB, source, data.Code, data.Date); err != nil {
+			if _, err := db.DeleteMetadataByDate(context.Background(), mongodb.DB, source, data.Code, data.Date); err != nil {
 				zlog.Error("delete metadata failure", zap.Error(err), zap.String("data", data.String()))
 			} else {
 				cache = append(cache, data)
@@ -191,7 +191,7 @@ func persistenceMetadata(ctx context.Context, source string, pipe chan *model.Me
 	}
 
 	if len(cache) != 0 {
-		if _, err := db.InsertMetadataMany(ctx, mongodb.DB, source, cache); err != nil {
+		if _, err := db.InsertMetadataMany(context.Background(), mongodb.DB, source, cache); err != nil {
 			for _, d := range cache {
 				zlog.Error("insert metadata failure", zap.Error(err), zap.String("data", d.String()))
 			}

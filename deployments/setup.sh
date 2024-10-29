@@ -79,13 +79,14 @@ export jaeger_version="1.59.0"
 export prometheus_version="2.53.1"
 export node_exporter_version="1.8.2"
 export grafana_version="11.1.0"
-export redis_version="7.2.5"
-export mongo_version="7.0.12"
-export mysql_version="8.4.1"
-export etcd_version="3.5.14"
 export loki_promtail_version="3.1.0"
 export cassandra_version="4.1.5"
 export ntfy_version="latest"
+
+export redis_version="7.4.1"
+export mongo_version="7.0.15"
+export mysql_version="8.4.3"
+export etcd_version="3.5.16"
 
 king_version=$(cat version | sed 's/^[ \t]*//g')
 export king_collector_version="${king_version}"
