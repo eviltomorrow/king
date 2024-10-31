@@ -8,7 +8,7 @@ option go_package = "./;pb";
 package storage;
 
 service Storage {
-    rpc StatsMetadata(google.protobuf.StringValue) returns (ShowResponse);
+    rpc ShowMetadata(google.protobuf.StringValue) returns (ShowResponse);
     rpc PushMetadata(stream Metadata) returns (PushResponse);
 
     rpc GetStockOne(google.protobuf.StringValue) returns (Stock);

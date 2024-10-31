@@ -14,7 +14,7 @@ import (
 )
 
 var StatsCommand = &cobra.Command{
-	Use:   "stats",
+	Use:   "show",
 	Short: "统计数据",
 	Run: func(cmd *cobra.Command, args []string) {
 		begin, err := time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", begin))
@@ -29,12 +29,10 @@ var StatsCommand = &cobra.Command{
 		}
 
 		for begin.Before(end) {
-			var (
-				date = begin.Format(time.DateOnly)
-			)
+			date := begin.Format(time.DateOnly)
 
 			status := BoldGreen.Sprint("正常")
-			days, weeks, err := stats(context.Background(), date)
+			days, weeks, err := show(context.Background(), date)
 			if err != nil {
 				log.Printf("数据统计失败, nest error: %v, date: %v", err, date)
 			} else {
@@ -65,14 +63,14 @@ func init() {
 	StatsCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
-func stats(ctx context.Context, date string) (int64, int64, error) {
+func show(ctx context.Context, date string) (int64, int64, error) {
 	stub, closeFunc, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
 	if err != nil {
 		return 0, 0, err
 	}
 	defer closeFunc()
 
-	resp, err := stub.StatsMetadata(ctx, &wrapperspb.StringValue{Value: date})
+	resp, err := stub.ShowMetadata(ctx, &wrapperspb.StringValue{Value: date})
 	if err != nil {
 		return 0, 0, err
 	}

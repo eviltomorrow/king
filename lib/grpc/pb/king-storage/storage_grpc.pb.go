@@ -22,7 +22,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Storage_StatsMetadata_FullMethodName  = "/storage.Storage/StatsMetadata"
+	Storage_ShowMetadata_FullMethodName   = "/storage.Storage/ShowMetadata"
 	Storage_PushMetadata_FullMethodName   = "/storage.Storage/PushMetadata"
 	Storage_GetStockOne_FullMethodName    = "/storage.Storage/GetStockOne"
 	Storage_GetStockAll_FullMethodName    = "/storage.Storage/GetStockAll"
@@ -33,7 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StorageClient interface {
-	StatsMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ShowResponse, error)
+	ShowMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ShowResponse, error)
 	PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[entity.Metadata, PushResponse], error)
 	GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error)
 	GetStockAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Stock], error)
@@ -48,10 +48,10 @@ func NewStorageClient(cc grpc.ClientConnInterface) StorageClient {
 	return &storageClient{cc}
 }
 
-func (c *storageClient) StatsMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ShowResponse, error) {
+func (c *storageClient) ShowMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ShowResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ShowResponse)
-	err := c.cc.Invoke(ctx, Storage_StatsMetadata_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Storage_ShowMetadata_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ type Storage_GetQuoteLatestClient = grpc.ServerStreamingClient[Quote]
 // All implementations must embed UnimplementedStorageServer
 // for forward compatibility.
 type StorageServer interface {
-	StatsMetadata(context.Context, *wrapperspb.StringValue) (*ShowResponse, error)
+	ShowMetadata(context.Context, *wrapperspb.StringValue) (*ShowResponse, error)
 	PushMetadata(grpc.ClientStreamingServer[entity.Metadata, PushResponse]) error
 	GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error)
 	GetStockAll(*emptypb.Empty, grpc.ServerStreamingServer[Stock]) error
@@ -138,8 +138,8 @@ type StorageServer interface {
 // pointer dereference when methods are called.
 type UnimplementedStorageServer struct{}
 
-func (UnimplementedStorageServer) StatsMetadata(context.Context, *wrapperspb.StringValue) (*ShowResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StatsMetadata not implemented")
+func (UnimplementedStorageServer) ShowMetadata(context.Context, *wrapperspb.StringValue) (*ShowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ShowMetadata not implemented")
 }
 func (UnimplementedStorageServer) PushMetadata(grpc.ClientStreamingServer[entity.Metadata, PushResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method PushMetadata not implemented")
@@ -174,20 +174,20 @@ func RegisterStorageServer(s grpc.ServiceRegistrar, srv StorageServer) {
 	s.RegisterService(&Storage_ServiceDesc, srv)
 }
 
-func _Storage_StatsMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Storage_ShowMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StorageServer).StatsMetadata(ctx, in)
+		return srv.(StorageServer).ShowMetadata(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Storage_StatsMetadata_FullMethodName,
+		FullMethod: Storage_ShowMetadata_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StorageServer).StatsMetadata(ctx, req.(*wrapperspb.StringValue))
+		return srv.(StorageServer).ShowMetadata(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -247,8 +247,8 @@ var Storage_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StorageServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "StatsMetadata",
-			Handler:    _Storage_StatsMetadata_Handler,
+			MethodName: "ShowMetadata",
+			Handler:    _Storage_ShowMetadata_Handler,
 		},
 		{
 			MethodName: "GetStockOne",
