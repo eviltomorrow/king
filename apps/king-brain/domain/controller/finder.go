@@ -34,7 +34,15 @@ func (c *Finder) Service() func(*grpc.Server) {
 	}
 }
 
-func (c *Finder) DiscoverPossibleChance(ctx context.Context, req *wrapperspb.StringValue) (*pb.Chances, error) {
+func ReportDaily(ctx context.Context, req *wrapperspb.StringValue) (*pb.StatsInfo, error) {
+	return nil, nil
+}
+
+func ReportWeek(ctx context.Context, req *wrapperspb.StringValue) (*pb.StatsInfo, error) {
+	return nil, nil
+}
+
+func (c *Finder) FindPossibleChance(ctx context.Context, req *wrapperspb.StringValue) (*pb.Chances, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, req is nil")
 	}
@@ -73,9 +81,8 @@ func (c *Finder) DiscoverPossibleChance(ctx context.Context, req *wrapperspb.Str
 
 					if ok {
 						count.Add(1)
-						zlog.Info("", zap.Int("score", score), zap.String("name", stock.Name))
+						fmt.Printf("info: %d, %s\r\n", score, stock.Name)
 					}
-
 				}
 			}
 
