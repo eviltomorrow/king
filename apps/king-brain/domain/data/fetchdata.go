@@ -20,6 +20,10 @@ func FetchStock(ctx context.Context, pipe chan *Stock) error {
 	if pipe == nil {
 		return fmt.Errorf("panic: invalid pipe")
 	}
+	defer func() {
+		close(pipe)
+	}()
+
 	stub, closeFunc, err := client.NewStorageWithEtcd()
 	if err != nil {
 		return err
@@ -47,7 +51,6 @@ func FetchStock(ctx context.Context, pipe chan *Stock) error {
 			Suspend: stock.Suspend,
 		}
 	}
-	close(pipe)
 
 	return e
 }

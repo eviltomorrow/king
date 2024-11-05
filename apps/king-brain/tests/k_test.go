@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -23,4 +25,40 @@ func TestNewK(t *testing.T) {
 	}
 
 	fmt.Println(k)
+}
+
+func TestFind(t *testing.T) {
+	pipe := make(chan *data.Stock, 64)
+
+	go func() {
+		if err := data.FetchStock(context.Background(), pipe); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	var wg sync.WaitGroup
+	var count atomic.Int32
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			for stock := range pipe {
+				quotes, err := data.GetQuote(context.Background(), time.Now(), stock.Code, data.DAY)
+				if err != nil {
+					log.Printf("GetQuote failure, nest error: %v", err)
+				} else {
+					k, err := chart.NewK(context.Background(), stock, quotes)
+					if err != nil {
+						log.Printf("New k failure, nest error: %v", err)
+					}
+					_ = k
+					count.Add(1)
+				}
+			}
+
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+	fmt.Println(count.Load())
 }

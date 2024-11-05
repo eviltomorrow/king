@@ -7,7 +7,7 @@ option go_package = "./;pb";
 package brain;
 
 service Finder {
-    rpc DiscoverPossibleChance(google.protobuf.StringValue) returns (Chance);
+    rpc DiscoverPossibleChance(google.protobuf.StringValue) returns (Chances);
 }
 
 message Stock {
@@ -23,4 +23,8 @@ message Model {
 message Chance {
     Stock stock = 1;
     Model model = 2;
+}
+
+message Chances {
+    repeated Chance chances = 1;
 }

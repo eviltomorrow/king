@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FinderClient interface {
-	DiscoverPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chance, error)
+	DiscoverPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chances, error)
 }
 
 type finderClient struct {
@@ -38,9 +38,9 @@ func NewFinderClient(cc grpc.ClientConnInterface) FinderClient {
 	return &finderClient{cc}
 }
 
-func (c *finderClient) DiscoverPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chance, error) {
+func (c *finderClient) DiscoverPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chances, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Chance)
+	out := new(Chances)
 	err := c.cc.Invoke(ctx, Finder_DiscoverPossibleChance_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (c *finderClient) DiscoverPossibleChance(ctx context.Context, in *wrappersp
 // All implementations must embed UnimplementedFinderServer
 // for forward compatibility.
 type FinderServer interface {
-	DiscoverPossibleChance(context.Context, *wrapperspb.StringValue) (*Chance, error)
+	DiscoverPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error)
 	mustEmbedUnimplementedFinderServer()
 }
 
@@ -63,7 +63,7 @@ type FinderServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFinderServer struct{}
 
-func (UnimplementedFinderServer) DiscoverPossibleChance(context.Context, *wrapperspb.StringValue) (*Chance, error) {
+func (UnimplementedFinderServer) DiscoverPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverPossibleChance not implemented")
 }
 func (UnimplementedFinderServer) mustEmbedUnimplementedFinderServer() {}
