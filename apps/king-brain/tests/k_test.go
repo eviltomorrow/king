@@ -14,7 +14,7 @@ import (
 )
 
 func TestNewK(t *testing.T) {
-	quotes, err := data.GetQuote(context.Background(), time.Now(), "sh600519", "day")
+	quotes, err := data.GetQuotesN(context.Background(), time.Now(), "bj830946", "day", 2)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestFind(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			for stock := range pipe {
-				quotes, err := data.GetQuote(context.Background(), time.Now(), stock.Code, data.DAY)
+				quotes, err := data.GetQuotesN(context.Background(), time.Now(), stock.Code, "day", 3)
 				if err != nil {
 					log.Printf("GetQuote failure, nest error: %v", err)
 				} else {

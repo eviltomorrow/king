@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
@@ -65,17 +64,17 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 		}
 
 		v := &Volatility{
-			PercentageChange: mathutil.Trunc4(float64(quote.Close-quote.YesterdayClosed)/float64(quote.YesterdayClosed)) * 100,
+			PercentageChange: mathutil.Trunc2(float64(quote.Close-quote.YesterdayClosed) / float64(quote.YesterdayClosed) * 100),
 			PercentageVolume: func() float64 {
 				if i != 0 {
 					last := quotes[i-1]
-					fmt.Println(quote.Volume-last.Volume, quote.Volume, last.Volume)
-					return mathutil.Trunc4(float64(quote.Volume-last.Volume)/float64(last.Volume)) * 100
+
+					return mathutil.Trunc2((float64(quote.Volume-last.Volume)/float64(last.Volume) + 1) * 100)
 				}
 				return 0
 			}(),
 			PercentageAmplitude: func() float64 {
-				return mathutil.Trunc4((quote.High-quote.Low)/quote.Low) * 100
+				return mathutil.Trunc2((quote.High - quote.Low) / quote.YesterdayClosed * 100)
 			}(),
 			AverageTransactionPrice: func() float64 {
 				return mathutil.Trunc2(quote.Account / float64(quote.Volume))
