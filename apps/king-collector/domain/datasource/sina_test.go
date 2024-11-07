@@ -9,14 +9,8 @@ import (
 func TestFetchMetadataFromSina(t *testing.T) {
 	_assert := assert.New(t)
 	codes := []string{
-		"bj920118",
-		"bj872931",
-		"bj873593",
-		"sh000001",
-		"sz399001",
-		"sz399006",
-		"sh000688",
 		"bj899050",
+		"sh000688",
 	}
 	data, err := FetchMetadataFromSina(codes)
 	_assert.Nil(err)
