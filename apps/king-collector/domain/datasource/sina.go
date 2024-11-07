@@ -185,7 +185,7 @@ loop:
 		case 5:
 			md.Low = atof64(md.Name, i, val)
 		case 8:
-			md.Volume = atou64(md.Name, i, val)
+			md.Volume = atoi64(md.Name, i, val)
 		case 9:
 			md.Account = atof64(md.Name, i, val)
 		case 30:

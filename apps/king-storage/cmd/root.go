@@ -10,11 +10,9 @@ import (
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/envutil"
-	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/fs"
-	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/pprofutil"
 	"github.com/eviltomorrow/king/lib/procutil"
@@ -22,7 +20,6 @@ import (
 	"github.com/eviltomorrow/king/lib/zlog"
 	flags "github.com/jessevdk/go-flags"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/resolver"
 )
 
 func RunApp() error {
@@ -75,7 +72,6 @@ func RunApp() error {
 		return fmt.Errorf("init mysql failure, nest error: %v", err)
 	}
 
-	resolver.Register(lb.NewBuilder(etcd.Client))
 	s := server.NewGRPC(
 		c.GRPC,
 		c.Log,

@@ -7,15 +7,12 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-collector/conf"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/controller"
-	"google.golang.org/grpc/resolver"
 
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/envutil"
-	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/fs"
-	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/pprofutil"
 	"github.com/eviltomorrow/king/lib/procutil"
@@ -75,7 +72,6 @@ func RunApp() error {
 		return fmt.Errorf("init mongodb failure, nest error: %v", err)
 	}
 
-	resolver.Register(lb.NewBuilder(etcd.Client))
 	s := server.NewGRPC(
 		c.GRPC,
 		c.Log,

@@ -5,10 +5,8 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-brain/conf"
 	"github.com/eviltomorrow/king/lib/envutil"
-	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/flagsutil"
-	"github.com/eviltomorrow/king/lib/grpc/lb"
-	"google.golang.org/grpc/resolver"
+	"github.com/eviltomorrow/king/lib/grpc/client"
 )
 
 func init() {
@@ -23,6 +21,7 @@ func init() {
 	if err := envutil.InitEtcd(c.Etcd); err != nil {
 		log.Fatalf("init etcd failure, nest error: %v", err)
 	}
-
-	resolver.Register(lb.NewBuilder(etcd.Client))
+	if err := envutil.InitClientForGRPC(client.InitStorage); err != nil {
+		log.Fatalf("init etcd failure, nest error: %v", err)
+	}
 }

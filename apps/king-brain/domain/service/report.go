@@ -2,7 +2,13 @@ package service
 
 import (
 	"context"
+	"log"
+	"sync"
 	"time"
+
+	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
+	"github.com/eviltomorrow/king/lib/zlog"
+	"go.uber.org/zap"
 )
 
 type StatsInfo struct {
@@ -13,33 +19,33 @@ type StatsInfo struct {
 }
 
 func Report(ctx context.Context, date time.Time, kind string) (*StatsInfo, error) {
-	// var (
-	// 	wg sync.WaitGroup
+	var (
+		wg sync.WaitGroup
 
-	// 	pipe   = make(chan *data.Stock, 64)
-	// 	result = make(chan *StatsInfo, 64)
-	// )
+		pipe = make(chan *data.Stock, 64)
+	)
 
-	// for i := 0; i < 10; i++ {
-	// 	wg.Add(1)
-	// 	go func() {
-	// 		for stock := range pipe {
-	// 			quotes, err := data.GetQuote(ctx, date, stock.Code, kind)
-	// 			if err != nil {
-	// 				zlog.Error("GetQuote failure", zap.Error(err), zap.String("code", stock.Code))
-	// 				continue
-	// 			}
-	// 		}
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			for stock := range pipe {
+				quotes, err := data.GetQuote(ctx, date, stock.Code, kind)
+				if err != nil {
+					zlog.Error("GetQuote failure", zap.Error(err), zap.String("code", stock.Code))
+					continue
+				}
+				_ = quotes
+			}
 
-	// 		wg.Done()
-	// 	}()
-	// }
+			wg.Done()
+		}()
+	}
 
-	// go func() {
-	// 	if err := data.FetchStock(context.Background(), pipe); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }()
+	go func() {
+		if err := data.FetchStock(context.Background(), pipe); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// wg.Wait()
 

@@ -8,12 +8,14 @@ import (
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
+	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/network"
 	"github.com/eviltomorrow/king/lib/opentrace"
 	"github.com/eviltomorrow/king/lib/redis"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
+	"google.golang.org/grpc/resolver"
 )
 
 func InitOpentrace(otel *opentrace.Config) error {
@@ -112,6 +114,7 @@ func InitRedis(c *redis.Config) error {
 }
 
 func InitClientForGRPC(fs ...func() error) error {
+	resolver.Register(lb.NewBuilder(etcd.Client))
 	for _, f := range fs {
 		if err := f(); err != nil {
 			return err

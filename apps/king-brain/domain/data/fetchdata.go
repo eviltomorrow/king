@@ -57,7 +57,7 @@ func GetQuote(ctx context.Context, date time.Time, code string, kind string) ([]
 		return quotes
 	}
 
-	var limit int64 = 250
+	var limit int64 = 3
 	resp, err := client.DefalutStorage.GetQuoteLatest(ctx, &pb.GetQuoteLatestRequest{
 		Code:  code,
 		Date:  date.Format(time.DateOnly),

@@ -57,7 +57,7 @@ message Quote {
     double high = 4;
     double low = 5;
     double yesterday_closed = 6;
-    uint64 volume = 7;
+    int64 volume = 7;
     double account = 8;
     string date = 9;
     int32 num_of_year = 10;

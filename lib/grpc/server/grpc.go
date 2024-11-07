@@ -10,7 +10,6 @@ import (
 	"github.com/eviltomorrow/king/lib/certificate"
 	"github.com/eviltomorrow/king/lib/etcd"
 	"github.com/eviltomorrow/king/lib/finalizer"
-	"github.com/eviltomorrow/king/lib/grpc/lb"
 	"github.com/eviltomorrow/king/lib/grpc/middleware"
 	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/network"
@@ -21,7 +20,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/resolver"
 )
 
 type GRPC struct {
@@ -126,8 +124,6 @@ func (g *GRPC) Serve() error {
 
 	g.ctx, g.cancel = context.WithCancel(context.Background())
 	if etcd.Client != nil {
-		resolver.Register(lb.NewBuilder(etcd.Client))
-
 		g.revokeFunc, err = etcd.RegisterService(g.ctx, buildinfo.AppName, system.Network.AccessIP, g.network.BindPort, 10)
 		if err != nil {
 			return err

@@ -101,7 +101,7 @@ func BuildQuoteWeeksWithMetadata(ctx context.Context, md []*model.Metadata, date
 			first, last = days[0], days[len(days)-1]
 			highs       = make([]float64, 0, len(days))
 			lows        = make([]float64, 0, len(days))
-			volumes     = make([]uint64, 0, len(days))
+			volumes     = make([]int64, 0, len(days))
 			accounts    = make([]float64, 0, len(days))
 		)
 

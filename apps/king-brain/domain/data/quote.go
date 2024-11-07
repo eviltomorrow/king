@@ -13,7 +13,7 @@ type Quote struct {
 	High            float64 `json:"high"`
 	Low             float64 `json:"low"`
 	YesterdayClosed float64 `json:"yesterday_closed"`
-	Volume          uint64  `json:"volume"`
+	Volume          int64   `json:"volume"`
 	Account         float64 `json:"account"`
 	Date            string  `json:"date"`
 	NumOfYear       int32   `json:"num_of_year"`

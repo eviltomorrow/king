@@ -2,9 +2,11 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
+	"github.com/eviltomorrow/king/lib/mathutil"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -36,10 +38,18 @@ type Candlestick struct {
 	Low     float64
 	Open    float64
 	Close   float64
-	Volume  uint64
+	Volume  int64
 	Account float64
 
-	MA map[MaKind]float64
+	MA         map[MaKind]float64
+	Volatility *Volatility // 波动
+}
+
+type Volatility struct {
+	PercentageChange        float64
+	PercentageVolume        float64
+	PercentageAmplitude     float64
+	AverageTransactionPrice float64
 }
 
 func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, error) {
@@ -53,15 +63,35 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 		if err != nil {
 			return nil, err
 		}
+
+		v := &Volatility{
+			PercentageChange: mathutil.Trunc4(float64(quote.Close-quote.YesterdayClosed)/float64(quote.YesterdayClosed)) * 100,
+			PercentageVolume: func() float64 {
+				if i != 0 {
+					last := quotes[i-1]
+					fmt.Println(quote.Volume-last.Volume, quote.Volume, last.Volume)
+					return mathutil.Trunc4(float64(quote.Volume-last.Volume)/float64(last.Volume)) * 100
+				}
+				return 0
+			}(),
+			PercentageAmplitude: func() float64 {
+				return mathutil.Trunc4((quote.High-quote.Low)/quote.Low) * 100
+			}(),
+			AverageTransactionPrice: func() float64 {
+				return mathutil.Trunc2(quote.Account / float64(quote.Volume))
+			}(),
+		}
+
 		c := &Candlestick{
-			Date:    date,
-			High:    quote.High,
-			Low:     quote.Low,
-			Open:    quote.Open,
-			Close:   quote.Close,
-			Volume:  quote.Volume,
-			Account: quote.Account,
-			MA:      make(map[MaKind]float64, 5),
+			Date:       date,
+			High:       quote.High,
+			Low:        quote.Low,
+			Open:       quote.Open,
+			Close:      quote.Close,
+			Volume:     quote.Volume,
+			Account:    quote.Account,
+			MA:         make(map[MaKind]float64, 5),
+			Volatility: v,
 		}
 
 		closed = append(closed, quote.Close)

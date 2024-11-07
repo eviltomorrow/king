@@ -17,7 +17,7 @@ type Metadata struct {
 	Latest          float64 `json:"latest" bson:"latest"`                     // 3 最近成交价格
 	High            float64 `json:"high" bson:"high"`                         // 4 最高成交价
 	Low             float64 `json:"low" bson:"low"`                           // 5 最低成交价
-	Volume          uint64  `json:"volume" bson:"volume"`                     // 8 成交数量（股）
+	Volume          int64   `json:"volume" bson:"volume"`                     // 8 成交数量（股）
 	Account         float64 `json:"account" bson:"account"`                   // 9 成交金额（元）
 	Date            string  `json:"date" bson:"date"`                         // 30 日期
 	Time            string  `json:"time" bson:"time"`                         // 31 时间

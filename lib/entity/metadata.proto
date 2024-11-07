@@ -11,7 +11,7 @@ message Metadata {
     double latest = 6;
     double high = 7;
     double low = 8;
-    uint64 volume = 9;
+    int64 volume = 9;
     double account = 10;
     string date = 11;
     string time = 12;
