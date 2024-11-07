@@ -16,6 +16,7 @@ import (
 	"github.com/eviltomorrow/king/lib/finalizer"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/fs"
+	"github.com/eviltomorrow/king/lib/grpc/client"
 	"github.com/eviltomorrow/king/lib/grpc/server"
 	"github.com/eviltomorrow/king/lib/pprofutil"
 	"github.com/eviltomorrow/king/lib/procutil"
@@ -73,6 +74,13 @@ func RunApp() error {
 	}
 	if err := envutil.InitMySQL(c.MySQL); err != nil {
 		return fmt.Errorf("init mysql failure, nest error: %v", err)
+	}
+
+	initClientFunc := []func() error{
+		client.InitCollector, client.InitStorage, client.InitEmail, client.InitNTFY,
+	}
+	if err := envutil.InitClientForGRPC(initClientFunc...); err != nil {
+		return fmt.Errorf("init grpc client failure, nest error: %v", err)
 	}
 
 	s := server.NewGRPC(

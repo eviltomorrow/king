@@ -9,12 +9,6 @@ import (
 )
 
 func Do(schedulerId string, e error) (string, error) {
-	stub, shutdown, err := client.NewSchedulerWithEtcd()
-	if err != nil {
-		return "", err
-	}
-	defer shutdown()
-
 	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 	defer cancel()
 
@@ -25,7 +19,7 @@ func Do(schedulerId string, e error) (string, error) {
 		code = pb.CallbackRequest_FAILURE
 		msg = e.Error()
 	}
-	if _, err = stub.Callback(ctx, &pb.CallbackRequest{SchedulerId: schedulerId, Code: code, ErrorMsg: msg}); err != nil {
+	if _, err := client.DefalutScheduler.Callback(ctx, &pb.CallbackRequest{SchedulerId: schedulerId, Code: code, ErrorMsg: msg}); err != nil {
 		return "", err
 	}
 

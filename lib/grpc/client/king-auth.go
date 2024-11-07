@@ -3,12 +3,26 @@ package client
 import (
 	"fmt"
 
+	"github.com/eviltomorrow/king/lib/finalizer"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-auth"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+var DefalutPassport pb.PassportClient
+
+func InitPassport() error {
+	client, shutdown, err := NewAuthWithEtcd()
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(shutdown)
+
+	DefalutPassport = client
+	return nil
+}
 
 func NewAuthWithEtcd() (pb.PassportClient, func() error, error) {
 	target := "etcd:///grpclb/king-auth"

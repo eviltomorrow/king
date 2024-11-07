@@ -17,13 +17,8 @@ func StockWithGetOne(ctx context.Context, code string) (*Stock, error) {
 	if code == "" {
 		return nil, fmt.Errorf("code is nil")
 	}
-	stub, shutdown, err := client.NewStorageWithEtcd()
-	if err != nil {
-		return nil, err
-	}
-	defer shutdown()
 
-	resp, err := stub.GetStockOne(ctx, &wrapperspb.StringValue{Value: code})
+	resp, err := client.DefalutStorage.GetStockOne(ctx, &wrapperspb.StringValue{Value: code})
 	if err != nil {
 		return nil, err
 	}

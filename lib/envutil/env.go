@@ -110,3 +110,12 @@ func InitRedis(c *redis.Config) error {
 
 	return nil
 }
+
+func InitClientForGRPC(fs ...func() error) error {
+	for _, f := range fs {
+		if err := f(); err != nil {
+			return err
+		}
+	}
+	return nil
+}

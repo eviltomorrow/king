@@ -3,12 +3,40 @@ package client
 import (
 	"fmt"
 
+	"github.com/eviltomorrow/king/lib/finalizer"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+var (
+	DefalutEmail pb.EmailClient
+	DefaultNTFY  pb.NtfyClient
+)
+
+func InitEmail() error {
+	client, shutdown, err := NewEmailWithEtcd()
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(shutdown)
+
+	DefalutEmail = client
+	return nil
+}
+
+func InitNTFY() error {
+	client, shutdown, err := NewNtfyWithEtcd()
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(shutdown)
+
+	DefaultNTFY = client
+	return nil
+}
 
 func NewEmailWithEtcd() (pb.EmailClient, func() error, error) {
 	target := "etcd:///grpclb/king-notification"

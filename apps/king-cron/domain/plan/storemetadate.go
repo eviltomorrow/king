@@ -59,26 +59,14 @@ func CronWithStoreMetadata() *domain.Plan {
 		},
 
 		Todo: func(schedulerId string) (string, error) {
-			stubStorage, closeFuncStorage, err := client.NewStorageWithEtcd()
+			target, err := client.DefalutStorage.PushMetadata(context.Background())
 			if err != nil {
 				return "", err
 			}
-			defer closeFuncStorage()
-
-			target, err := stubStorage.PushMetadata(context.Background())
-			if err != nil {
-				return "", err
-			}
-
-			stubCollector, closeFuncCollector, err := client.NewCollectorWithEtcd()
-			if err != nil {
-				return "", err
-			}
-			defer closeFuncCollector()
 
 			now := time.Now()
 
-			source, err := stubCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
+			source, err := client.DefalutCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
 				return "", err
 			}

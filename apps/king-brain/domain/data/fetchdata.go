@@ -24,13 +24,7 @@ func FetchStock(ctx context.Context, pipe chan *Stock) error {
 		close(pipe)
 	}()
 
-	stub, closeFunc, err := client.NewStorageWithEtcd()
-	if err != nil {
-		return err
-	}
-	defer closeFunc()
-
-	resp, err := stub.GetStockAll(ctx, &emptypb.Empty{})
+	resp, err := client.DefalutStorage.GetStockAll(ctx, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}
@@ -63,14 +57,8 @@ func GetQuote(ctx context.Context, date time.Time, code string, kind string) ([]
 		return quotes
 	}
 
-	stub, closeFunc, err := client.NewStorageWithEtcd()
-	if err != nil {
-		return nil, err
-	}
-	defer closeFunc()
-
 	var limit int64 = 250
-	resp, err := stub.GetQuoteLatest(ctx, &pb.GetQuoteLatestRequest{
+	resp, err := client.DefalutStorage.GetQuoteLatest(ctx, &pb.GetQuoteLatestRequest{
 		Code:  code,
 		Date:  date.Format(time.DateOnly),
 		Limit: limit,

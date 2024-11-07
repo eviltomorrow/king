@@ -3,12 +3,26 @@ package client
 import (
 	"fmt"
 
+	"github.com/eviltomorrow/king/lib/finalizer"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+var DefalutCollector pb.CollectorClient
+
+func InitCollector() error {
+	client, shutdown, err := NewCollectorWithEtcd()
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(shutdown)
+
+	DefalutCollector = client
+	return nil
+}
 
 func NewCollectorWithEtcd() (pb.CollectorClient, func() error, error) {
 	target := "etcd:///grpclb/king-collector"
