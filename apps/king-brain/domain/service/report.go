@@ -60,7 +60,7 @@ func ReportLatest(ctx context.Context, date time.Time, kind string) (*StatsInfo,
 	}()
 
 	t := date.Format(time.DateOnly)
-	desc := make(map[string]int)
+	count := make(map[string]int)
 	for r := range result {
 		var lastCandlestick *chart.Candlestick
 		if len(r.Candlesticks) != 0 {
@@ -74,10 +74,38 @@ func ReportLatest(ctx context.Context, date time.Time, kind string) (*StatsInfo,
 			case "深证成指":
 			case "创业板指":
 			default:
+				var desc string
+				switch {
+				case 0.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 1.0:
+					desc = "0.0%<=~1.0%"
+				case 1.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 3.0:
+					desc = "1.0%<=~3.0%"
+				case 3.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 5.0:
+					desc = "3.0%<=~5.0%"
+				case 5.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 10.0:
+					desc = "5.0%<=~10.0%"
+				case 10.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 15.0:
+					desc = "10.0%<=~15.0%"
+				case 15.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange <= 30.0:
+					desc = "15.0%<=~30.0%"
+				}
+
+				val, ok := count[desc]
+				if ok {
+					val = val + 1
+				} else {
+					val = 1
+				}
+				count[desc] = val
 			}
 		}
-		break
 	}
 
-	return nil, nil
+	stats := &StatsInfo{
+		Date: date.Format(time.DateOnly),
+		Kind: kind,
+		Desc: nil,
+	}
+
+	return stats, nil
 }
