@@ -1,4 +1,4 @@
-package callback
+package service
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/eviltomorrow/king/lib/setting"
 )
 
-func Do(schedulerId string, e error) (string, error) {
+func Callback(schedulerId string, e error) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
 	defer cancel()
 

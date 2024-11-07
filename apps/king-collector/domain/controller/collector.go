@@ -9,7 +9,6 @@ import (
 	"github.com/eviltomorrow/king/apps/king-collector/domain/db"
 	"github.com/eviltomorrow/king/apps/king-collector/domain/service"
 	"github.com/eviltomorrow/king/lib/db/mongodb"
-	"github.com/eviltomorrow/king/lib/grpc/callback"
 	"github.com/eviltomorrow/king/lib/grpc/pb/entity"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-collector"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -55,7 +54,7 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 			zlog.Info("crawl metadata completed", zap.Int64("total", total), zap.Int64("ignore", ignore), zap.Duration("cost", time.Since(begin)))
 		}
 
-		schedulerId, err := callback.Do(id, err)
+		schedulerId, err := service.Callback(id, err)
 		if err != nil {
 			zlog.Error("callback failure", zap.Error(err))
 		} else {

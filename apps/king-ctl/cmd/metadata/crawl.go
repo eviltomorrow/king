@@ -15,6 +15,14 @@ var CrawlCommand = &cobra.Command{
 	Use:   "crawl",
 	Short: "抓取数据",
 	Run: func(cmd *cobra.Command, args []string) {
+		stub, closeFunc, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
+		if err != nil {
+			log.Printf("create collector client failure, nest error: %v", err)
+			return
+		}
+		defer closeFunc()
+		ClientCollector = stub
+
 		if err := crawl(context.Background()); err != nil {
 			log.Printf("crawl data failure, nest error: %v", err)
 			return
@@ -22,9 +30,7 @@ var CrawlCommand = &cobra.Command{
 	},
 }
 
-var (
-	source string
-)
+var source string
 
 func init() {
 	CrawlCommand.PersistentFlags().StringVar(&source, "source", "sina", "指定数据源[sina]")
@@ -34,13 +40,7 @@ func init() {
 func crawl(ctx context.Context) error {
 	begin := time.Now()
 
-	stub, closeFunc, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
-	if err != nil {
-		return err
-	}
-	defer closeFunc()
-
-	resp, err := stub.CrawlMetadata(ctx, &wrapperspb.StringValue{Value: source})
+	resp, err := ClientCollector.CrawlMetadata(ctx, &wrapperspb.StringValue{Value: source})
 	if err != nil {
 		return err
 	}

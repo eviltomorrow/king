@@ -28,6 +28,14 @@ var StatsCommand = &cobra.Command{
 			return
 		}
 
+		stub, closeFunc, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
+		if err != nil {
+			log.Printf("create storage client failure, nest error: %v", err)
+			return
+		}
+		defer closeFunc()
+		ClientStorage = stub
+
 		for begin.Before(end) {
 			date := begin.Format(time.DateOnly)
 
@@ -64,13 +72,7 @@ func init() {
 }
 
 func show(ctx context.Context, date string) (int64, int64, error) {
-	stub, closeFunc, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
-	if err != nil {
-		return 0, 0, err
-	}
-	defer closeFunc()
-
-	resp, err := stub.ShowMetadata(ctx, &wrapperspb.StringValue{Value: date})
+	resp, err := ClientStorage.ShowMetadata(ctx, &wrapperspb.StringValue{Value: date})
 	if err != nil {
 		return 0, 0, err
 	}

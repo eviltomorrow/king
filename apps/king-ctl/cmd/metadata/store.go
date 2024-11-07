@@ -27,6 +27,22 @@ var StoreCommand = &cobra.Command{
 			return
 		}
 
+		stubCollector, closeFunc, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
+		if err != nil {
+			log.Printf("create collector client failure, nest error: %v", err)
+			return
+		}
+		defer closeFunc()
+		ClientCollector = stubCollector
+
+		stubStorage, closeFunc, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
+		if err != nil {
+			log.Printf("create storage client failure, nest error: %v", err)
+			return
+		}
+		defer closeFunc()
+		ClientStorage = stubStorage
+
 		for begin.Before(end) {
 			var (
 				date = begin.Format(time.DateOnly)
@@ -53,24 +69,12 @@ func init() {
 }
 
 func store(ctx context.Context, date string) (int64, int64, int64, error) {
-	stubStorage, closeFuncStorage, err := client.NewStorageWithTarget(fmt.Sprintf("%s:50001", IP))
-	if err != nil {
-		return 0, 0, 0, err
-	}
-	defer closeFuncStorage()
-
-	target, err := stubStorage.PushMetadata(ctx)
+	target, err := ClientStorage.PushMetadata(ctx)
 	if err != nil {
 		return 0, 0, 0, err
 	}
 
-	stubCollector, closeFuncCollector, err := client.NewCollectorWithTarget(fmt.Sprintf("%s:50003", IP))
-	if err != nil {
-		return 0, 0, 0, err
-	}
-	defer closeFuncCollector()
-
-	source, err := stubCollector.FetchMetadata(ctx, &wrapperspb.StringValue{Value: date})
+	source, err := ClientCollector.FetchMetadata(ctx, &wrapperspb.StringValue{Value: date})
 	if err != nil {
 		return 0, 0, 0, err
 	}
