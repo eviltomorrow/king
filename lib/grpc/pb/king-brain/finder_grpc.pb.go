@@ -29,8 +29,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FinderClient interface {
-	ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*StatsInfo, error)
-	ReportWeek(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*StatsInfo, error)
+	ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
+	ReportWeek(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
 	FindPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chances, error)
 }
 
@@ -42,9 +42,9 @@ func NewFinderClient(cc grpc.ClientConnInterface) FinderClient {
 	return &finderClient{cc}
 }
 
-func (c *finderClient) ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*StatsInfo, error) {
+func (c *finderClient) ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StatsInfo)
+	out := new(MarketStatus)
 	err := c.cc.Invoke(ctx, Finder_ReportDaily_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -52,9 +52,9 @@ func (c *finderClient) ReportDaily(ctx context.Context, in *wrapperspb.StringVal
 	return out, nil
 }
 
-func (c *finderClient) ReportWeek(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*StatsInfo, error) {
+func (c *finderClient) ReportWeek(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StatsInfo)
+	out := new(MarketStatus)
 	err := c.cc.Invoke(ctx, Finder_ReportWeek_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -76,8 +76,8 @@ func (c *finderClient) FindPossibleChance(ctx context.Context, in *wrapperspb.St
 // All implementations must embed UnimplementedFinderServer
 // for forward compatibility.
 type FinderServer interface {
-	ReportDaily(context.Context, *wrapperspb.StringValue) (*StatsInfo, error)
-	ReportWeek(context.Context, *wrapperspb.StringValue) (*StatsInfo, error)
+	ReportDaily(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
+	ReportWeek(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
 	FindPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error)
 	mustEmbedUnimplementedFinderServer()
 }
@@ -89,10 +89,10 @@ type FinderServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFinderServer struct{}
 
-func (UnimplementedFinderServer) ReportDaily(context.Context, *wrapperspb.StringValue) (*StatsInfo, error) {
+func (UnimplementedFinderServer) ReportDaily(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportDaily not implemented")
 }
-func (UnimplementedFinderServer) ReportWeek(context.Context, *wrapperspb.StringValue) (*StatsInfo, error) {
+func (UnimplementedFinderServer) ReportWeek(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportWeek not implemented")
 }
 func (UnimplementedFinderServer) FindPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error) {

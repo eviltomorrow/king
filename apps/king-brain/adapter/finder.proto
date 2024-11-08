@@ -7,8 +7,8 @@ option go_package = "./;pb";
 package brain;
 
 service Finder {
-    rpc ReportDaily(google.protobuf.StringValue) returns (StatsInfo);
-    rpc ReportWeek(google.protobuf.StringValue) returns (StatsInfo);
+    rpc ReportDaily(google.protobuf.StringValue) returns (MarketStatus);
+    rpc ReportWeek(google.protobuf.StringValue) returns (MarketStatus);
 
     rpc FindPossibleChance(google.protobuf.StringValue) returns (Chances);
 }
@@ -32,6 +32,34 @@ message Chances {
     repeated Chance chances = 1;
 }
 
-message StatsInfo {
-    string text = 1;
+message MarketStatus {
+    string date = 1;
+    MarketIndexChange market_index_change = 2;
+    MarketStockChange market_stock_change = 3;
+}
+
+message MarketIndexChange {
+    double shang_zheng = 1;
+    double shen_zheng = 2;
+    double chuang_ye = 3;
+    double bei_zheng_50 = 4;
+    double ke_chuang_50 = 5;
+}
+
+message MarketStockChange {
+    double rise_0_1 = 1;
+    double rise_1_3 = 2;
+    double rise_3_5 = 3;
+    double rise_5_10 = 4;
+    double rise_10_15 = 5;
+    double rise_15_30 = 6;
+    double rise_30_n = 7;
+
+    double fell_0_1 = 8;
+    double fell_1_3 = 9;
+    double fell_3_5 = 10;
+    double fell_5_10 = 11;
+    double fell_10_15 = 12;
+    double fell_15_30 = 13;
+    double fell_30_n = 14;
 }

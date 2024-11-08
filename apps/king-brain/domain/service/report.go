@@ -8,17 +8,49 @@ import (
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
 	"github.com/eviltomorrow/king/lib/zlog"
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 )
 
-type StatsInfo struct {
+type MarketStatus struct {
 	Date string
-	Kind string
 
-	Desc map[string]string
+	MarketIndexChange MarketIndexChange
+	MarketStockChange MarketStockChange
 }
 
-func ReportLatest(ctx context.Context, date time.Time, kind string) (*StatsInfo, error) {
+func (m *MarketStatus) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(m)
+	return string(buf)
+}
+
+type MarketIndexChange struct {
+	ShangZheng float64
+	ShenZheng  float64
+	Chuangye   float64
+	BeiZheng50 float64
+	KeChuang50 float64
+}
+
+type MarketStockChange struct {
+	Rise_0_1   float64
+	Rise_1_3   float64
+	Rise_3_5   float64
+	Rise_5_10  float64
+	Rise_10_15 float64
+	Rise_15_30 float64
+	Rise_30_N  float64
+
+	Fell_0_1   float64
+	Fell_1_3   float64
+	Fell_3_5   float64
+	Fell_5_10  float64
+	Fell_10_15 float64
+	Fell_15_30 float64
+	Fell_30_N  float64
+}
+
+func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*MarketStatus, error) {
 	var (
 		wg sync.WaitGroup
 
@@ -60,7 +92,9 @@ func ReportLatest(ctx context.Context, date time.Time, kind string) (*StatsInfo,
 	}()
 
 	t := date.Format(time.DateOnly)
-	count := make(map[string]int)
+	status := &MarketStatus{
+		Date: t,
+	}
 	for r := range result {
 		var lastCandlestick *chart.Candlestick
 		if len(r.Candlesticks) != 0 {
@@ -69,43 +103,53 @@ func ReportLatest(ctx context.Context, date time.Time, kind string) (*StatsInfo,
 		if lastCandlestick != nil && t == lastCandlestick.Date.Format(time.DateOnly) {
 			switch r.Name {
 			case "北证50":
+				status.MarketIndexChange.BeiZheng50 = lastCandlestick.Volatility.PercentageChange
 			case "科创50":
+				status.MarketIndexChange.KeChuang50 = lastCandlestick.Volatility.PercentageChange
 			case "上证指数":
+				status.MarketIndexChange.ShangZheng = lastCandlestick.Volatility.PercentageChange
 			case "深证成指":
+				status.MarketIndexChange.ShenZheng = lastCandlestick.Volatility.PercentageChange
 			case "创业板指":
+				status.MarketIndexChange.Chuangye = lastCandlestick.Volatility.PercentageChange
 			default:
-				var desc string
 				switch {
 				case 0.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 1.0:
-					desc = "0.0%<=~1.0%"
+					status.MarketStockChange.Rise_0_1 += 1
 				case 1.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 3.0:
-					desc = "1.0%<=~3.0%"
+					status.MarketStockChange.Rise_1_3 += 1
 				case 3.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 5.0:
-					desc = "3.0%<=~5.0%"
+					status.MarketStockChange.Rise_3_5 += 1
 				case 5.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 10.0:
-					desc = "5.0%<=~10.0%"
+					status.MarketStockChange.Rise_5_10 += 1
 				case 10.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 15.0:
-					desc = "10.0%<=~15.0%"
-				case 15.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange <= 30.0:
-					desc = "15.0%<=~30.0%"
+					status.MarketStockChange.Rise_10_15 += 1
+				case 15.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 30.0:
+					status.MarketStockChange.Rise_15_30 += 1
+				case 30 <= lastCandlestick.Volatility.PercentageChange:
+					status.MarketStockChange.Rise_30_N += 1
+
+				case -1.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < 0:
+					status.MarketStockChange.Fell_0_1 += 1
+				case -3.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < -1.0:
+					status.MarketStockChange.Fell_1_3 += 1
+				case -5.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < -3.0:
+					status.MarketStockChange.Fell_3_5 += 1
+				case -10.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < -5.0:
+					status.MarketStockChange.Fell_5_10 += 1
+				case -15.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < -10.0:
+					status.MarketStockChange.Fell_10_15 += 1
+				case -30.0 <= lastCandlestick.Volatility.PercentageChange && lastCandlestick.Volatility.PercentageChange < -15.0:
+					status.MarketStockChange.Fell_15_30 += 1
+				case lastCandlestick.Volatility.PercentageChange < -30.0:
+					status.MarketStockChange.Fell_30_N += 1
+				default:
+
 				}
 
-				val, ok := count[desc]
-				if ok {
-					val = val + 1
-				} else {
-					val = 1
-				}
-				count[desc] = val
 			}
 		}
 	}
 
-	stats := &StatsInfo{
-		Date: date.Format(time.DateOnly),
-		Kind: kind,
-		Desc: nil,
-	}
-
-	return stats, nil
+	return status, nil
 }

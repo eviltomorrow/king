@@ -9,7 +9,8 @@ import (
 )
 
 func TestReport(t *testing.T) {
-	status, err := ReportLatest(context.Background(), time.Now(), "day")
+	d := time.Date(2024, time.November, 0o7, 0, 0, 0, 0, time.Local)
+	status, err := ReportMarketStatus(context.Background(), d, "day")
 	if err != nil {
 		log.Fatal(err)
 	}
