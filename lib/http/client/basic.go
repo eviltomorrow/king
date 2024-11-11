@@ -14,7 +14,7 @@ import (
 )
 
 var HTTPDefault = &http.Client{
-	Timeout: setting.DEFUALT_HANDLE_10TIMEOUT,
+	Timeout: setting.DEFUALT_HANDLE_10_SECOND,
 }
 
 // DefaultHeader default header

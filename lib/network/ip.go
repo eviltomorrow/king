@@ -17,7 +17,7 @@ const (
 )
 
 func GetInterfaceFirst() (string, error) {
-	var e = make([]error, 0, 2)
+	e := make([]error, 0, 2)
 	ip, err := GetInterfaceIPv4First()
 	if err != nil {
 		e = append(e, err)
@@ -46,7 +46,7 @@ func GetInterfaceIPv6First() (string, error) {
 }
 
 func GetLocalareaIP(network, address string) (string, error) {
-	conn, err := net.DialTimeout(network, address, setting.DEFUALT_HANDLE_10TIMEOUT)
+	conn, err := net.DialTimeout(network, address, setting.DEFUALT_HANDLE_10_SECOND)
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +88,6 @@ func getInterfaceIPFirst(it IPType) (string, error) {
 							return ipnet.IP.String(), nil
 						}
 					}
-
 				}
 			}
 		}
@@ -102,7 +101,7 @@ func GetInterfaceIPList(filters ...func(string) bool) ([]string, error) {
 		return nil, err
 	}
 
-	var ipList = make([]string, 0, len(inters))
+	ipList := make([]string, 0, len(inters))
 loop:
 	for _, inter := range inters {
 		for _, filter := range filters {

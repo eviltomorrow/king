@@ -9,7 +9,7 @@ import (
 )
 
 func Callback(schedulerId string, e error) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
+	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
 	code := pb.CallbackRequest_SUCCESS

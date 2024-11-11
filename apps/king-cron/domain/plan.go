@@ -99,7 +99,7 @@ const (
 )
 
 func DefaultNotifyWithError(title string, err error, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
+	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
 	var e error
@@ -113,7 +113,7 @@ func DefaultNotifyWithError(title string, err error, tags []string) error {
 }
 
 func DefaultNotifyWithMsg(title, body string, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_30SECOND)
+	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
 	var e error

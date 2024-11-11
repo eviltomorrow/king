@@ -9,7 +9,7 @@ import (
 )
 
 func SendEmail(ctx context.Context, name, address, subject, body string) error {
-	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10SECOND)
+	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
 	if _, err := client.DefalutEmail.Send(ctx, &pb.Mail{
@@ -26,7 +26,7 @@ func SendEmail(ctx context.Context, name, address, subject, body string) error {
 }
 
 func SendNtfy(ctx context.Context, title, msg string, topic string, tags []string) error {
-	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10SECOND)
+	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
 	if _, err := client.DefaultNTFY.Send(ctx, &pb.Msg{

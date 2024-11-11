@@ -28,7 +28,7 @@ func init() {
 func CronWithCrawlMetadata() *domain.Plan {
 	p := &domain.Plan{
 		Precondition: func() (domain.StatusCode, error) {
-			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
+			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10_SECOND)
 			defer cancel()
 
 			record, err := db.SchedulerRecordWithSelectOneByDateName(ctx, mysql.DB, NameWithCrawlMetadata, time.Now().Format(time.DateOnly))
@@ -54,7 +54,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 			}
 		},
 		Todo: func(schedulerId string) (string, error) {
-			ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10SECOND)
+			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10_SECOND)
 			defer cancel()
 
 			_, err := client.DefalutCollector.CrawlMetadataAsync(ctx, &wrapperspb.StringValue{Value: schedulerId})
@@ -82,7 +82,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 				ErrorMsg:    errormsg,
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10TIMEOUT)
+			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10_SECOND)
 			defer cancel()
 
 			if _, err := db.SchedulerRecordWithInsertOne(ctx, mysql.DB, record); err != nil {
