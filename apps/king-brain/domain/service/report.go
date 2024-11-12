@@ -93,7 +93,6 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 	var total int64 = 0
 
 	for r := range result {
-		total++
 		var lastCandlestick *chart.Candlestick
 		if len(r.Candlesticks) != 0 {
 			lastCandlestick = r.Candlesticks[len(r.Candlesticks)-1]
@@ -126,6 +125,7 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 					HasChanged: lastCandlestick.Volatility.PercentageChange,
 				}
 			default:
+				total++
 				if lastCandlestick.Volatility.PercentageChange > 0 {
 					status.MarketStockCount.Rise += 1
 				} else {
