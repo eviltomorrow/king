@@ -43,9 +43,6 @@ type MarketStockCount struct {
 	RiseGT7 int64
 	Fell    int64
 	FellGT7 int64
-
-	LimitUp   int64
-	LimitDown int64
 }
 
 func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*MarketStatus, error) {
@@ -129,6 +126,11 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 					HasChanged: lastCandlestick.Volatility.PercentageChange,
 				}
 			default:
+				if lastCandlestick.Volatility.PercentageChange > 0 {
+					status.MarketStockCount.Rise += 1
+				} else {
+					status.MarketStockCount.Fell += 1
+				}
 				switch {
 				case 7.0 <= lastCandlestick.Volatility.PercentageChange:
 					status.MarketStockCount.RiseGT7 += 1

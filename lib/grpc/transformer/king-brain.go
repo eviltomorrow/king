@@ -59,8 +59,12 @@ func GenerateMarketStatusToMap(status *pb.MarketStatus) map[string]interface{} {
 		"bei_zheng50_change": status.MarketIndex.BeiZheng_50.HasChanged,
 
 		"total":           status.MarketStockCount.Total,
+		"rise":            status.MarketStockCount.Rise,
+		"rise_ratio":      mathutil.Trunc2(float64(status.MarketStockCount.Rise) / float64(status.MarketStockCount.Total) * 100),
 		"rise_gt_7":       status.MarketStockCount.RiseGt_7,
 		"rise_gt_7_ratio": mathutil.Trunc2(float64(status.MarketStockCount.RiseGt_7) / float64(status.MarketStockCount.Total) * 100),
+		"fell":            status.MarketStockCount.Fell,
+		"fell_ratio":      mathutil.Trunc2(float64(status.MarketStockCount.Fell) / float64(status.MarketStockCount.Total) * 100),
 		"fell_gt_7":       status.MarketStockCount.FellGt_7,
 		"fell_gt_7_ratio": mathutil.Trunc2(float64(status.MarketStockCount.FellGt_7) / float64(status.MarketStockCount.Total) * 100),
 	}
