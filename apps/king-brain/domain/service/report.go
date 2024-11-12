@@ -38,9 +38,14 @@ type MarketIndex struct {
 }
 
 type MarketStockCount struct {
-	Total     int64
-	Rise_gt_7 int64
-	Fell_gt_7 int64
+	Total   int64
+	Rise    int64
+	RiseGT7 int64
+	Fell    int64
+	FellGT7 int64
+
+	LimitUp   int64
+	LimitDown int64
 }
 
 func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*MarketStatus, error) {
@@ -126,9 +131,9 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 			default:
 				switch {
 				case 7.0 <= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.Rise_gt_7 += 1
+					status.MarketStockCount.RiseGT7 += 1
 				case -7.0 >= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.Fell_gt_7 += 1
+					status.MarketStockCount.FellGT7 += 1
 				default:
 
 				}

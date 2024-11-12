@@ -32,7 +32,7 @@ var ReportCommand = &cobra.Command{
 		if err := report(context.Background(), "daily", begin.Format(time.DateOnly)); err != nil {
 			log.Printf("[F] Report failure, nest error: %v", err)
 		} else {
-			log.Printf("=> 日期：%s，报告已生成，请查看邮箱", beginVar)
+			log.Printf("=> 日期：%s，报告已生成，请查看邮箱", begin.Format(time.DateOnly))
 		}
 	},
 }
