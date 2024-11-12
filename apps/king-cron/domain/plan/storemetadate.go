@@ -10,6 +10,7 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
 	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/notification"
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
@@ -122,7 +123,7 @@ func CronWithStoreMetadata() *domain.Plan {
 		},
 
 		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyForNtfyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
+			return notification.DefaultNotifyForNtfyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
 		},
 
 		Status: domain.Ready,

@@ -1,0 +1,16 @@
+
+亲爱的 Liarsa,	
+
+以下是你收到的一份简报:	
+    上证指数：{{ shang_zheng_direction }} {{ shang_zheng_value }} ({{ shang_zheng_change}} %)
+    深证成指：{{ shang_zheng_direction }} {{ shen_zheng_value }} ({{ shen_zheng_change }}%)
+    创业板指：{{ shang_zheng_direction }} {{ chuang_ye_value }} ({{ chuang_ye_change }}%)
+    科创50:  {{ shang_zheng_direction }} {{ ke_chuang50_value }} ({{ ke_chuang50_change }}%)
+    北证50:  {{ shang_zheng_direction }} {{ bei_zheng50_value }} ({{ bei_zheng50_change }}%)
+
+其中，今日正常交易的股票数量为 {{ total }} 家，上涨 {{ rise }} 家，占比 {{ rise_ratio }}%, 下跌 {{ fell }} 家，占比 {{ fell_ratio }}%，同时，涨幅超过 7% 的有 {{ rise_gt_7 }} 家，占比 {{ rise_gt_7_ratio }}%；跌幅超过 7% 的有 {{ fell_gt_7 }} 家，占比 {{ fell_gt_7_ratio }}%。	
+
+问候,
+The King Team.
+
+金钱永不眠！

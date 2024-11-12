@@ -9,6 +9,7 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
 	"github.com/eviltomorrow/king/apps/king-cron/domain/db"
+	"github.com/eviltomorrow/king/apps/king-cron/domain/notification"
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
@@ -92,7 +93,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 		},
 
 		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyForNtfyWithError(NameWithCrawlMetadata, fmt.Errorf("failure: %v", err), []string{"原始数据", "网络"})
+			return notification.DefaultNotifyForNtfyWithError(NameWithCrawlMetadata, fmt.Errorf("failure: %v", err), []string{"原始数据", "网络"})
 		},
 
 		Status: domain.Ready,

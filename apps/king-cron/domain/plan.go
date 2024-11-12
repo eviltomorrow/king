@@ -1,13 +1,8 @@
 package domain
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"sync"
-
-	"github.com/eviltomorrow/king/apps/king-cron/domain/notification"
-	"github.com/eviltomorrow/king/lib/setting"
 )
 
 var cache = make(map[string]func() *Plan, 32)
@@ -97,47 +92,3 @@ const (
 	ProgressProcessing = "processing"
 	ProgressCompleted  = "completed"
 )
-
-func DefaultNotifyForEmailWithError(title string, err error, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
-	defer cancel()
-
-	var e error
-	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, err.Error()); err != nil {
-		e = errors.Join(e, fmt.Errorf("send email failure, nest error: %v", err))
-	}
-	return e
-}
-
-func DefaultNotifyForNtfyWithError(title string, err error, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
-	defer cancel()
-
-	var e error
-	if err := notification.SendNtfy(ctx, title, err.Error(), "SrxOPwCBiRWZUOq0", tags); err != nil {
-		e = errors.Join(e, fmt.Errorf("send ntfy failure, nest error: %v", err))
-	}
-	return e
-}
-
-func DefaultNotifyForEmailWithMsg(title, body string, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
-	defer cancel()
-
-	var e error
-	if err := notification.SendEmail(ctx, "shepard", "eviltomorrow@163.com", title, body); err != nil {
-		e = errors.Join(e, fmt.Errorf("send email failure, nest error: %v", err))
-	}
-	return e
-}
-
-func DefaultNotifyForNtfyWithMsg(title, body string, tags []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
-	defer cancel()
-
-	var e error
-	if err := notification.SendNtfy(ctx, title, body, "SrxOPwCBiRWZUOq0", tags); err != nil {
-		e = errors.Join(e, fmt.Errorf("send ntfy failure, nest error: %v", err))
-	}
-	return e
-}
