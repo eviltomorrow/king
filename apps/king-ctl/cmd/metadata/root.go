@@ -6,12 +6,12 @@ import (
 )
 
 var (
-	IP string
+	IPVar string
 
-	begin string
-	end   string
+	beginVar string
+	endVar   string
 
-	mode string
+	modeVar string
 )
 
 var (

@@ -17,31 +17,35 @@ var ReportCommand = &cobra.Command{
 	Use:   "report",
 	Short: "报告数据",
 	Run: func(cmd *cobra.Command, args []string) {
-		date, err := time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", begin))
-		if err != nil {
-			log.Printf("[F] 转换日期失败, nest error: %v, begin: %s", err, begin)
-			return
+		var (
+			begin = time.Now()
+			err   error
+		)
+		if beginVar != "" {
+			begin, err = time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", beginVar))
+			if err != nil {
+				log.Printf("[F] 转换日期失败, nest error: %v, begin: %s", err, beginVar)
+				return
+			}
 		}
-		if begin == "" {
-			date = time.Now()
-		}
-		if err := report(context.Background(), "daily", date.Format(time.DateOnly)); err != nil {
+
+		if err := report(context.Background(), "daily", begin.Format(time.DateOnly)); err != nil {
 			log.Printf("[F] Report failure, nest error: %v", err)
 		} else {
-			log.Printf("=> 日期：%s，报告已生成，请查看邮箱", begin)
+			log.Printf("=> 日期：%s，报告已生成，请查看邮箱", beginVar)
 		}
 	},
 }
 
 func init() {
-	ReportCommand.PersistentFlags().StringVar(&begin, "date", "", "指定日期")
-	ReportCommand.PersistentFlags().StringVar(&mode, "mode", "daily", "指定类型")
+	ReportCommand.PersistentFlags().StringVar(&beginVar, "date", "", "指定日期")
+	ReportCommand.PersistentFlags().StringVar(&modeVar, "mode", "daily", "指定类型")
 
-	ReportCommand.PersistentFlags().StringVar(&IP, "ip", "127.0.0.1", "指定服务端 IP 地址")
+	ReportCommand.PersistentFlags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
 func report(ctx context.Context, mode, date string) error {
-	clientBrain, closeFunc, err := client.NewBrainWithTarget(fmt.Sprintf("%s:50005", IP))
+	clientBrain, closeFunc, err := client.NewBrainWithTarget(fmt.Sprintf("%s:50005", IPVar))
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,7 @@ func report(ctx context.Context, mode, date string) error {
 	for k, v := range data {
 		value[k] = fmt.Sprintf("%v", v)
 	}
-	clientTamplate, closeFunc, err := client.NewTemplateWithTarget(fmt.Sprintf("%s:50002", IP))
+	clientTamplate, closeFunc, err := client.NewTemplateWithTarget(fmt.Sprintf("%s:50002", IPVar))
 	if err != nil {
 		return err
 	}
@@ -71,7 +75,7 @@ func report(ctx context.Context, mode, date string) error {
 		return err
 	}
 
-	clientEmail, closeFunc, err := client.NewEmailWithTarget(fmt.Sprintf("%s:50002", IP))
+	clientEmail, closeFunc, err := client.NewEmailWithTarget(fmt.Sprintf("%s:50002", IPVar))
 	if err != nil {
 		return err
 	}
