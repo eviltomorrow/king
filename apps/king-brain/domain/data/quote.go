@@ -41,7 +41,7 @@ func GetQuotesN(ctx context.Context, date time.Time, code string, kind string, n
 	}
 
 	var limit int64 = n
-	resp, err := client.DefalutStorage.GetQuoteLatest(ctx, &pb.GetQuoteLatestRequest{
+	resp, err := client.DefaultStorage.GetQuoteLatest(ctx, &pb.GetQuoteLatestRequest{
 		Code:  code,
 		Date:  date.Format(time.DateOnly),
 		Limit: limit,

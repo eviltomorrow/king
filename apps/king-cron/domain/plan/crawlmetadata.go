@@ -57,7 +57,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10_SECOND)
 			defer cancel()
 
-			_, err := client.DefalutCollector.CrawlMetadataAsync(ctx, &wrapperspb.StringValue{Value: schedulerId})
+			_, err := client.DefaultCollector.CrawlMetadataAsync(ctx, &wrapperspb.StringValue{Value: schedulerId})
 			return "", err
 		},
 
@@ -92,7 +92,7 @@ func CronWithCrawlMetadata() *domain.Plan {
 		},
 
 		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyWithError(NameWithCrawlMetadata, fmt.Errorf("failure: %v", err), []string{"原始数据", "网络"})
+			return domain.DefaultNotifyForNtfyWithError(NameWithCrawlMetadata, fmt.Errorf("failure: %v", err), []string{"原始数据", "网络"})
 		},
 
 		Status: domain.Ready,

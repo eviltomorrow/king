@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var DefalutFinder pb.FinderClient
+var DefaultFinder pb.FinderClient
 
 func InitBrain() error {
 	client, shutdown, err := NewBrainWithEtcd()
@@ -20,7 +20,7 @@ func InitBrain() error {
 	}
 	finalizer.RegisterCleanupFuncs(shutdown)
 
-	DefalutFinder = client
+	DefaultFinder = client
 	return nil
 }
 

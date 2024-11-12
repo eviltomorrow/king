@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/eviltomorrow/king/apps/king-storage/cmd"
+	"github.com/eviltomorrow/king/apps/king-brain/cmd"
 	"github.com/eviltomorrow/king/lib/buildinfo"
 	"github.com/eviltomorrow/king/lib/system"
 )

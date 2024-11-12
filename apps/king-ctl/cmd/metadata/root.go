@@ -10,6 +10,8 @@ var (
 
 	begin string
 	end   string
+
+	mode string
 )
 
 var (

@@ -59,14 +59,14 @@ func CronWithStoreMetadata() *domain.Plan {
 		},
 
 		Todo: func(schedulerId string) (string, error) {
-			target, err := client.DefalutStorage.PushMetadata(context.Background())
+			target, err := client.DefaultStorage.PushMetadata(context.Background())
 			if err != nil {
 				return "", err
 			}
 
 			now := time.Now()
 
-			source, err := client.DefalutCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
+			source, err := client.DefaultCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
 				return "", err
 			}
@@ -122,7 +122,7 @@ func CronWithStoreMetadata() *domain.Plan {
 		},
 
 		NotifyWithError: func(err error) error {
-			return domain.DefaultNotifyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
+			return domain.DefaultNotifyForNtfyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
 		},
 
 		Status: domain.Ready,

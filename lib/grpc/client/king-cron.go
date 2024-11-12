@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var DefalutScheduler pb.SchedulerClient
+var DefaultScheduler pb.SchedulerClient
 
 func InitScheduler() error {
 	client, shutdown, err := NewSchedulerWithEtcd()
@@ -20,7 +20,7 @@ func InitScheduler() error {
 	}
 	finalizer.RegisterCleanupFuncs(shutdown)
 
-	DefalutScheduler = client
+	DefaultScheduler = client
 	return nil
 }
 

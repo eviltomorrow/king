@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "./;pb";
+package notification;
+
+service Template {
+    rpc Render(RenderRequest) returns (google.protobuf.StringValue){}
+}
+
+message RenderRequest {
+    string template_name = 1;
+    map<string, string> data = 2;
+}

@@ -94,6 +94,7 @@ export king_notification_version="${king_version}"
 export king_storage_version="${king_version}"
 export king_auth_version="${king_version}"
 export king_cron_version="${king_version}"
+export king_brain_version="${king_version}"
 
 name=""
 action=""

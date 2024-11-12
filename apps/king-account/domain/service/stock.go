@@ -18,7 +18,7 @@ func StockWithGetOne(ctx context.Context, code string) (*Stock, error) {
 		return nil, fmt.Errorf("code is nil")
 	}
 
-	resp, err := client.DefalutStorage.GetStockOne(ctx, &wrapperspb.StringValue{Value: code})
+	resp, err := client.DefaultStorage.GetStockOne(ctx, &wrapperspb.StringValue{Value: code})
 	if err != nil {
 		return nil, err
 	}

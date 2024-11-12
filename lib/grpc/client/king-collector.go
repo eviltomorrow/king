@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var DefalutCollector pb.CollectorClient
+var DefaultCollector pb.CollectorClient
 
 func InitCollector() error {
 	client, shutdown, err := NewCollectorWithEtcd()
@@ -20,7 +20,7 @@ func InitCollector() error {
 	}
 	finalizer.RegisterCleanupFuncs(shutdown)
 
-	DefalutCollector = client
+	DefaultCollector = client
 	return nil
 }
 

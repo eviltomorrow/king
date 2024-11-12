@@ -19,7 +19,7 @@ func Callback(schedulerId string, e error) (string, error) {
 		code = pb.CallbackRequest_FAILURE
 		msg = e.Error()
 	}
-	if _, err := client.DefalutScheduler.Callback(ctx, &pb.CallbackRequest{SchedulerId: schedulerId, Code: code, ErrorMsg: msg}); err != nil {
+	if _, err := client.DefaultScheduler.Callback(ctx, &pb.CallbackRequest{SchedulerId: schedulerId, Code: code, ErrorMsg: msg}); err != nil {
 		return "", err
 	}
 

@@ -83,6 +83,7 @@ func RunApp() error {
 		c.Log,
 		controller.NewEmail(smtp).Service(),
 		controller.NewNtfy(ntfy).Service(),
+		controller.NewTemplate().Service(),
 	)
 	if err := s.Serve(); err != nil {
 		return fmt.Errorf("notification serve failure, nest error: %v", err)

@@ -12,7 +12,7 @@ func SendEmail(ctx context.Context, name, address, subject, body string) error {
 	ctx, cancel := context.WithTimeout(ctx, setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
-	if _, err := client.DefalutEmail.Send(ctx, &pb.Mail{
+	if _, err := client.DefaultEmail.Send(ctx, &pb.Mail{
 		To: []*pb.Contact{
 			{Name: name, Address: address},
 		},

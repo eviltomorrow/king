@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-cron/domain"
@@ -13,11 +12,9 @@ import (
 	"github.com/eviltomorrow/king/lib/codes"
 	"github.com/eviltomorrow/king/lib/db/mysql"
 	"github.com/eviltomorrow/king/lib/grpc/client"
-	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-brain"
-	"github.com/eviltomorrow/king/lib/mathutil"
+	pb_notification "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
+	"github.com/eviltomorrow/king/lib/grpc/transformer"
 	"github.com/eviltomorrow/king/lib/setting"
-	"github.com/eviltomorrow/king/lib/system"
-	"github.com/flosch/pongo2/v6"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -64,15 +61,25 @@ func CronWithReportDaily() *domain.Plan {
 		Todo: func(string) (string, error) {
 			now := time.Now()
 
-			status, err := client.DefalutFinder.ReportDaily(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
+			status, err := client.DefaultFinder.ReportDaily(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
 				return "", err
 			}
-			text, err := generateMarketStatusHTMLText(status)
+			data := transformer.GenerateMarketStatusToMap(status)
+
+			value := make(map[string]string)
+			for k, v := range data {
+				value[k] = fmt.Sprintf("%v", v)
+			}
+
+			resp, err := client.DefaultTemplate.Render(context.Background(), &pb_notification.RenderRequest{
+				TemplateName: "daily_report.html",
+				Data:         value,
+			})
 			if err != nil {
 				return "", err
 			}
-			return text, nil
+			return resp.Value, nil
 		},
 		WriteToDB: func(schedulerId string, err error) error {
 			status, code, errormsg := func() (string, sql.NullString, sql.NullString) {
@@ -105,79 +112,11 @@ func CronWithReportDaily() *domain.Plan {
 		},
 
 		NotifyWithData: func(text string) error {
-			return domain.DefaultNotifyWithMsg(NameWithReportDaily, text, []string{"日报", "今日涨跌幅"})
+			return domain.DefaultNotifyForEmailWithMsg(NameWithReportDaily, text, []string{"日报", "今日涨跌幅"})
 		},
 
 		Status: domain.Ready,
 		Name:   NameWithReportDaily,
 		Alias:  AliasWithReportDaily,
 	}
-}
-
-func generateMarketStatusHTMLText(status *pb.MarketStatus) (string, error) {
-	tpl, err := pongo2.FromFile(filepath.Join(system.Directory.EtcDir, "assets", "daily-report.html"))
-	if err != nil {
-		return "", fmt.Errorf("load daily-report.html failure, nest error: %v", err)
-	}
-
-	data := map[string]interface{}{
-		"date":              status.Date,
-		"shang_zheng_value": status.MarketIndex.ShangZheng.Value,
-		"shang_zheng_direction": func() string {
-			if status.MarketIndex.ShangZheng.HasChanged > 0 {
-				return "⬆️"
-			} else {
-				return "⬇️"
-			}
-		}(),
-		"shang_zheng_change": status.MarketIndex.ShangZheng.HasChanged,
-
-		"shen_zheng_value": status.MarketIndex.ShenZheng.Value,
-		"shen_zheng_direction": func() string {
-			if status.MarketIndex.ShenZheng.HasChanged > 0 {
-				return "⬆️"
-			} else {
-				return "⬇️"
-			}
-		}(),
-		"shen_zheng_change": status.MarketIndex.ShenZheng.HasChanged,
-
-		"chuang_ye_value": status.MarketIndex.ChuangYe.Value,
-		"chuang_ye_direction": func() string {
-			if status.MarketIndex.ChuangYe.HasChanged > 0 {
-				return "⬆️"
-			} else {
-				return "⬇️"
-			}
-		}(),
-		"chuang_ye_change": status.MarketIndex.ChuangYe.HasChanged,
-
-		"ke_chuang50_value": status.MarketIndex.KeChuang_50.Value,
-		"ke_chuang50_direction": func() string {
-			if status.MarketIndex.KeChuang_50.HasChanged > 0 {
-				return "⬆️"
-			} else {
-				return "⬇️"
-			}
-		}(),
-		"ke_chuang50_change": status.MarketIndex.KeChuang_50.HasChanged,
-
-		"bei_zheng50_value": status.MarketIndex.BeiZheng_50.Value,
-		"bei_zheng50_direction": func() string {
-			if status.MarketIndex.BeiZheng_50.HasChanged > 0 {
-				return "⬆️"
-			} else {
-				return "⬇️"
-			}
-		}(),
-		"bei_zheng50_change": status.MarketIndex.BeiZheng_50.HasChanged,
-
-		"total":           status.MarketStockCount.Total,
-		"rise_gt_7":       status.MarketStockCount.RiseGt_7,
-		"rise_gt_7_ratio": mathutil.Trunc4(float64(status.MarketStockCount.RiseGt_7) / float64(status.MarketStockCount.Total) * 100),
-		"fell_gt_7":       status.MarketStockCount.RiseGt_7,
-		"fell_gt_7_ratio": mathutil.Trunc4(float64(status.MarketStockCount.FellGt_7) / float64(status.MarketStockCount.Total) * 100),
-	}
-
-	return tpl.Execute(data)
 }

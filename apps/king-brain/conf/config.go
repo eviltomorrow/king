@@ -69,7 +69,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 		GRPC: &network.Config{
 			AccessIP:   "",
 			BindIP:     "0.0.0.0",
-			BindPort:   50006,
+			BindPort:   50005,
 			DisableTLS: true,
 		},
 	}

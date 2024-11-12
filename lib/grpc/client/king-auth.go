@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var DefalutPassport pb.PassportClient
+var DefaultPassport pb.PassportClient
 
 func InitPassport() error {
 	client, shutdown, err := NewAuthWithEtcd()
@@ -20,7 +20,7 @@ func InitPassport() error {
 	}
 	finalizer.RegisterCleanupFuncs(shutdown)
 
-	DefalutPassport = client
+	DefaultPassport = client
 	return nil
 }
 

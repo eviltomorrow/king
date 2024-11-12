@@ -32,7 +32,7 @@ func FetchStock(ctx context.Context, pipe chan *Stock) error {
 		close(pipe)
 	}()
 
-	resp, err := client.DefalutStorage.GetStockAll(ctx, &emptypb.Empty{})
+	resp, err := client.DefaultStorage.GetStockAll(ctx, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}

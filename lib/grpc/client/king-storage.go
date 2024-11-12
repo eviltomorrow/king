@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var DefalutStorage pb.StorageClient
+var DefaultStorage pb.StorageClient
 
 func InitStorage() error {
 	client, shutdown, err := NewStorageWithEtcd()
@@ -20,7 +20,7 @@ func InitStorage() error {
 	}
 	finalizer.RegisterCleanupFuncs(shutdown)
 
-	DefalutStorage = client
+	DefaultStorage = client
 	return nil
 }
 
