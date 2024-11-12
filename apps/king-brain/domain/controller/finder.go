@@ -35,29 +35,32 @@ func (c *Finder) reportMarketStatus(ctx context.Context, date time.Time, kind st
 
 	result := &pb.MarketStatus{
 		Date: status.Date,
-		MarketIndexChange: &pb.MarketIndexChange{
-			ShangZheng:  status.MarketIndexChange.ShangZheng,
-			ShenZheng:   status.MarketIndexChange.ShenZheng,
-			ChuangYe:    status.MarketIndexChange.Chuangye,
-			BeiZheng_50: status.MarketIndexChange.BeiZheng50,
-			KeChuang_50: status.MarketIndexChange.KeChuang50,
+		MarketIndex: &pb.MarketIndex{
+			ShangZheng: &pb.Point{
+				Value:      status.MarketIndex.ShangZheng.Value,
+				HasChanged: status.MarketIndex.ShangZheng.HasChanged,
+			},
+			ShenZheng: &pb.Point{
+				Value:      status.MarketIndex.ShenZheng.Value,
+				HasChanged: status.MarketIndex.ShenZheng.HasChanged,
+			},
+			ChuangYe: &pb.Point{
+				Value:      status.MarketIndex.ChuangYe.Value,
+				HasChanged: status.MarketIndex.ChuangYe.HasChanged,
+			},
+			BeiZheng_50: &pb.Point{
+				Value:      status.MarketIndex.BeiZheng50.Value,
+				HasChanged: status.MarketIndex.BeiZheng50.HasChanged,
+			},
+			KeChuang_50: &pb.Point{
+				Value:      status.MarketIndex.KeChuang50.Value,
+				HasChanged: status.MarketIndex.KeChuang50.HasChanged,
+			},
 		},
-		MarketStockChange: &pb.MarketStockChange{
-			Rise_0_1:   status.MarketStockChange.Rise_0_1,
-			Rise_1_3:   status.MarketStockChange.Rise_1_3,
-			Rise_3_5:   status.MarketStockChange.Rise_3_5,
-			Rise_5_10:  status.MarketStockChange.Rise_5_10,
-			Rise_10_15: status.MarketStockChange.Rise_10_15,
-			Rise_15_30: status.MarketStockChange.Rise_15_30,
-			Rise_30N:   status.MarketStockChange.Rise_30_N,
-
-			Fell_0_1:   status.MarketStockChange.Fell_0_1,
-			Fell_1_3:   status.MarketStockChange.Fell_1_3,
-			Fell_3_5:   status.MarketStockChange.Fell_3_5,
-			Fell_5_10:  status.MarketStockChange.Fell_5_10,
-			Fell_10_15: status.MarketStockChange.Fell_10_15,
-			Fell_15_30: status.MarketStockChange.Fell_15_30,
-			Fell_30N:   status.MarketStockChange.Fell_30_N,
+		MarketStockCount: &pb.MarketStockCount{
+			Total:    status.MarketStockCount.Total,
+			RiseGt_7: status.MarketStockCount.Rise_gt_7,
+			FellGt_7: status.MarketStockCount.Fell_gt_7,
 		},
 	}
 	return result, nil

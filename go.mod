@@ -7,6 +7,7 @@ require (
 	github.com/benbjohnson/clock v1.3.5
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/fatih/color v1.18.0
+	github.com/flosch/pongo2/v6 v6.0.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0

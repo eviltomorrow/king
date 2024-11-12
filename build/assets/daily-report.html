@@ -201,12 +201,11 @@
             style="border-collapse:collapse;border-spacing:0;width:742px;">
             <tr>
                 <td class="left-gutter" style="width:50px;"></td>
-                <td><img width="90" height="80" alt="Apple"
-                        src="Logo-King.jpeg" border="0"
+                <td><img width="90" height="80" alt="Apple" src="https://www.liarsa.me/images/7y7O8BhO7uegeB/king-logo.jpeg" border="0"
                         style="border:none;padding:0;margin:0;-ms-interpolation-mode:bicubic;"></td>
                 <td en-US false align="right"
                     style="font-size:32px; font-weight:300; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(136,136,136)">
-                    Subscription Confirmation</td>
+                    简报</td>
                 <td class="right-gutter" style="width:50px;"></td>
             </tr>
             <tr height="20">
@@ -229,13 +228,11 @@
                                     <tr>
                                         <td class="artwork-cell" valign="top" align="center"
                                             style="padding:0;margin:0;">
-                                            <img class="large-artwork"
-                                                src="Title-King.jpeg"
-                                                width="120" height="140" border="0" alt="King"
+                                            <img class="large-artwork" src="https://www.liarsa.me/images/7y7O8BhO7uegeB/king-title.jpeg" width="120" height="140"
+                                                border="0" alt="King"
                                                 style="padding:0;margin:0;-ms-interpolation-mode: bicubic;border-radius:32px;border:none;">
-                                            <img class="small-artwork"
-                                                src="Title-King.jpeg"
-                                                width="100" height="100" border="0" alt="King"
+                                            <img class="small-artwork" src="https://www.liarsa.me/images/7y7O8BhO7uegeB/king-title.jpeg" width="100" height="100"
+                                                border="0" alt="King"
                                                 style="display:none;padding:0;margin:0;-ms-interpolation-mode: bicubic;border-radius:22px;border:none;">
                                         </td>
                                         <td class="lockup-art-spacer" style="width:20px;"></td>
@@ -243,7 +240,7 @@
                                             <table border="0" cellpadding="0" cellspacing="0"
                                                 style="font-size:13px;line-height:22px;letter-spacing:0.4px; color:rgb(51,51,51);">
                                                 <tr>
-                                                    <td><span style="font-size:18px;">C</span></td>
+                                                    <td><span style="font-size:18px;"><b>{{ date }} 日 汇总</b></span></td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -262,7 +259,7 @@
                         </tr>
                         <tr>
                             <td class="left-gutter" style="width:20px"></td>
-                            <td>Dear Daniel,</td>
+                            <td>亲爱的 Liarsa,</td>
                             <td class="right-gutter" style="width:20px"></td>
                         </tr>
                         <tr class="paragraph-spacer" style="height:20px;">
@@ -271,7 +268,7 @@
                         <tr>
                             <td class="left-gutter" style="width:20px"></td>
                             <td>
-                                You've accepted the following offer:
+                                以下是你收到的一份简报:
                             </td>
                             <td class="right-gutter" style="width:20px"></td>
                         </tr>
@@ -284,46 +281,41 @@
                                 <table border="0" cellpadding="0" cellspacing="1"
                                     style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:13px;">
                                     <tr>
-                                        <td valign="top" align="right"><b>App</b></td>
+                                        <td valign="top" align="right"><b>上证指数：</b></td>
                                         <td width="10"></td>
                                         <td valign="top" align="left">
-                                            Apple TV
+                                            {{ shang_zheng_value }} {{ shang_zheng_direction }}({{ shang_zheng_change }})
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td valign="top" align="right">
-                                            <b>Subscription</b>
-                                        </td>
-                                        <td width="10"></td>
-                                        <td valign="top" align="left">King</td>
-                                    </tr>
-                                    <tr>
-                                        <td valign="top" align="right">
-                                            <b>Date Accepted
-                                            </b>
-                                        </td>
-                                        <td width="10"></td>
-                                        <td valign="top" align="left">Sep 1, 2021</td>
-                                    </tr>
-                                    <tr>
-                                        <td valign="top" align="right"><b>Trial</b></td>
+                                        <td valign="top" align="right"><b>深证成指：</b></td>
                                         <td width="10"></td>
                                         <td valign="top" align="left">
-                                            Free for 3 months, starting Sep 1, 2021
+                                            {{ shen_zheng_value }} {{ shen_zheng_direction }}({{ shen_zheng_change }})
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td valign="top" align="right"><b>Subscription Price</b></td>
+                                        <td valign="top" align="right"><b>创业板指：</b></td>
                                         <td width="10"></td>
-                                        <td valign="top" align="left"> $4.99/month, starting Dec 1, 2021
+                                        <td valign="top" align="left">
+                                            {{ chuang_ye_value }} {{ chuang_ye_direction }}({{ chuang_ye_change }})
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top" align="right"><b>科创50：</b></td>
+                                        <td width="10"></td>
+                                        <td valign="top" align="left">
+                                            {{ ke_chuang50_value }} {{ ke_chuang50_direction }}({{ ke_chuang50_change }})
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top" align="right"><b>北证50：</b></td>
+                                        <td width="10"></td>
+                                        <td valign="top" align="left">
+                                            {{ bei_zheng50_value }} {{ bei_zheng50_direction }}({{ bei_zheng50_change }})
                                         </td>
                                     </tr>
 
-                                    <tr>
-                                        <td valign="top" align="right"><b>Payment Method</b></td>
-                                        <td width="10"></td>
-                                        <td valign="top" align="left">PayPal</td>
-                                    </tr>
                                 </table>
                             </td>
                             <td class="right-gutter" style="width:20px"></td>
@@ -333,21 +325,17 @@
                         </tr>
                         <tr>
                             <td class="left-gutter" style="width:20px"></td>
-                            <td> Your subscription automatically renews for $4.99/month starting Dec 1, 2021 until
-                                canceled. If you cancel during the 3‑month free trial period, you and your family
-                                members will immediately lose access to King and the remainder of your trial.
-                                You cannot reactivate this trial.
+                            <td> <b>其中，今日正常交易的股票数量为 {{ total }} ，涨幅超过 7% 的有 {{ rise_gt_7 }} 家，占比 {{ rise_gt_7_ratio }}；跌幅超过 7% 的有 {{ fell_gt_7 }} 家，占比 {{ fell_gt_7_ratio }}。</b>
                             </td>
                             <td class="right-gutter" style="width:20px"></td>
                         </tr>
                         <tr class="paragraph-spacer" style="height:20px;">
                             <td></td>
                         </tr>
+
                         <tr>
                             <td class="left-gutter" style="width:20px"></td>
-                            <td>To avoid being charged, you must cancel at least a day before each renewal date. To
-                                learn more or cancel, <a href="#" target="_blank" rel="noopener nofollow">review
-                                    your subscription</a>.</td>
+                            <td>问候,<br><br>The King Team</td>
                             <td class="right-gutter" style="width:20px"></td>
                         </tr>
                         <tr class="paragraph-spacer" style="height:20px;">
@@ -355,17 +343,9 @@
                         </tr>
                         <tr>
                             <td class="left-gutter" style="width:20px"></td>
-                            <td>Regards,<br>The Apple TV Team</td>
-                            <td class="right-gutter" style="width:20px"></td>
-                        </tr>
-                        <tr class="paragraph-spacer" style="height:20px;">
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td class="left-gutter" style="width:20px"></td>
-                            <td align="center" style="font-size:12px;color:rgb(102,102,102);line-height:18px;">For
-                                help with subscriptions and purchases, visit <a href="#" target="_blank"
-                                    rel="noopener nofollow">Apple Support</a>.</td>
+                            <td align="left" style="font-size:12px;color:rgb(102,102,102);line-height:18px;">
+                                金钱永不眠！
+                            </td>
                             <td class="right-gutter" style="width:20px"></td>
                         </tr>
                     </table>
@@ -378,11 +358,9 @@
                 <td></td>
                 <td class="" colspan="2" align="center"
                     style="font-size:12px; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; color: rgb(102,102,102)">
-                    <img class="large-footer-logo" width="26" height="26" border="0" alt="Apple"
-                        src="Logo-King.jpeg"
+                    <img class="large-footer-logo" width="26" height="26" border="0" alt="Apple" src="https://www.liarsa.me/images/7y7O8BhO7uegeB/king-logo.jpeg"
                         style="border:none;padding:0;margin:0;-ms-interpolation-mode: bicubic;">
-                    <img class="small-footer-logo" width="14" height="14" border="0" alt="Apple"
-                        src="Logo-King.jpeg"
+                    <img class="small-footer-logo" width="14" height="14" border="0" alt="Apple" src="https://www.liarsa.me/images/7y7O8BhO7uegeB/king-logo.jpeg"
                         style="display:none;border:none;padding:0;margin:0;-ms-interpolation-mode: bicubic;">
                 </td>
                 <td></td>
@@ -390,7 +368,7 @@
             <tr height="8">
                 <td colspan="4"> </td>
             </tr>
-            <tr>
+            <!-- <tr>
                 <td></td>
                 <td colspan="2" align="center"
                     style="font-size:12px; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; color: rgb(102,102,102)">
@@ -399,7 +377,7 @@
                         Policy</a>
                 </td>
                 <td></td>
-            </tr>
+            </tr> -->
             <tr height="25">
                 <td colspan="4"> </td>
             </tr>
@@ -407,7 +385,7 @@
                 <td></td>
                 <td colspan="2" align="center"
                     style="font-size:12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:rgb(102,102,102)">
-                    Copyright © 2021 Apple Inc. <br><a href="#" style="color:#1187FF">All rights reserved</a>
+                    Copyright © 2024 Apple Inc. <br><span style="color:#1187FF">All rights reserved</span>
                 </td>
                 <td></td>
             </tr>
@@ -416,6 +394,6 @@
             </tr>
         </table>
     </div>
-    
+
 </BODY>
 </p>

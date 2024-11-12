@@ -34,32 +34,25 @@ message Chances {
 
 message MarketStatus {
     string date = 1;
-    MarketIndexChange market_index_change = 2;
-    MarketStockChange market_stock_change = 3;
+    MarketIndex market_index = 2;
+    MarketStockCount market_stock_count = 3;
 }
 
-message MarketIndexChange {
-    double shang_zheng = 1;
-    double shen_zheng = 2;
-    double chuang_ye = 3;
-    double bei_zheng_50 = 4;
-    double ke_chuang_50 = 5;
+message Point {
+    double value = 1;
+    double has_changed = 2;
 }
 
-message MarketStockChange {
-    double rise_0_1 = 1;
-    double rise_1_3 = 2;
-    double rise_3_5 = 3;
-    double rise_5_10 = 4;
-    double rise_10_15 = 5;
-    double rise_15_30 = 6;
-    double rise_30_n = 7;
+message MarketIndex {
+    Point shang_zheng = 1;
+    Point shen_zheng = 2;
+    Point chuang_ye = 3;
+    Point bei_zheng_50 = 4;
+    Point ke_chuang_50 = 5;
+}
 
-    double fell_0_1 = 8;
-    double fell_1_3 = 9;
-    double fell_3_5 = 10;
-    double fell_5_10 = 11;
-    double fell_10_15 = 12;
-    double fell_15_30 = 13;
-    double fell_30_n = 14;
+message MarketStockCount {
+    int64 total = 1;
+    int64 rise_gt_7 = 2;
+    int64 fell_gt_7 = 3;
 }
