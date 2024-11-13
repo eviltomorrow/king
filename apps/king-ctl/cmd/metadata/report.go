@@ -92,5 +92,29 @@ func report(ctx context.Context, mode, date string) error {
 		return err
 	}
 
+	text, err = clientTamplate.Render(context.Background(), &pb.RenderRequest{
+		TemplateName: fmt.Sprintf("%s-report.txt", mode),
+		Data:         value,
+	})
+	if err != nil {
+		return err
+	}
+
+	clientNtfy, closeFunc, err := client.NewNtfyWithTarget(fmt.Sprintf("%s:50002", IPVar))
+	if err != nil {
+		return err
+	}
+	defer closeFunc()
+
+	if _, err := clientNtfy.Send(context.Background(), &pb.Msg{
+		Topic:    "SrxOPwCBiRWZUOq0",
+		Message:  text.Value,
+		Title:    fmt.Sprintf("%s 日 汇总", date),
+		Priority: 4,
+		Tags:     []string{"简报", "股票", "统计"},
+	}); err != nil {
+		return err
+	}
+
 	return err
 }
