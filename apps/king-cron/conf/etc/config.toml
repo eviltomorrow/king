@@ -23,3 +23,7 @@ dsn = "admin:admin123@tcp(mysql:3306)/king_cron?charset=utf8mb4&parseTime=true&l
     [crons.2]
     crontab = "0/5 21-23 * * MON,TUE,WED,THU,FRI"
     plan = "CronWithStoreMetadata"
+
+    [crons.3]
+    crontab = "0/5 21-23 * * MON,TUE,WED,THU,FRI"
+    plan = "CronWithReportDaily"

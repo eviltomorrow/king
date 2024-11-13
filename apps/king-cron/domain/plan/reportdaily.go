@@ -16,7 +16,9 @@ import (
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"github.com/eviltomorrow/king/lib/grpc/transformer"
 	"github.com/eviltomorrow/king/lib/setting"
+	"github.com/eviltomorrow/king/lib/zlog"
 	jsoniter "github.com/json-iterator/go"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -115,26 +117,12 @@ func CronWithReportDaily() *domain.Plan {
 				return err
 			}
 
-			resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
-				TemplateName: "daily_report.html",
-				Data:         data,
-			})
-			if err != nil {
-				return err
-			}
-			if err := notification.DefaultNotifyForEmailWithMsg(NameWithReportDaily, resp.Value); err != nil {
-				return err
+			if err := notifyForEmail("daily_report.html", data); err != nil {
+				zlog.Error("Notify for email failure", zap.Error(err))
 			}
 
-			resp, err = client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
-				TemplateName: "daily_report.txt",
-				Data:         data,
-			})
-			if err != nil {
-				return err
-			}
-			if err := notification.DefaultNotifyForNtfyWithMsg(fmt.Sprintf("%s 日 汇总", time.Now().Format(time.DateOnly)), resp.Value, []string{"简报", "股票", "统计"}); err != nil {
-				return err
+			if err := notifyForNtfy("daily_report.txt", data); err != nil {
+				zlog.Error("Notify for ntfy failure", zap.Error(err))
 			}
 			return nil
 		},
@@ -143,4 +131,28 @@ func CronWithReportDaily() *domain.Plan {
 		Name:   NameWithReportDaily,
 		Alias:  AliasWithReportDaily,
 	}
+}
+
+func notifyForNtfy(templateName string, data map[string]string) error {
+	resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
+		// TemplateName: "daily_report.txt",
+		TemplateName: templateName,
+		Data:         data,
+	})
+	if err != nil {
+		return err
+	}
+	return notification.DefaultNotifyForNtfyWithMsg(fmt.Sprintf("%s 日 汇总", time.Now().Format(time.DateOnly)), resp.Value, []string{"简报", "股票", "统计"})
+}
+
+func notifyForEmail(templateName string, data map[string]string) error {
+	resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
+		// TemplateName: "daily_report.html",
+		TemplateName: templateName,
+		Data:         data,
+	})
+	if err != nil {
+		return err
+	}
+	return notification.DefaultNotifyForEmailWithMsg(NameWithReportDaily, resp.Value)
 }
