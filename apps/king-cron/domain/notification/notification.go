@@ -74,7 +74,7 @@ func SendNtfy(ctx context.Context, title, msg string, topic string, tags []strin
 		Topic:    topic,
 		Message:  msg,
 		Title:    title,
-		Priority: 4,
+		Priority: 3,
 		Tags:     tags,
 	}); err != nil {
 		return err

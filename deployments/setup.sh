@@ -26,6 +26,9 @@ function docker_compose_pull(){
     cd ${root_dir}
     if [ -d ${1} ]; then
         cd ${1}
+        if [ -e '.docker_skip' ]; then
+            return
+        fi
         docker compose pull
     else
         echo "Error: wrong path ${1} !"
@@ -37,7 +40,7 @@ function docker_compose_action(){
     cd ${root_dir}
     if [ -d ${1} ]; then
         cd ${1}
-        if [ -e '.skip' ]; then
+        if [ -e '.docker_skip' ]; then
             return
         fi
         if [ ! -f "${DATA_HOME}/.${1}.ready" ]; then
