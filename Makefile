@@ -81,3 +81,9 @@ vendor: export GO111MODULE=on
 vendor:
 	@echo "$(CGREEN)=> go mod vendor$(CEND)"
 	@GOWORK=off go mod vendor
+
+# push
+.PHONY: push
+push:
+	@echo "$(CGREEN)=> docker push image$(CEND)"
+	@bash scripts/docker_push.sh ${MAINVERSION}
