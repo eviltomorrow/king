@@ -23,7 +23,7 @@ var ShowCommand = &cobra.Command{
 			return
 		}
 
-		begin := end.Add(-10 * 24 * time.Hour)
+		begin := end.Add(-30 * 24 * time.Hour)
 		if beginVar != "" {
 			begin, err = time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", beginVar))
 			if err != nil {
