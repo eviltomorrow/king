@@ -110,7 +110,7 @@ func report(ctx context.Context, mode, date string) error {
 		Topic:    "SrxOPwCBiRWZUOq0",
 		Message:  text.Value,
 		Title:    fmt.Sprintf("%s 日 汇总", date),
-		Priority: 4,
+		Priority: 3,
 		Tags:     []string{"简报", "股票", "统计"},
 	}); err != nil {
 		return err
