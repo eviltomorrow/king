@@ -1,8 +1,13 @@
 package domain
 
 import (
+	"context"
 	"fmt"
 	"sync"
+
+	"github.com/eviltomorrow/king/apps/king-cron/domain/notification"
+	"github.com/eviltomorrow/king/lib/grpc/client"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 )
 
 var cache = make(map[string]func() *Plan, 32)
@@ -91,3 +96,25 @@ const (
 	ProgressProcessing = "processing"
 	ProgressCompleted  = "completed"
 )
+
+func NotifyForNtfy(templateName string, title string, data map[string]string) error {
+	resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
+		TemplateName: templateName,
+		Data:         data,
+	})
+	if err != nil {
+		return err
+	}
+	return notification.DefaultNotifyForNtfyWithMsg(title, resp.Value, []string{"简报", "股票", "统计"})
+}
+
+func NotifyForEmail(templateName string, title string, data map[string]string) error {
+	resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
+		TemplateName: templateName,
+		Data:         data,
+	})
+	if err != nil {
+		return err
+	}
+	return notification.DefaultNotifyForEmailWithMsg(title, resp.Value)
+}

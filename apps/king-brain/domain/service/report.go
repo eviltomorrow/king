@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
+	"github.com/eviltomorrow/king/lib/timeutil"
 	"github.com/eviltomorrow/king/lib/zlog"
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
@@ -14,6 +16,7 @@ import (
 
 type MarketStatus struct {
 	Date string
+	Week string
 
 	MarketIndex      MarketIndex
 	MarketStockCount MarketStockCount
@@ -91,6 +94,7 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 	t := date.Format(time.DateOnly)
 	status := &MarketStatus{
 		Date: t,
+		Week: fmt.Sprintf("%d", timeutil.YearWeek(date)),
 	}
 	var total int64 = 0
 

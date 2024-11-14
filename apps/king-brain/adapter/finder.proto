@@ -8,7 +8,7 @@ package brain;
 
 service Finder {
     rpc ReportDaily(google.protobuf.StringValue) returns (MarketStatus);
-    rpc ReportWeek(google.protobuf.StringValue) returns (MarketStatus);
+    rpc ReportWeekly(google.protobuf.StringValue) returns (MarketStatus);
 
     rpc FindPossibleChance(google.protobuf.StringValue) returns (Chances);
 }
@@ -34,8 +34,9 @@ message Chances {
 
 message MarketStatus {
     string date = 1;
-    MarketIndex market_index = 2;
-    MarketStockCount market_stock_count = 3;
+    string week = 2;
+    MarketIndex market_index = 3;
+    MarketStockCount market_stock_count = 4;
 }
 
 message Point {

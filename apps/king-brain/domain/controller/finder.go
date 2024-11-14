@@ -35,6 +35,7 @@ func (c *Finder) reportMarketStatus(ctx context.Context, date time.Time, kind st
 
 	result := &pb.MarketStatus{
 		Date: status.Date,
+		Week: status.Week,
 		MarketIndex: &pb.MarketIndex{
 			ShangZheng: &pb.Point{
 				Value:      status.MarketIndex.ShangZheng.Value,
@@ -83,7 +84,7 @@ func (c *Finder) ReportDaily(ctx context.Context, req *wrapperspb.StringValue) (
 	return c.reportMarketStatus(ctx, t, "day")
 }
 
-func (c *Finder) ReportWeek(ctx context.Context, req *wrapperspb.StringValue) (*pb.MarketStatus, error) {
+func (c *Finder) ReportWeekly(ctx context.Context, req *wrapperspb.StringValue) (*pb.MarketStatus, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, req is nil")
 	}

@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Finder_ReportDaily_FullMethodName        = "/brain.Finder/ReportDaily"
-	Finder_ReportWeek_FullMethodName         = "/brain.Finder/ReportWeek"
+	Finder_ReportWeekly_FullMethodName       = "/brain.Finder/ReportWeekly"
 	Finder_FindPossibleChance_FullMethodName = "/brain.Finder/FindPossibleChance"
 )
 
@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FinderClient interface {
 	ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
-	ReportWeek(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
+	ReportWeekly(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
 	FindPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chances, error)
 }
 
@@ -52,10 +52,10 @@ func (c *finderClient) ReportDaily(ctx context.Context, in *wrapperspb.StringVal
 	return out, nil
 }
 
-func (c *finderClient) ReportWeek(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error) {
+func (c *finderClient) ReportWeekly(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MarketStatus)
-	err := c.cc.Invoke(ctx, Finder_ReportWeek_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Finder_ReportWeekly_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *finderClient) FindPossibleChance(ctx context.Context, in *wrapperspb.St
 // for forward compatibility.
 type FinderServer interface {
 	ReportDaily(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
-	ReportWeek(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
+	ReportWeekly(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
 	FindPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error)
 	mustEmbedUnimplementedFinderServer()
 }
@@ -92,8 +92,8 @@ type UnimplementedFinderServer struct{}
 func (UnimplementedFinderServer) ReportDaily(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportDaily not implemented")
 }
-func (UnimplementedFinderServer) ReportWeek(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReportWeek not implemented")
+func (UnimplementedFinderServer) ReportWeekly(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReportWeekly not implemented")
 }
 func (UnimplementedFinderServer) FindPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindPossibleChance not implemented")
@@ -137,20 +137,20 @@ func _Finder_ReportDaily_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Finder_ReportWeek_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Finder_ReportWeekly_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FinderServer).ReportWeek(ctx, in)
+		return srv.(FinderServer).ReportWeekly(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Finder_ReportWeek_FullMethodName,
+		FullMethod: Finder_ReportWeekly_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FinderServer).ReportWeek(ctx, req.(*wrapperspb.StringValue))
+		return srv.(FinderServer).ReportWeekly(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -185,8 +185,8 @@ var Finder_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Finder_ReportDaily_Handler,
 		},
 		{
-			MethodName: "ReportWeek",
-			Handler:    _Finder_ReportWeek_Handler,
+			MethodName: "ReportWeekly",
+			Handler:    _Finder_ReportWeekly_Handler,
 		},
 		{
 			MethodName: "FindPossibleChance",
