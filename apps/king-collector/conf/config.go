@@ -24,6 +24,7 @@ type Config struct {
 
 type Collector struct {
 	CodeList     []string `json:"code_list" toml:"code_list" mapstructure:"code_list"`
+	CrawlMode    string   `json:"crawl_mode" toml:"crawl_mode" mapstructure:"crawl_mode"`
 	Source       string   `json:"source" toml:"source" mapstructure:"source"`
 	RandomPeriod []int    `json:"random_period" toml:"random_period" mapstructure:"random_period"`
 }
@@ -108,6 +109,7 @@ func InitializeDefaultConfig(opts *flagsutil.Flags) *Config {
 				"sz001***",
 				"sz000***",
 			},
+			CrawlMode:    "slow",
 			Source:       "sina",
 			RandomPeriod: []int{5, 30},
 		},

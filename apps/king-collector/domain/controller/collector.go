@@ -46,8 +46,17 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 	go func(id string) {
 		begin := time.Now()
 		zlog.Info("crawl metadata begin")
-		total, ignore, err := service.CrawlMetadataSlow(context.Background(), c.config.Source, c.config.CodeList, c.config.RandomPeriod)
-		// total, ignore, err := service.CrawlMetadataQuick(context.Background(), c.config.Source, c.config.CodeList)
+
+		var (
+			total, ignore int64
+			err           error
+		)
+		if c.config.CrawlMode == "slow" {
+			total, ignore, err = service.CrawlMetadataSlow(context.Background(), c.config.Source, c.config.CodeList, c.config.RandomPeriod)
+		} else {
+			total, ignore, err = service.CrawlMetadataQuick(context.Background(), c.config.Source, c.config.CodeList)
+		}
+
 		if err != nil {
 			zlog.Error("crawl metadata failure", zap.Error(err))
 		} else {
