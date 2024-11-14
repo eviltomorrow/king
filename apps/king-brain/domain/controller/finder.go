@@ -58,11 +58,13 @@ func (c *Finder) reportMarketStatus(ctx context.Context, date time.Time, kind st
 			},
 		},
 		MarketStockCount: &pb.MarketStockCount{
-			Total:    status.MarketStockCount.Total,
-			Rise:     status.MarketStockCount.Rise,
-			RiseGt_7: status.MarketStockCount.RiseGT7,
-			Fell:     status.MarketStockCount.Fell,
-			FellGt_7: status.MarketStockCount.FellGT7,
+			Total:     status.MarketStockCount.Total,
+			Rise:      status.MarketStockCount.Rise,
+			RiseGt_7:  status.MarketStockCount.RiseGT7,
+			RiseGt_15: status.MarketStockCount.RiseGT15,
+			Fell:      status.MarketStockCount.Fell,
+			FellGt_7:  status.MarketStockCount.FellGT7,
+			FellGt_15: status.MarketStockCount.FellGT15,
 		},
 	}
 	return result, nil

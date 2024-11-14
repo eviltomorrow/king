@@ -55,6 +55,8 @@ message MarketStockCount {
     int64 total = 1;
     int64 rise = 2;
     int64 rise_gt_7 = 3;
-    int64 fell = 4;
-    int64 fell_gt_7 = 5;
+    int64 rise_gt_15 = 4;
+    int64 fell = 5;
+    int64 fell_gt_7 = 6;
+    int64 fell_gt_15 = 7;
 }
