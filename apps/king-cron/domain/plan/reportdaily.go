@@ -16,9 +16,6 @@ import (
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-notification"
 	"github.com/eviltomorrow/king/lib/grpc/transformer"
 	"github.com/eviltomorrow/king/lib/setting"
-	"github.com/eviltomorrow/king/lib/zlog"
-	jsoniter "github.com/json-iterator/go"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -28,7 +25,7 @@ const (
 )
 
 func init() {
-	domain.RegisterPlan(AliasWithReportDaily, CronWithReportDaily)
+	domain.RegisterPlan(NameWithReportDaily, CronWithReportDaily)
 }
 
 func CronWithReportDaily() *domain.Plan {
@@ -62,12 +59,12 @@ func CronWithReportDaily() *domain.Plan {
 			}
 			return domain.Pending, nil
 		},
-		Todo: func(string) (string, error) {
+		Todo: func(string) error {
 			now := time.Now()
 
 			status, err := client.DefaultFinder.ReportDaily(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
-				return "", err
+				return err
 			}
 			data := transformer.GenerateMarketStatusToMap(status)
 
@@ -75,11 +72,15 @@ func CronWithReportDaily() *domain.Plan {
 			for k, v := range data {
 				value[k] = fmt.Sprintf("%v", v)
 			}
-			buf, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(value)
-			if err != nil {
-				return "", err
+
+			if err := notifyForEmail("daily_report.html", value); err != nil {
+				return err
 			}
-			return string(buf), err
+
+			if err := notifyForNtfy("daily_report.txt", value); err != nil {
+				return err
+			}
+			return err
 		},
 		WriteToDB: func(schedulerId string, err error) error {
 			status, code, errormsg := func() (string, sql.NullString, sql.NullString) {
@@ -111,22 +112,6 @@ func CronWithReportDaily() *domain.Plan {
 			return nil
 		},
 
-		NotifyWithData: func(text string) error {
-			data := make(map[string]string)
-			if err := jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal([]byte(text), &data); err != nil {
-				return err
-			}
-
-			if err := notifyForEmail("daily_report.html", data); err != nil {
-				zlog.Error("Notify for email failure", zap.Error(err))
-			}
-
-			if err := notifyForNtfy("daily_report.txt", data); err != nil {
-				zlog.Error("Notify for ntfy failure", zap.Error(err))
-			}
-			return nil
-		},
-
 		Status: domain.Ready,
 		Name:   NameWithReportDaily,
 		Alias:  AliasWithReportDaily,
@@ -135,7 +120,6 @@ func CronWithReportDaily() *domain.Plan {
 
 func notifyForNtfy(templateName string, data map[string]string) error {
 	resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
-		// TemplateName: "daily_report.txt",
 		TemplateName: templateName,
 		Data:         data,
 	})
@@ -147,7 +131,6 @@ func notifyForNtfy(templateName string, data map[string]string) error {
 
 func notifyForEmail(templateName string, data map[string]string) error {
 	resp, err := client.DefaultTemplate.Render(context.Background(), &pb.RenderRequest{
-		// TemplateName: "daily_report.html",
 		TemplateName: templateName,
 		Data:         data,
 	})

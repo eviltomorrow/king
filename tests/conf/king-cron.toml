@@ -10,20 +10,20 @@ endpoints = ["etcd:2379"]
 dsn = "otel-collector:4317"
 
 [log]
-level = "info"
+level = "debug"
 
 [mysql]
 dsn = "admin:admin123@tcp(mysql:3306)/king_cron?charset=utf8mb4&parseTime=true&loc=Local"
 
 [crons]
     [crons.1]
-    crontab = "0/5 * * * MON,TUE,WED,THU,FRI"
+    crontab = "0/1 * * * MON,TUE,WED,THU,FRI"
     plan = "CronWithCrawlMetadata"
     
     [crons.2]
-    crontab = "0/5 * * * MON,TUE,WED,THU,FRI"
+    crontab = "0/1 * * * MON,TUE,WED,THU,FRI"
     plan = "CronWithStoreMetadata"
 
     [crons.3]
-    crontab = "0/5 * * * MON,TUE,WED,THU,FRI"
+    crontab = "0/1 * * * MON,TUE,WED,THU,FRI"
     plan = "CronWithReportDaily"

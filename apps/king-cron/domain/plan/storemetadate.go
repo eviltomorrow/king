@@ -59,17 +59,17 @@ func CronWithStoreMetadata() *domain.Plan {
 			return domain.Pending, nil
 		},
 
-		Todo: func(schedulerId string) (string, error) {
+		Todo: func(schedulerId string) error {
 			target, err := client.DefaultStorage.PushMetadata(context.Background())
 			if err != nil {
-				return "", err
+				return err
 			}
 
 			now := time.Now()
 
 			source, err := client.DefaultCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
-				return "", err
+				return err
 			}
 			for {
 				md, err := source.Recv()
@@ -77,19 +77,19 @@ func CronWithStoreMetadata() *domain.Plan {
 					break
 				}
 				if err != nil {
-					return "", err
+					return err
 				}
 
 				if err := target.Send(md); err != nil {
-					return "", err
+					return err
 				}
 			}
 
 			if _, err := target.CloseAndRecv(); err != nil {
-				return "", err
+				return err
 			}
 
-			return "", nil
+			return nil
 		},
 
 		WriteToDB: func(schedulerId string, err error) error {

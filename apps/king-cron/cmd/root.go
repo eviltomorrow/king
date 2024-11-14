@@ -76,7 +76,7 @@ func RunApp() error {
 	}
 
 	initClientFunc := []func() error{
-		client.InitCollector, client.InitStorage, client.InitEmail, client.InitNTFY,
+		client.InitBrain, client.InitCollector, client.InitStorage, client.InitEmail, client.InitNTFY, client.InitTemplate,
 	}
 	if err := envutil.InitClientForGRPC(initClientFunc...); err != nil {
 		return fmt.Errorf("init grpc client failure, nest error: %v", err)
@@ -95,6 +95,7 @@ func RunApp() error {
 	cron := service.NewScheduler()
 	for _, c := range c.Crons {
 		plan, ok := domain.GetPlan(c.Plan)
+		zlog.Debug("Plan will be register", zap.String("name", plan.GetAlias()))
 		if ok {
 			if err := cron.Register(c.Crontab, plan); err != nil {
 				return err

@@ -29,6 +29,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		return fmt.Errorf("Plan check failure, nest error: %v", err)
 	}
 	_, err := s.cron.AddFunc(cron, func() {
+		zlog.Debug("Plan will be execute", zap.String("name", plan.GetAlias()))
 		if plan.IsCompleted() {
 			return
 		}
@@ -46,7 +47,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 				zlog.Error("Precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("name", plan.GetAlias()))
 				return
 			}
-
+			zlog.Debug("Plan currnet status", zap.Any("status", status), zap.String("name", plan.GetAlias()))
 			switch status {
 			case domain.Pending:
 				return
@@ -59,8 +60,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 			}
 		}
 
-		data := ""
-		data, err = plan.Todo(schedulerId)
+		err = plan.Todo(schedulerId)
 		if err != nil {
 			zlog.Error("Plan execute failure", zap.Error(err), zap.String("alias", plan.GetAlias()))
 		} else {
@@ -80,12 +80,6 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 			}
 		}
 
-		if plan.NotifyWithData != nil && data != "" {
-			err := plan.NotifyWithData(data)
-			if err != nil {
-				zlog.Error("Notify with msg failure", zap.Error(err), zap.String("name", plan.GetAlias()))
-			}
-		}
 		plan.SetStatus(domain.Completed)
 	})
 	if err != nil {

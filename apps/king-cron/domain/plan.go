@@ -26,7 +26,7 @@ type CallInfo struct {
 
 type Plan struct {
 	Precondition func() (StatusCode, error)
-	Todo         func(string) (string, error)
+	Todo         func(string) error
 	WriteToDB    func(string, error) error
 
 	mutex  sync.Mutex
@@ -35,7 +35,6 @@ type Plan struct {
 	Status StatusCode
 
 	NotifyWithError func(error) error
-	NotifyWithData  func(string) error
 }
 
 func (p *Plan) Check() error {

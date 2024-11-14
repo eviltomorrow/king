@@ -12,14 +12,10 @@ func CronWithTrendFollowing() *domain.Plan {
 		Precondition: func() (domain.StatusCode, error) {
 			return 0, nil
 		},
-		Todo: func(string) (string, error) {
-			return "", nil
-		},
-		WriteToDB: func(string, error) error {
+		Todo: func(string) error {
 			return nil
 		},
-
-		NotifyWithData: func(string) error {
+		WriteToDB: func(string, error) error {
 			return nil
 		},
 

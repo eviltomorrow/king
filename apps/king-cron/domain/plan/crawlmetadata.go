@@ -54,12 +54,12 @@ func CronWithCrawlMetadata() *domain.Plan {
 				return 0, fmt.Errorf("panic: unknown status, nest status: %v", record.Status)
 			}
 		},
-		Todo: func(schedulerId string) (string, error) {
+		Todo: func(schedulerId string) error {
 			ctx, cancel := context.WithTimeout(context.Background(), setting.DEFUALT_HANDLE_10_SECOND)
 			defer cancel()
 
 			_, err := client.DefaultCollector.CrawlMetadataAsync(ctx, &wrapperspb.StringValue{Value: schedulerId})
-			return "", err
+			return err
 		},
 
 		WriteToDB: func(schedulerId string, err error) error {
