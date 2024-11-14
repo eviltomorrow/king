@@ -76,12 +76,12 @@ func CronWithReportDaily() *domain.Plan {
 			}
 
 			e := make([]error, 0, 2)
-			if err := notifyForEmail("daily_report.html", value); err != nil {
+			if err := notifyForEmail("daily-report.html", value); err != nil {
 				zlog.Error("Notify for email failure", zap.Error(err))
 				e = append(e, err)
 			}
 
-			if err := notifyForNtfy("daily_report.txt", value); err != nil {
+			if err := notifyForNtfy("daily-report.txt", value); err != nil {
 				zlog.Error("Notify for ntfy failure", zap.Error(err))
 				e = append(e, err)
 			}
