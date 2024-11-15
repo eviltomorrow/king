@@ -47,7 +47,7 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 				zlog.Error("Precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("name", plan.GetAlias()))
 				return
 			}
-			zlog.Debug("Plan currnet status", zap.Any("status", status), zap.String("name", plan.GetAlias()))
+			zlog.Debug("Plan currnet status", zap.String("status", status.String()), zap.String("name", plan.GetAlias()))
 			switch status {
 			case domain.Pending:
 				return

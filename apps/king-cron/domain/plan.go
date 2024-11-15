@@ -86,6 +86,19 @@ func (p *Plan) SetStatus(status StatusCode) {
 
 type StatusCode int
 
+func (s StatusCode) String() string {
+	switch s {
+	case Pending:
+		return "pending"
+	case Ready:
+		return "ready"
+	case Completed:
+		return "completed"
+	default:
+		return "unknown"
+	}
+}
+
 const (
 	Pending StatusCode = iota
 	Ready

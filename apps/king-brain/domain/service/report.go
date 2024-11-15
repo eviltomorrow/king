@@ -137,17 +137,19 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 				} else {
 					status.MarketStockCount.Fell += 1
 				}
+				fmt.Println(r.Name, lastCandlestick.Volatility.PercentageChange)
 				switch {
-				case 7.0 <= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.RiseGT7 += 1
 				case 15.0 <= lastCandlestick.Volatility.PercentageChange:
 					status.MarketStockCount.RiseGT15 += 1
-				case -7.0 >= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.FellGT7 += 1
+					status.MarketStockCount.RiseGT7 += 1
+				case 7.0 <= lastCandlestick.Volatility.PercentageChange:
+					status.MarketStockCount.RiseGT7 += 1
 				case -15.0 >= lastCandlestick.Volatility.PercentageChange:
 					status.MarketStockCount.FellGT15 += 1
+					status.MarketStockCount.FellGT7 += 1
+				case -7.0 >= lastCandlestick.Volatility.PercentageChange:
+					status.MarketStockCount.FellGT7 += 1
 				default:
-
 				}
 			}
 		}
