@@ -138,19 +138,19 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 					status.MarketStockCount.Fell += 1
 				}
 
-				switch {
-				case 15.0 <= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.RiseGT15 += 1
+				if lastCandlestick.Volatility.PercentageChange >= 7.0 {
 					status.MarketStockCount.RiseGT7 += 1
-				case 7.0 <= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.RiseGT7 += 1
-				case -15.0 >= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.FellGT15 += 1
-					status.MarketStockCount.FellGT7 += 1
-				case -7.0 >= lastCandlestick.Volatility.PercentageChange:
-					status.MarketStockCount.FellGT7 += 1
-				default:
 				}
+				if lastCandlestick.Volatility.PercentageChange >= 15.0 {
+					status.MarketStockCount.RiseGT15 += 1
+				}
+				if lastCandlestick.Volatility.PercentageChange <= -7 {
+					status.MarketStockCount.FellGT7 += 1
+				}
+				if lastCandlestick.Volatility.PercentageChange <= -15.0 {
+					status.MarketStockCount.FellGT15 += 1
+				}
+
 			}
 		}
 	}
