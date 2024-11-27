@@ -11,7 +11,7 @@ import (
 func TestFindPossibleChance(t *testing.T) {
 	instance := &Finder{}
 	if _, err := instance.FindPossibleChance(context.Background(), &wrapperspb.StringValue{
-		Value: "2024-11-03",
+		Value: "2024-11-12",
 	}); err != nil {
 		log.Fatal(err)
 	}
