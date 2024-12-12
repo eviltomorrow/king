@@ -29,8 +29,10 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var globalMu sync.Mutex
-var globalLogger, subGlobalLogger, globalProperties, globalSugarLogger atomic.Value
+var (
+	globalMu                                                           sync.Mutex
+	globalLogger, subGlobalLogger, globalProperties, globalSugarLogger atomic.Value
+)
 
 var registerOnce sync.Once
 
@@ -119,9 +121,10 @@ func InitLoggerWithWriteSyncer(cfg *Config, output, errOutput zapcore.WriteSynce
 	opts = append(cfg.buildOptions(errOutput), opts...)
 	lg := zap.New(core, opts...)
 	r := &ZapProperties{
-		Core:   core,
-		Syncer: output,
-		Level:  level,
+		Core:      core,
+		Syncer:    output,
+		ErrSyncer: errOutput,
+		Level:     level,
 	}
 	return lg, r, nil
 }
