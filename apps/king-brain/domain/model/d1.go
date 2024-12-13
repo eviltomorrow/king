@@ -19,9 +19,9 @@ func init() {
 	})
 }
 
-func d1(k *chart.K) (*service.Chance, error) {
+func d1(k *chart.K) (int, error) {
 	if len(k.Candlesticks) == 0 {
-		return nil, nil
+		return 0, nil
 	}
 
 	// score := 0
@@ -36,5 +36,5 @@ func d1(k *chart.K) (*service.Chance, error) {
 	// 	closed_95 = mathutil.Trunc2(closed * 0.95)
 	// )
 
-	return nil, nil
+	return 0, nil
 }
