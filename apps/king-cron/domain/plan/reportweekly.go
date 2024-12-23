@@ -15,8 +15,6 @@ import (
 	"github.com/eviltomorrow/king/lib/grpc/transformer"
 	"github.com/eviltomorrow/king/lib/setting"
 	"github.com/eviltomorrow/king/lib/timeutil"
-	"github.com/eviltomorrow/king/lib/zlog"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -74,21 +72,7 @@ func CronWithReportWeekly() *domain.Plan {
 				value[k] = fmt.Sprintf("%v", v)
 			}
 
-			e := make([]error, 0, 2)
-			if err := domain.NotifyForEmail("weekly-report.html", fmt.Sprintf("第 %d 周 汇总", timeutil.YearWeek(now)), value); err != nil {
-				zlog.Error("Notify for email failure", zap.Error(err))
-				e = append(e, err)
-			}
-
-			if err := domain.NotifyForNtfy("weekly-report.txt", fmt.Sprintf("第 %d 周 汇总", timeutil.YearWeek(now)), value); err != nil {
-				zlog.Error("Notify for ntfy failure", zap.Error(err))
-				e = append(e, err)
-			}
-
-			if len(e) == 2 {
-				return errors.Join(e...)
-			}
-			return nil
+			return domain.NotifyForNtfy("weekly-report.txt", fmt.Sprintf("第 %d 周 汇总", timeutil.YearWeek(now)), value)
 		},
 		WriteToDB: func(schedulerId string, err error) error {
 			status, code, errormsg := func() (string, sql.NullString, sql.NullString) {
