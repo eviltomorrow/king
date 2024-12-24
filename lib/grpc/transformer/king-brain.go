@@ -12,9 +12,9 @@ func GenerateMarketStatusToMap(status *pb.MarketStatus) map[string]interface{} {
 		"shang_zheng_value": status.MarketIndex.ShangZheng.Value,
 		"shang_zheng_direction": func() string {
 			if status.MarketIndex.ShangZheng.HasChanged > 0 {
-				return "⬆️"
+				return "↑"
 			} else {
-				return "⬇️"
+				return "↓"
 			}
 		}(),
 		"shang_zheng_change": status.MarketIndex.ShangZheng.HasChanged,
@@ -22,9 +22,9 @@ func GenerateMarketStatusToMap(status *pb.MarketStatus) map[string]interface{} {
 		"shen_zheng_value": status.MarketIndex.ShenZheng.Value,
 		"shen_zheng_direction": func() string {
 			if status.MarketIndex.ShenZheng.HasChanged > 0 {
-				return "⬆️"
+				return "↑"
 			} else {
-				return "⬇️"
+				return "↓"
 			}
 		}(),
 		"shen_zheng_change": status.MarketIndex.ShenZheng.HasChanged,
@@ -32,9 +32,9 @@ func GenerateMarketStatusToMap(status *pb.MarketStatus) map[string]interface{} {
 		"chuang_ye_value": status.MarketIndex.ChuangYe.Value,
 		"chuang_ye_direction": func() string {
 			if status.MarketIndex.ChuangYe.HasChanged > 0 {
-				return "⬆️"
+				return "↑"
 			} else {
-				return "⬇️"
+				return "↓"
 			}
 		}(),
 		"chuang_ye_change": status.MarketIndex.ChuangYe.HasChanged,
@@ -42,9 +42,9 @@ func GenerateMarketStatusToMap(status *pb.MarketStatus) map[string]interface{} {
 		"ke_chuang50_value": status.MarketIndex.KeChuang_50.Value,
 		"ke_chuang50_direction": func() string {
 			if status.MarketIndex.KeChuang_50.HasChanged > 0 {
-				return "⬆️"
+				return "↑"
 			} else {
-				return "⬇️"
+				return "↓"
 			}
 		}(),
 		"ke_chuang50_change": status.MarketIndex.KeChuang_50.HasChanged,
@@ -52,9 +52,9 @@ func GenerateMarketStatusToMap(status *pb.MarketStatus) map[string]interface{} {
 		"bei_zheng50_value": status.MarketIndex.BeiZheng_50.Value,
 		"bei_zheng50_direction": func() string {
 			if status.MarketIndex.BeiZheng_50.HasChanged > 0 {
-				return "⬆️"
+				return "↑"
 			} else {
-				return "⬇️"
+				return "↓"
 			}
 		}(),
 		"bei_zheng50_change": status.MarketIndex.BeiZheng_50.HasChanged,

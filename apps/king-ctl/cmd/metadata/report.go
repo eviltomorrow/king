@@ -32,7 +32,7 @@ var ReportCommand = &cobra.Command{
 		if err := report(context.Background(), "daily", begin.Format(time.DateOnly)); err != nil {
 			log.Printf("[F] Report failure, nest error: %v", err)
 		} else {
-			log.Printf("=> 日期：%s，报告已生成，请查看邮箱", begin.Format(time.DateOnly))
+			log.Printf("=> 日期：%s，报告已生成，请查看 ntfy 通知 app.", begin.Format(time.DateOnly))
 		}
 	},
 }
@@ -70,23 +70,6 @@ func report(ctx context.Context, mode, date string) error {
 	text, err := clientTamplate.Render(context.Background(), &pb.RenderRequest{
 		TemplateName: fmt.Sprintf("%s-report.html", mode),
 		Data:         value,
-	})
-	if err != nil {
-		return err
-	}
-
-	clientEmail, closeFunc, err := client.NewEmailWithTarget(fmt.Sprintf("%s:50002", IPVar))
-	if err != nil {
-		return err
-	}
-	defer closeFunc()
-
-	_, err = clientEmail.Send(context.Background(), &pb.Mail{
-		To: []*pb.Contact{
-			{Name: "liarsa", Address: "eviltomorrow@163.com"},
-		},
-		Subject: fmt.Sprintf("简报(%s)", date),
-		Body:    text.Value,
 	})
 	if err != nil {
 		return err
