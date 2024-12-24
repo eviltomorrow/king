@@ -16,8 +16,8 @@ import (
 func UnaryClientOpentraceInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	ctx = extract(ctx, otel.GetTextMapPropagator())
 	span1 := trace.SpanFromContext(ctx)
-	id := span1.SpanContext().TraceID().String()
-	fmt.Println(id)
+	// id := span1.SpanContext().TraceID().String()
+	// fmt.Println(id)
 
 	name, attr := spanInfo(info.FullMethod, peerFromCtx(ctx))
 

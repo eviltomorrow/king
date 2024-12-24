@@ -19,6 +19,9 @@ import (
 )
 
 func InitOpentrace(otel *opentrace.Config) error {
+	if !otel.Enable {
+		return nil
+	}
 	shutdown, err := opentrace.InitTraceProvider(&opentrace.Config{
 		DSN:            otel.DSN,
 		ConnectTimeout: otel.ConnectTimeout,

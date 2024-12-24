@@ -1,6 +1,8 @@
 package finalizer
 
-import "sync"
+import (
+	"sync"
+)
 
 var (
 	cleanupFuncs []func() error
@@ -20,7 +22,7 @@ func RunCleanupFuncs() []error {
 	mut.Lock()
 	defer mut.Unlock()
 
-	var e = make([]error, 0, len(cleanupFuncs))
+	e := make([]error, 0, len(cleanupFuncs))
 	for i := len(cleanupFuncs) - 1; i >= 0; i-- {
 		f := cleanupFuncs[i]
 		if f != nil {
