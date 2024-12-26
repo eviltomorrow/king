@@ -5,24 +5,22 @@ import (
 	"github.com/eviltomorrow/king/apps/king-brain/domain/service"
 )
 
+type ConfigM1 struct{}
+
+var C1 = ConfigM1{}
+
 func init() {
 	service.RegisterModel(&service.Model{
 		Name: "",
 		Desc: "",
-		F:    m1,
-		C: func(score int) bool {
-			if score >= 75 {
-				return true
-			}
-			return false
-		},
+		F:    M1,
 	})
 }
 
-func m1(k *chart.K) (int, error) {
+func M1(k *chart.K) (*service.Position, bool) {
 	if len(k.Candlesticks) == 0 {
-		return 0, nil
+		return nil, false
 	}
 
-	return 0, nil
+	return nil, false
 }

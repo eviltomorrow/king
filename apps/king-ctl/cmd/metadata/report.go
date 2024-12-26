@@ -68,14 +68,6 @@ func report(ctx context.Context, mode, date string) error {
 	defer closeFunc()
 
 	text, err := clientTamplate.Render(context.Background(), &pb.RenderRequest{
-		TemplateName: fmt.Sprintf("%s-report.html", mode),
-		Data:         value,
-	})
-	if err != nil {
-		return err
-	}
-
-	text, err = clientTamplate.Render(context.Background(), &pb.RenderRequest{
 		TemplateName: fmt.Sprintf("%s-report.txt", mode),
 		Data:         value,
 	})

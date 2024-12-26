@@ -46,8 +46,8 @@ type Candlestick struct {
 
 type Volatility struct {
 	PercentageChange        float64
-	PercentageVolume        float64
-	PercentageAmplitude     float64
+	PercentageVolume        float64 // 量能
+	PercentageAmplitude     float64 // 振幅
 	AverageTransactionPrice float64
 }
 
