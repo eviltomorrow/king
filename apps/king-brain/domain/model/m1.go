@@ -21,7 +21,7 @@ func init() {
 	})
 }
 
-func M1(k *chart.K) (*service.Position, bool) {
+func M1(k *chart.K) (*service.Strategy, bool) {
 	if len(k.Candlesticks) == 0 {
 		return nil, false
 	}

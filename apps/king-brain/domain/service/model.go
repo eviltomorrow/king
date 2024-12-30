@@ -7,12 +7,12 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type Position struct {
+type Strategy struct {
 	Buy      float64
 	StopLoss float64
 }
 
-func (p *Position) String() string {
+func (p *Strategy) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(p)
 	return string(buf)
 }
@@ -21,7 +21,7 @@ type Model struct {
 	Name string
 	Desc string
 
-	F func(*chart.K) (*Position, bool)
+	F func(*chart.K) (*Strategy, bool)
 }
 
 var repository = make([]*Model, 0, 8)
