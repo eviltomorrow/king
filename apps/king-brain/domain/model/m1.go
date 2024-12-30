@@ -5,9 +5,13 @@ import (
 	"github.com/eviltomorrow/king/apps/king-brain/domain/service"
 )
 
-type ConfigM1 struct{}
+type ConfigM1 struct {
+	SlidingWindows int
+}
 
-var C1 = ConfigM1{}
+var C1 = ConfigM1{
+	SlidingWindows: 10,
+}
 
 func init() {
 	service.RegisterModel(&service.Model{
@@ -22,5 +26,7 @@ func M1(k *chart.K) (*service.Position, bool) {
 		return nil, false
 	}
 
+	for i := len(k.Candlesticks) - 1; i >= 0; i-- {
+	}
 	return nil, false
 }
