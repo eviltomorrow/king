@@ -44,11 +44,16 @@ type Candlestick struct {
 	Volatility *Volatility // 波动
 }
 
+func (c *Candlestick) String() string {
+	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
+	return string(buf)
+}
+
 type Volatility struct {
-	PercentageChange        float64
+	PercentageChange        float64 // 涨幅
 	PercentageVolume        float64 // 量能
 	PercentageAmplitude     float64 // 振幅
-	AverageTransactionPrice float64
+	AverageTransactionPrice float64 // 评价价
 }
 
 func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, error) {
