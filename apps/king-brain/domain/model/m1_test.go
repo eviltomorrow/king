@@ -13,7 +13,7 @@ import (
 func TestM1(t *testing.T) {
 	assert := assert.New(t)
 
-	current, err := time.Parse(time.DateOnly, "2024-12-26")
+	current, err := time.Parse(time.DateOnly, "2025-01-02")
 	assert.Nil(err)
 
 	stock := &data.Stock{

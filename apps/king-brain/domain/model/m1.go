@@ -7,10 +7,12 @@ import (
 
 type ConfigM1 struct {
 	SlidingWindows int
+	ObserveWindows int
 }
 
 var C1 = ConfigM1{
 	SlidingWindows: 10,
+	ObserveWindows: 50,
 }
 
 func init() {
@@ -26,7 +28,5 @@ func M1(k *chart.K) (*service.Strategy, bool) {
 		return nil, false
 	}
 
-	for i := len(k.Candlesticks) - 1; i >= 0; i-- {
-	}
 	return nil, false
 }
