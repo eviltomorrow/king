@@ -47,7 +47,10 @@ func M1(k *chart.K) (*service.Strategy, bool) {
 		if ok {
 			ma_50 = append(ma_50, v_50)
 		}
-
+		v150, ok := c.MA[chart.Ma150]
+		if ok {
+			ma150 = append(ma150, v150)
+		}
 	}
 	return nil, false
 }
