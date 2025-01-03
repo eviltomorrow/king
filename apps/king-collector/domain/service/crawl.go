@@ -67,7 +67,7 @@ func CrawlMetadataSlow(ctx context.Context, source string, baseCodeList []string
 	total, ignore, err := fetchMetadata(randomPeriod, baseCodeList, pipe, options)
 
 	if lastSyncCount != -1 && (total > lastSyncCount && float64(total-lastSyncCount) > float64(lastSyncCount)*0.1) {
-		return total, ignore, fmt.Errorf("possible missing data, total: %v", total)
+		return total, ignore, fmt.Errorf("possible missing data, total: %v, lastSyncCount: %v", total, lastSyncCount)
 	}
 
 	lastSyncCount = total
