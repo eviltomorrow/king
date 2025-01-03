@@ -44,10 +44,18 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		if plan.Precondition != nil {
 			status, err = plan.Precondition()
 			if err != nil {
-				zlog.Error("Precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("name", plan.GetAlias()))
+				zlog.Error("Precondition check failure", zap.Error(err), zap.Any("status", status), zap.String("alias", plan.GetAlias()))
+
+				if plan.NotifyWithError != nil {
+					if err := plan.NotifyWithError(err); err != nil {
+						zlog.Error("NotifyWithError failure", zap.Error(err), zap.String("alias", plan.GetAlias()))
+					}
+				}
+				plan.SetStatus(domain.Completed)
+
 				return
 			}
-			zlog.Debug("Plan currnet status", zap.String("status", status.String()), zap.String("name", plan.GetAlias()))
+			zlog.Debug("Plan currnet status", zap.String("status", status.String()), zap.String("alias", plan.GetAlias()))
 			switch status {
 			case domain.Pending:
 				return
@@ -68,15 +76,15 @@ func (s *scheduler) Register(cron string, plan *domain.Plan) error {
 		}
 
 		if plan.WriteToDB != nil {
-			if err := plan.WriteToDB(schedulerId, err); err != nil {
-				zlog.Error("WriteToDB failure", zap.String("alias", plan.Alias), zap.String("schedulerId", schedulerId), zap.Error(err))
+			if err = plan.WriteToDB(schedulerId, err); err != nil {
+				zlog.Error("WriteToDB failure", zap.String("alias", plan.GetAlias()), zap.String("schedulerId", schedulerId), zap.Error(err))
 			}
 		}
 
 		if plan.NotifyWithError != nil && err != nil {
 			err := plan.NotifyWithError(err)
 			if err != nil {
-				zlog.Error("Notify with error failure", zap.Error(err), zap.String("name", plan.GetAlias()))
+				zlog.Error("Notify with error failure", zap.Error(err), zap.String("alias", plan.GetAlias()))
 			}
 		}
 
