@@ -8,6 +8,7 @@ import (
 )
 
 type Strategy struct {
+	Sell     float64
 	Buy      float64
 	StopLoss float64
 }
