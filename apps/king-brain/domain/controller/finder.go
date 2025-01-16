@@ -17,6 +17,8 @@ import (
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/service"
+
+	_ "github.com/eviltomorrow/king/apps/king-brain/domain/model"
 )
 
 type Finder struct {
@@ -134,11 +136,7 @@ func (c *Finder) FindPossibleChance(ctx context.Context, req *wrapperspb.StringV
 						continue
 					}
 
-					chance, ok := service.FindPossibleChance(k)
-					if ok {
-						_ = chance
-					}
-
+					service.FindPossibleChance(k)
 				}
 			}
 
