@@ -14,7 +14,6 @@ type MaKind string
 const (
 	Ma_10 MaKind = "ma_10"
 	Ma_50 MaKind = "ma_50"
-	Ma100 MaKind = "ma100"
 	Ma150 MaKind = "ma150"
 	Ma200 MaKind = "ma200"
 )
@@ -32,7 +31,8 @@ func (k *K) String() string {
 }
 
 type Candlestick struct {
-	Date    time.Time
+	Date time.Time
+
 	High    float64
 	Low     float64
 	Open    float64
@@ -50,10 +50,10 @@ func (c *Candlestick) String() string {
 }
 
 type Volatility struct {
-	PercentageChange        float64 // 涨幅
-	PercentageVolume        float64 // 量能
-	PercentageAmplitude     float64 // 振幅
-	AverageTransactionPrice float64 // 评价价
+	PercentPriceChange      float64 // 涨幅
+	PercentVolume           float64 // 量能
+	PercentAmplitude        float64 // 振幅
+	AverageTransactionPrice float64 // 平均成交价
 }
 
 func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, error) {
@@ -69,8 +69,8 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 		}
 
 		v := &Volatility{
-			PercentageChange: mathutil.Trunc2(float64(quote.Close-quote.YesterdayClosed) / float64(quote.YesterdayClosed) * 100),
-			PercentageVolume: func() float64 {
+			PercentPriceChange: mathutil.Trunc2(float64(quote.Close-quote.YesterdayClosed) / float64(quote.YesterdayClosed) * 100),
+			PercentVolume: func() float64 {
 				if i != 0 {
 					last := quotes[i-1]
 
@@ -78,7 +78,7 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 				}
 				return 0
 			}(),
-			PercentageAmplitude: func() float64 {
+			PercentAmplitude: func() float64 {
 				return mathutil.Trunc2((quote.High - quote.Low) / quote.YesterdayClosed * 100)
 			}(),
 			AverageTransactionPrice: func() float64 {
@@ -104,9 +104,6 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 		}
 		if len(closed) >= 50 {
 			c.MA[Ma_50] = calculateMa(closed[i-50+1 : i+1])
-		}
-		if len(closed) >= 100 {
-			c.MA[Ma100] = calculateMa(closed[i-100+1 : i+1])
 		}
 		if len(closed) >= 150 {
 			c.MA[Ma150] = calculateMa(closed[i-150+1 : i+1])

@@ -1,4 +1,4 @@
-package model
+package service
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func TestM1(t *testing.T) {
 	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
-	position, ok := M1(k)
+	position, ok := FindPossibleChance(k)
 	if ok {
 		t.Log(position)
 	}

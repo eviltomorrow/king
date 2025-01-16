@@ -16,7 +16,6 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
-	_ "github.com/eviltomorrow/king/apps/king-brain/domain/model"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/service"
 )
 
@@ -135,16 +134,11 @@ func (c *Finder) FindPossibleChance(ctx context.Context, req *wrapperspb.StringV
 						continue
 					}
 
-					score, ok, err := service.ScanModel(k)
-					if err != nil {
-						zlog.Error("ScanModel failure", zap.Error(err), zap.String("code", stock.Code))
-						continue
+					chance, ok := service.FindPossibleChance(k)
+					if ok {
+						_ = chance
 					}
 
-					if ok {
-						count.Add(1)
-						fmt.Printf("info: %d, %s\r\n", score, stock.Name)
-					}
 				}
 			}
 

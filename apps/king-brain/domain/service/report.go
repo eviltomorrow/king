@@ -108,46 +108,46 @@ func ReportMarketStatus(ctx context.Context, date time.Time, kind string) (*Mark
 			case "北证50":
 				status.MarketIndex.BeiZheng50 = Point{
 					Value:      lastCandlestick.Close,
-					HasChanged: lastCandlestick.Volatility.PercentageChange,
+					HasChanged: lastCandlestick.Volatility.PercentPriceChange,
 				}
 			case "科创50":
 				status.MarketIndex.KeChuang50 = Point{
 					Value:      lastCandlestick.Close,
-					HasChanged: lastCandlestick.Volatility.PercentageChange,
+					HasChanged: lastCandlestick.Volatility.PercentPriceChange,
 				}
 			case "上证指数":
 				status.MarketIndex.ShangZheng = Point{
 					Value:      lastCandlestick.Close,
-					HasChanged: lastCandlestick.Volatility.PercentageChange,
+					HasChanged: lastCandlestick.Volatility.PercentPriceChange,
 				}
 			case "深证成指":
 				status.MarketIndex.ShenZheng = Point{
 					Value:      lastCandlestick.Close,
-					HasChanged: lastCandlestick.Volatility.PercentageChange,
+					HasChanged: lastCandlestick.Volatility.PercentPriceChange,
 				}
 			case "创业板指":
 				status.MarketIndex.ChuangYe = Point{
 					Value:      lastCandlestick.Close,
-					HasChanged: lastCandlestick.Volatility.PercentageChange,
+					HasChanged: lastCandlestick.Volatility.PercentPriceChange,
 				}
 			default:
 				total++
-				if lastCandlestick.Volatility.PercentageChange > 0 {
+				if lastCandlestick.Volatility.PercentPriceChange > 0 {
 					status.MarketStockCount.Rise += 1
 				} else {
 					status.MarketStockCount.Fell += 1
 				}
 
-				if lastCandlestick.Volatility.PercentageChange >= 7.0 {
+				if lastCandlestick.Volatility.PercentPriceChange >= 7.0 {
 					status.MarketStockCount.RiseGT7 += 1
 				}
-				if lastCandlestick.Volatility.PercentageChange >= 15.0 {
+				if lastCandlestick.Volatility.PercentPriceChange >= 15.0 {
 					status.MarketStockCount.RiseGT15 += 1
 				}
-				if lastCandlestick.Volatility.PercentageChange <= -7 {
+				if lastCandlestick.Volatility.PercentPriceChange <= -7 {
 					status.MarketStockCount.FellGT7 += 1
 				}
-				if lastCandlestick.Volatility.PercentageChange <= -15.0 {
+				if lastCandlestick.Volatility.PercentPriceChange <= -15.0 {
 					status.MarketStockCount.FellGT15 += 1
 				}
 
