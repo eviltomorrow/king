@@ -17,7 +17,7 @@ func TestM1(t *testing.T) {
 	assert.Nil(err)
 
 	stock := &data.Stock{
-		Code: "sh601933",
+		Code: "sz301633",
 		Name: "-",
 	}
 	quotes, err := data.GetQuotesN(context.Background(), current, stock.Code, "day", 250)

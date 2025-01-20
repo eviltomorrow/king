@@ -26,6 +26,7 @@ func FindPossibleChance(k *chart.K) error {
 		}
 
 		fmt.Println(k.Code, k.Name, score)
+
 	}
 	return nil
 }
