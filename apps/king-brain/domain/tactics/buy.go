@@ -7,5 +7,7 @@ func TryToFindBuyPoint(k *chart.K) (float64, bool) {
 		return 0, false
 	}
 
+	// last := k.Candlesticks[len(k.Candlesticks)-1]
+
 	return 0, false
 }
