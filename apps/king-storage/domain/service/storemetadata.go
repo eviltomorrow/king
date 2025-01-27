@@ -11,6 +11,10 @@ import (
 )
 
 func StoreMetadata(ctx context.Context, metadata []*model.Metadata, date time.Time) (int64, int64, int64, error) {
+	if len(metadata) == 0 {
+		return 0, 0, 0, nil
+	}
+
 	var affectedStock, affectedDay, affectedWeek int64
 
 	stocks, err := BuildStocksWithMetadata(ctx, metadata)
