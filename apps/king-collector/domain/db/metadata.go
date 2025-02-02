@@ -57,6 +57,9 @@ func DeleteMetadataByDate(ctx context.Context, db *mongo.Client, source string, 
 	if date == "" {
 		return 0, nil
 	}
+	if code == "" {
+		return 0, nil
+	}
 	collection := db.Database(Database).Collection(collectionName)
 
 	result, err := collection.DeleteMany(ctx, bson.M{

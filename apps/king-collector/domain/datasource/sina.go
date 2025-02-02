@@ -49,6 +49,9 @@ var (
 )
 
 func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
+	if len(codes) != 0 {
+		return nil, fmt.Errorf("codes is nil")
+	}
 	url := fmt.Sprintf("https://hq.sinajs.cn/list=%s", strings.Join(codes, ","))
 
 	data, err := client.Get(url, setting.DEFUALT_HANDLE_10_SECOND, SinaHeader, nil)
@@ -106,7 +109,7 @@ func parseSinaDataToMap(data string) (map[string]string, error) {
 }
 
 func parseSinaLineToMetadata(code, data string) (*model.Metadata, error) {
-	if len(data) == 0 {
+	if data == "" {
 		return nil, nil
 	}
 	var (
