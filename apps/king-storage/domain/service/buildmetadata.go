@@ -14,6 +14,10 @@ import (
 )
 
 func BuildStocksWithMetadata(ctx context.Context, md []*model.Metadata) ([]*db.Stock, error) {
+	if len(md) == 0 {
+		return nil, nil
+	}
+
 	stocks := make([]*db.Stock, 0, len(md))
 	for _, md := range md {
 		stocks = append(stocks, &db.Stock{
@@ -27,6 +31,10 @@ func BuildStocksWithMetadata(ctx context.Context, md []*model.Metadata) ([]*db.S
 }
 
 func BuildQuoteDaysWitchMetadata(ctx context.Context, data []*model.Metadata, date time.Time) ([]*db.Quote, error) {
+	if len(data) == 0 {
+		return nil, nil
+	}
+
 	codes := make([]string, 0, len(data))
 	for _, d := range data {
 		codes = append(codes, d.Code)
@@ -74,6 +82,10 @@ func BuildQuoteDaysWitchMetadata(ctx context.Context, data []*model.Metadata, da
 }
 
 func BuildQuoteWeeksWithMetadata(ctx context.Context, md []*model.Metadata, date time.Time) ([]*db.Quote, error) {
+	if len(md) != 0 {
+		return nil, nil
+	}
+
 	if date.Weekday() != time.Friday {
 		return nil, fmt.Errorf("panic: date is not friday")
 	}

@@ -15,6 +15,10 @@ import (
 )
 
 func CrawlMetadataQuick(ctx context.Context, source string, baseCodeList []string) (int64, int64, error) {
+	if len(baseCodeList) == 0 {
+		return 0, 0, nil
+	}
+
 	select {
 	case inFlightSem <- struct{}{}:
 		defer func() { <-inFlightSem }()
@@ -39,6 +43,10 @@ func CrawlMetadataQuick(ctx context.Context, source string, baseCodeList []strin
 var lastSyncCount int64 = -1
 
 func CrawlMetadataSlow(ctx context.Context, source string, baseCodeList []string, randomPeriod []int) (int64, int64, error) {
+	if len(baseCodeList) == 0 {
+		return 0, 0, nil
+	}
+
 	select {
 	case inFlightSem <- struct{}{}:
 		defer func() { <-inFlightSem }()

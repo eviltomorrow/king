@@ -138,6 +138,9 @@ func QuoteWithSelectBetweenByCodeAndDate(ctx context.Context, exec mysql.Exec, k
 }
 
 func QuoteWithSelectBetweenByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, codes []string, begin, end string) (map[string][]*Quote, error) {
+	if len(codes) == 0 {
+		return nil, nil
+	}
 	fields := make([]string, 0, len(codes))
 	args := make([]interface{}, 0, len(codes)+2)
 	for _, code := range codes {
@@ -219,6 +222,9 @@ func QuoteWithSelectBetweenByCodesAndDate(ctx context.Context, exec mysql.Exec, 
 }
 
 func QuoteWithSelectLatestByCodesAndDate(ctx context.Context, exec mysql.Exec, kind string, code []string, date string) ([]*Quote, error) {
+	if len(code) == 0 {
+		return nil, nil
+	}
 	fields := make([]string, 0, len(code))
 	args := make([]interface{}, 0, len(code)+1)
 	for _, c := range code {
@@ -391,10 +397,6 @@ func QuoteWithSelectOneByCodeAndDate(ctx context.Context, exec mysql.Exec, kind 
 }
 
 func QuoteWithCountByDate(ctx context.Context, exec mysql.Exec, kind string, date string) (int64, error) {
-	if date == "" {
-		return 0, fmt.Errorf("date is nil")
-	}
-
 	return sqlutil.TableWithCount(ctx, exec, fmt.Sprintf("quote_%s", kind), map[string]interface{}{FieldQuoteDate: date})
 }
 
