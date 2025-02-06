@@ -49,7 +49,7 @@ var (
 )
 
 func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
-	if len(codes) != 0 {
+	if len(codes) == 0 {
 		return nil, fmt.Errorf("codes is nil")
 	}
 	url := fmt.Sprintf("https://hq.sinajs.cn/list=%s", strings.Join(codes, ","))
