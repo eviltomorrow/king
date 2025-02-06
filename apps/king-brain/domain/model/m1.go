@@ -1,15 +1,15 @@
 package model
 
 import (
+	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
-	"github.com/eviltomorrow/king/apps/king-brain/domain/service"
 )
 
 func init() {
-	service.RegisterFeaturesFunc(&service.Feature{Name: "收盘价高于 50 日均线", F: FeatureWithClosedGTMA_50})
-	service.RegisterFeaturesFunc(&service.Feature{Name: "收盘价高于 150 日均线", F: FeatureWithClosedGTMA150})
-	service.RegisterFeaturesFunc(&service.Feature{Name: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
-	service.RegisterFeaturesFunc(&service.Feature{Name: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
+	domain.RegisterFeaturesFunc(&domain.Feature{Name: "收盘价高于 50 日均线", F: FeatureWithClosedGTMA_50})
+	domain.RegisterFeaturesFunc(&domain.Feature{Name: "收盘价高于 150 日均线", F: FeatureWithClosedGTMA150})
+	domain.RegisterFeaturesFunc(&domain.Feature{Name: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
+	domain.RegisterFeaturesFunc(&domain.Feature{Name: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
 }
 
 func FeatureWithClosedGTMA_50(k *chart.K) (int64, bool) {

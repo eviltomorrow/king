@@ -7,6 +7,7 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
+	_ "github.com/eviltomorrow/king/apps/king-brain/domain/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +18,7 @@ func TestFindPossibleChance(t *testing.T) {
 	assert.Nil(err)
 
 	stock := &data.Stock{
-		Code: "sz301633",
+		Code: "sh601933",
 		Name: "-",
 	}
 	quotes, err := data.GetQuotesN(context.Background(), current, stock.Code, "day", 250)
