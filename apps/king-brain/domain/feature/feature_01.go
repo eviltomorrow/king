@@ -149,7 +149,7 @@ func FeatureWithMA150Reversal(k *chart.K) bool {
 
 	}
 
-	if len(swing) > 1 {
+	if len(swing) == 2 {
 		s1, s2 := swing[len(swing)-2], swing[len(swing)-1]
 		if len(s1) > 1 && (s1[len(s1)-1] <= s1[0]) && len(s2) > 1 && (s2[len(s2)-1] > s2[0]) {
 			return true
