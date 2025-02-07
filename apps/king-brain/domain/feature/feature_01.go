@@ -6,11 +6,11 @@ import (
 )
 
 func init() {
-	domain.RegisterFeatureFunc(&domain.Feature{Level: Level2, Desc: "收盘价高于 150 日均线", F: FeatureWithClosedGTMA150})
-	domain.RegisterFeatureFunc(&domain.Feature{Level: Level2, Desc: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
-	domain.RegisterFeatureFunc(&domain.Feature{Level: Level2, Desc: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
-	domain.RegisterFeatureFunc(&domain.Feature{Level: Level2, Desc: "150 日均线向上延伸", F: FeatureWithMA150UP})
-	domain.RegisterFeatureFunc(&domain.Feature{Level: Level2, Desc: "150 日均线反转", F: FeatureWithMA150Reversal})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 150 日均线", F: FeatureWithClosedGTMA150})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线向上延伸", F: FeatureWithMA150UP})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线反转", F: FeatureWithMA150Reversal})
 }
 
 func FeatureWithClosedGTMA_50(k *chart.K) bool {

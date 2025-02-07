@@ -9,8 +9,7 @@ import (
 var features = make([]*Feature, 0, 32)
 
 type Feature struct {
-	Level int64
-	Desc  string
+	Desc string
 
 	F func(k *chart.K) bool
 }
@@ -31,7 +30,7 @@ func CalculateFeatureFunc(k *chart.K) (string, int64) {
 		if !ok {
 			continue
 		}
-		sum += feature.Level
+		sum += 1
 		desc = append(desc, feature.Desc)
 	}
 	return strings.Join(desc, ","), sum
