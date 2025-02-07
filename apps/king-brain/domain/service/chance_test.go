@@ -5,9 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
-	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
-	_ "github.com/eviltomorrow/king/apps/king-brain/domain/model"
+	_ "github.com/eviltomorrow/king/apps/king-brain/domain/feature"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,15 +15,5 @@ func TestFindPossibleChance(t *testing.T) {
 	current, err := time.Parse(time.DateOnly, time.Now().Format(time.DateOnly))
 	assert.Nil(err)
 
-	stock := &data.Stock{
-		Code: "sh601933",
-		Name: "-",
-	}
-	quotes, err := data.GetQuotesN(context.Background(), current, stock.Code, "day", 250)
-	assert.Nil(err)
-
-	k, err := chart.NewK(context.Background(), stock, quotes)
-	assert.Nil(err)
-
-	FindPossibleChance(k)
+	FindPossibleChance(context.Background(), current)
 }

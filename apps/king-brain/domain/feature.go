@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 )
@@ -9,22 +9,30 @@ import (
 var features = make([]*Feature, 0, 32)
 
 type Feature struct {
-	Name string
-	F    func(*chart.K) (int64, bool)
+	Level int64
+	Desc  string
+
+	F func(k *chart.K) bool
 }
 
-func RegisterFeaturesFunc(f *Feature) {
+func RegisterFeatureFunc(f *Feature) {
 	if f != nil {
 		features = append(features, f)
 	}
 }
 
-func ScanFeatureFunc(k *chart.K) {
+func CalculateFeatureFunc(k *chart.K) (string, int64) {
+	var (
+		sum  int64
+		desc = make([]string, 0, len(features))
+	)
 	for _, feature := range features {
-		score, ok := feature.F(k)
+		ok := feature.F(k)
 		if !ok {
 			continue
 		}
-		fmt.Printf("name: %s, score: %v\r\n", feature.Name, score)
+		sum += feature.Level
+		desc = append(desc, feature.Desc)
 	}
+	return strings.Join(desc, ","), sum
 }
