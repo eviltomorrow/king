@@ -82,7 +82,7 @@ func BuildQuoteDaysWitchMetadata(ctx context.Context, data []*model.Metadata, da
 }
 
 func BuildQuoteWeeksWithMetadata(ctx context.Context, md []*model.Metadata, date time.Time) ([]*db.Quote, error) {
-	if len(md) != 0 {
+	if len(md) == 0 {
 		return nil, nil
 	}
 
