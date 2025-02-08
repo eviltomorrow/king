@@ -105,7 +105,7 @@ func (g *GRPC) Serve() error {
 		),
 		grpc.ChainStreamInterceptor(
 			middleware.StreamServerRecoveryInterceptor,
-			middleware.StreamServerLogInterceptor,
+			// middleware.StreamServerLogInterceptor,
 		),
 		grpc.Creds(creds),
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
