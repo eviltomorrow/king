@@ -10,7 +10,8 @@ func init() {
 	domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
 	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
 	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线向上延伸", F: FeatureWithMA150UP})
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线反转", F: FeatureWithMA150Reversal})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线反转", F: FeatureWithReversalMA150})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "最近 5 天内收盘价靠近 150 日均线", F: FeatureWithNearbyMA150})
 }
 
 func FeatureWithClosedGTMA_50(k *chart.K) bool {
@@ -87,39 +88,72 @@ func FeatureWithMA150UP(k *chart.K) bool {
 	return backMA150 > fontMA150
 }
 
-func FeatureWithMA150Reversal(k *chart.K) bool {
-	if len(k.Candlesticks) == 0 {
+func FeatureWithReversalMA150(k *chart.K) bool {
+	trend := calculateTrendWithMA(chart.Ma150, k)
+
+	if len(trend) == 2 {
+		s1, s2 := trend[len(trend)-2], trend[len(trend)-1]
+		if len(s1) > 1 && (s1[len(s1)-1] <= s1[0]) && len(s2) > 1 && (s2[len(s2)-1] > s2[0]) {
+			return true
+		}
+	}
+	return false
+}
+
+func FeatureWithNearbyMA150(k *chart.K) bool {
+	if len(k.Candlesticks) < 5 {
 		return false
 	}
 
-	ma150 := make([]float64, 0, len(k.Candlesticks))
+	// for i := len(k.Candlesticks) - 5; i < len(k.Candlesticks); i++ {
+	current := k.Candlesticks[len(k.Candlesticks)-1]
+
+	closed := current.Close
+	ma, ok := current.MA[chart.Ma150]
+	if !ok {
+		return false
+	}
+
+	if closed*0.97 < ma {
+		return true
+	}
+	// }
+	return false
+}
+
+func calculateTrendWithMA(kind chart.MaKind, k *chart.K) [][]float64 {
+	if len(k.Candlesticks) == 0 {
+		return nil
+	}
+
+	ma := make([]float64, 0, len(k.Candlesticks))
 	begin := -1
 	for i, candlestick := range k.Candlesticks {
-		val, ok := candlestick.MA[chart.Ma150]
+		val, ok := candlestick.MA[kind]
 		if !ok {
 			continue
 		}
 		if begin == -1 {
 			begin = i
 		}
-		ma150 = append(ma150, val)
+		ma = append(ma, val)
 	}
 
-	if len(ma150) == 0 {
-		return false
+	if len(ma) == 0 {
+		return nil
 	}
 
-	swing := make([][]float64, 0, 4)
+	trend := make([][]float64, 0, 4)
 
-	for i := 0; i < len(ma150); i++ {
+	for i := 0; i < len(ma); i++ {
 		span := make([]float64, 0, 32)
-		span = append(span, ma150[i])
+		span = append(span, ma[i])
 
 		direction := 0
 	loop:
-		for j := i + 1; j < len(ma150); j++ {
+		for j := i + 1; j < len(ma); j++ {
 			switch {
-			case ma150[i] > ma150[j]:
+			case ma[i] > ma[j]:
 				if direction == 0 {
 					direction = 1
 				}
@@ -130,7 +164,7 @@ func FeatureWithMA150Reversal(k *chart.K) bool {
 					break loop
 				}
 
-			case ma150[i] < ma150[j]:
+			case ma[i] < ma[j]:
 				if direction == 0 {
 					direction = 2
 				}
@@ -143,17 +177,11 @@ func FeatureWithMA150Reversal(k *chart.K) bool {
 			default:
 				i = j
 			}
-			span = append(span, ma150[j])
+			span = append(span, ma[j])
 		}
-		swing = append(swing, span)
+		trend = append(trend, span)
 
 	}
 
-	if len(swing) == 2 {
-		s1, s2 := swing[len(swing)-2], swing[len(swing)-1]
-		if len(s1) > 1 && (s1[len(s1)-1] <= s1[0]) && len(s2) > 1 && (s2[len(s2)-1] > s2[0]) {
-			return true
-		}
-	}
-	return false
+	return trend
 }
