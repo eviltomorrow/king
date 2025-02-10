@@ -12,13 +12,13 @@ func Callback(schedulerId string, e error) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), setting.GRPC_UNARY_TIMEOUT_10_SECOND)
 	defer cancel()
 
-	code := pb.CallbackRequest_SUCCESS
-	msg := ""
-
-	if e != nil {
-		code = pb.CallbackRequest_FAILURE
-		msg = e.Error()
-	}
+	code, msg := func() (pb.CallbackRequest_StatusCode, string) {
+		if e != nil {
+			return pb.CallbackRequest_FAILURE, e.Error()
+		} else {
+			return pb.CallbackRequest_SUCCESS, ""
+		}
+	}()
 	if _, err := client.DefaultScheduler.Callback(ctx, &pb.CallbackRequest{SchedulerId: schedulerId, Code: code, ErrorMsg: msg}); err != nil {
 		return "", err
 	}

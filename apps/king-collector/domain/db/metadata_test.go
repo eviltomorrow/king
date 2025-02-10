@@ -11,7 +11,7 @@ import (
 func TestSelectMetadataRange(t *testing.T) {
 	assert := assert.New(t)
 
-	data, err := SelectMetadataRange(context.Background(), mongodb.DB, 0, 30, "2024-10-11", "")
+	data, err := SelectMetadataRange(context.Background(), mongodb.DB, 0, 30, "2025-02-07", "")
 	assert.Nil(err)
 
 	for _, d := range data {
@@ -27,7 +27,7 @@ func TestSelectMetadataAll(t *testing.T) {
 	)
 
 	for {
-		metadata, err := SelectMetadataRange(context.Background(), mongodb.DB, offset, limit, "2024-10-11", lastID)
+		metadata, err := SelectMetadataRange(context.Background(), mongodb.DB, offset, limit, "2025-02-07", lastID)
 		if err != nil {
 			t.Fatal(err)
 		}

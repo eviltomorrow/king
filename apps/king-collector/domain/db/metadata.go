@@ -78,10 +78,10 @@ func DeleteMetadataByDate(ctx context.Context, db *mongo.Client, source string, 
 
 func SelectMetadataRange(ctx context.Context, db *mongo.Client, offset, limit int64, date string, lastID string) ([]*model.Metadata, error) {
 	if date == "" {
-		return nil, fmt.Errorf("invalid date")
+		return nil, fmt.Errorf("invalid date, date is nil")
 	}
 	if limit <= 0 {
-		return nil, fmt.Errorf("invalid limit")
+		return nil, fmt.Errorf("invalid limit, limit is <= 0")
 	}
 
 	collection := db.Database(Database).Collection(collectionName)
