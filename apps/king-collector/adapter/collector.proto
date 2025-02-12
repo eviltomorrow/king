@@ -11,20 +11,12 @@ service Collector {
     // Crawl latest metadata from sina web(async)
     rpc CrawlMetadataAsync(google.protobuf.StringValue) returns (google.protobuf.Empty){}
     // Crawl latest metadata from sina web
-    rpc CrawlMetadata(google.protobuf.StringValue) returns (CrawlMetadataResponse){}
+    rpc CrawlMetadataSync(google.protobuf.StringValue) returns (CrawlMetadataResponse){}
     // Fetch metadata from collector
-    rpc FetchMetadata(google.protobuf.StringValue) returns (stream Metadata){}
+    rpc PullMetadata(google.protobuf.StringValue) returns (stream Metadata){}
 }
 
 message CrawlMetadataResponse {
     int64 total = 1;
     int64 ignore = 2;   
-}
-
-message StoreMetadataResponse {
-    message AffectedCount {
-        int64 stock = 1;
-        int64 quote= 2;
-    }
-    AffectedCount affected = 1;
 }

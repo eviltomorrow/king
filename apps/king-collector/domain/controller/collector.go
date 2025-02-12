@@ -74,7 +74,7 @@ func (c *Collector) CrawlMetadataAsync(ctx context.Context, req *wrapperspb.Stri
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Collector) CrawlMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.CrawlMetadataResponse, error) {
+func (c *Collector) CrawlMetadataSync(ctx context.Context, req *wrapperspb.StringValue) (*pb.CrawlMetadataResponse, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request, source is nil")
 	}
@@ -89,7 +89,7 @@ func (c *Collector) CrawlMetadata(ctx context.Context, req *wrapperspb.StringVal
 	return &pb.CrawlMetadataResponse{Total: total, Ignore: ignore}, nil
 }
 
-func (c *Collector) FetchMetadata(req *wrapperspb.StringValue, resp grpc.ServerStreamingServer[entity.Metadata]) error {
+func (c *Collector) PullMetadata(req *wrapperspb.StringValue, resp grpc.ServerStreamingServer[entity.Metadata]) error {
 	if req == nil {
 		return fmt.Errorf("invalid request, date is nil")
 	}

@@ -33,14 +33,14 @@ var CrawlCommand = &cobra.Command{
 var source string
 
 func init() {
-	CrawlCommand.PersistentFlags().StringVar(&source, "source", "sina", "指定数据源[sina]")
-	CrawlCommand.PersistentFlags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
+	CrawlCommand.Flags().StringVar(&source, "source", "sina", "指定数据源[sina]")
+	CrawlCommand.Flags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
 func crawl(ctx context.Context) error {
 	begin := time.Now()
 
-	resp, err := ClientCollector.CrawlMetadata(ctx, &wrapperspb.StringValue{Value: source})
+	resp, err := ClientCollector.CrawlMetadataSync(ctx, &wrapperspb.StringValue{Value: source})
 	if err != nil {
 		return err
 	}

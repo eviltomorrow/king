@@ -8,8 +8,10 @@ option go_package = "./;pb";
 package storage;
 
 service Storage {
-    rpc ShowMetadata(google.protobuf.StringValue) returns (ShowResponse);
     rpc PushMetadata(stream Metadata) returns (PushResponse);
+
+    rpc CountStock(CountStockRequest) returns (CountStockRepsonse);
+    rpc CountQuote(CountQuoteRequest) returns (CountQuoteRepsonse);
 
     rpc GetStockOne(google.protobuf.StringValue) returns (Stock);
     rpc GetStockAll(google.protobuf.Empty) returns (stream Stock);
@@ -37,6 +39,27 @@ message Stock {
     string code = 1;
     string name = 2;
     string suspend = 3;
+}
+
+message CountQuoteRequest {
+    string date = 1;
+    enum Kind {
+        Day = 0;
+        Week = 1;
+    };
+    Kind kind = 2;
+}
+
+message CountQuoteRepsonse {
+    int64 value = 1;
+}
+
+message CountStockRequest {
+    string suspend = 1;
+}
+
+message CountStockRepsonse {
+    int64 value = 1;
 }
 
 message GetQuoteLatestRequest {

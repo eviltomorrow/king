@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/db/mysql"
+	"github.com/eviltomorrow/king/lib/sqlutil"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -156,6 +157,10 @@ func StockWithSelectRange(ctx context.Context, exec mysql.Exec, offset, limit in
 		return nil, err
 	}
 	return stocks, nil
+}
+
+func StockWithCountBySuspend(ctx context.Context, exec mysql.Exec, suspend string) (int64, error) {
+	return sqlutil.TableWithCount(ctx, exec, "stock", map[string]interface{}{FieldStockSuspend: suspend})
 }
 
 // Stock

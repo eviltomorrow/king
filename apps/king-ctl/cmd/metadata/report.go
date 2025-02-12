@@ -38,10 +38,10 @@ var ReportCommand = &cobra.Command{
 }
 
 func init() {
-	ReportCommand.PersistentFlags().StringVar(&beginVar, "date", "", "指定日期")
-	ReportCommand.PersistentFlags().StringVar(&modeVar, "mode", "daily", "指定类型")
+	ReportCommand.Flags().StringVar(&beginVar, "begin", "", "指定日期")
+	ReportCommand.Flags().StringVar(&modeVar, "mode", "daily", "指定类型")
 
-	ReportCommand.PersistentFlags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
+	ReportCommand.Flags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
 func report(ctx context.Context, mode, date string) error {

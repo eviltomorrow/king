@@ -12,8 +12,8 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-var StoreCommand = &cobra.Command{
-	Use:   "store",
+var ArchiveCommand = &cobra.Command{
+	Use:   "archive",
 	Short: "归档数据",
 	Run: func(cmd *cobra.Command, args []string) {
 		begin, err := time.Parse(time.DateTime, fmt.Sprintf("%s 00:00:01", beginVar))
@@ -49,7 +49,7 @@ var StoreCommand = &cobra.Command{
 				now  = time.Now()
 			)
 
-			stocks, days, weeks, err := store(context.Background(), date)
+			stocks, days, weeks, err := archiveMetadata(context.Background(), date)
 			if err != nil {
 				log.Printf("归档失败, nest error: %v, date: %v", err, date)
 			} else {
@@ -61,20 +61,20 @@ var StoreCommand = &cobra.Command{
 }
 
 func init() {
-	StoreCommand.PersistentFlags().StringVar(&beginVar, "begin", "", "指定开始日期")
-	StoreCommand.MarkPersistentFlagRequired("begin")
+	ArchiveCommand.Flags().StringVar(&beginVar, "begin", "", "指定开始日期")
+	ArchiveCommand.MarkFlagRequired("begin")
 
-	StoreCommand.PersistentFlags().StringVar(&endVar, "end", time.Now().Format(time.DateOnly), "指定结束日期")
-	StoreCommand.PersistentFlags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
+	ArchiveCommand.Flags().StringVar(&endVar, "end", time.Now().Format(time.DateOnly), "指定结束日期")
+	ArchiveCommand.Flags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
-func store(ctx context.Context, date string) (int64, int64, int64, error) {
+func archiveMetadata(ctx context.Context, date string) (int64, int64, int64, error) {
 	target, err := ClientStorage.PushMetadata(ctx)
 	if err != nil {
 		return 0, 0, 0, err
 	}
 
-	source, err := ClientCollector.FetchMetadata(ctx, &wrapperspb.StringValue{Value: date})
+	source, err := ClientCollector.PullMetadata(ctx, &wrapperspb.StringValue{Value: date})
 	if err != nil {
 		return 0, 0, 0, err
 	}

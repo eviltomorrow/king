@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/eviltomorrow/king/lib/grpc/client"
+	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
 	"github.com/eviltomorrow/king/lib/timeutil"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var ShowCommand = &cobra.Command{
@@ -42,9 +42,13 @@ var ShowCommand = &cobra.Command{
 
 		for begin.Before(end) {
 			date := begin.Format(time.DateOnly)
-
+			var (
+				days, weeks int64
+				err         error
+			)
 			status := BoldGreen.Sprint("正常")
-			days, weeks, err := show(context.Background(), date)
+
+			days, weeks, err = showQuote(context.Background(), begin)
 			if err != nil {
 				log.Printf("数据统计失败, nest error: %v, date: %v", err, date)
 			} else {
@@ -68,16 +72,39 @@ var (
 )
 
 func init() {
-	ShowCommand.PersistentFlags().StringVar(&beginVar, "begin", "", "指定开始日期")
-	ShowCommand.PersistentFlags().StringVar(&endVar, "end", time.Now().Format(time.DateOnly), "指定结束日期")
-	ShowCommand.PersistentFlags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
+	ShowCommand.Flags().StringVar(&beginVar, "begin", "", "指定开始日期")
+	ShowCommand.Flags().StringVar(&endVar, "end", time.Now().Format(time.DateOnly), "指定结束日期")
+	ShowCommand.Flags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
-func show(ctx context.Context, date string) (int64, int64, error) {
-	resp, err := ClientStorage.ShowMetadata(ctx, &wrapperspb.StringValue{Value: date})
+func showQuote(ctx context.Context, date time.Time) (int64, int64, error) {
+	day, err := countQuoteDay(ctx, date.Format(time.DateOnly))
 	if err != nil {
 		return 0, 0, err
 	}
 
-	return resp.Queried.Days, resp.Queried.Weeks, nil
+	var week int64
+	if date.Weekday() == time.Friday {
+		week, err = countQuoteWeek(ctx, date.Format(time.DateOnly))
+		if err != nil {
+			return 0, 0, err
+		}
+	}
+	return day, week, nil
+}
+
+func countQuoteDay(ctx context.Context, date string) (int64, error) {
+	resp, err := ClientStorage.CountQuote(ctx, &pb.CountQuoteRequest{Date: date, Kind: pb.CountQuoteRequest_Day})
+	if err != nil {
+		return 0, err
+	}
+	return resp.Value, nil
+}
+
+func countQuoteWeek(ctx context.Context, date string) (int64, error) {
+	resp, err := ClientStorage.CountQuote(ctx, &pb.CountQuoteRequest{Date: date, Kind: pb.CountQuoteRequest_Week})
+	if err != nil {
+		return 0, err
+	}
+	return resp.Value, nil
 }

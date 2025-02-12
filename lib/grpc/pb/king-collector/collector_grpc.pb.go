@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Collector_CrawlMetadataAsync_FullMethodName = "/collector.Collector/CrawlMetadataAsync"
-	Collector_CrawlMetadata_FullMethodName      = "/collector.Collector/CrawlMetadata"
-	Collector_FetchMetadata_FullMethodName      = "/collector.Collector/FetchMetadata"
+	Collector_CrawlMetadataSync_FullMethodName  = "/collector.Collector/CrawlMetadataSync"
+	Collector_PullMetadata_FullMethodName       = "/collector.Collector/PullMetadata"
 )
 
 // CollectorClient is the client API for Collector service.
@@ -34,9 +34,9 @@ type CollectorClient interface {
 	// Crawl latest metadata from sina web(async)
 	CrawlMetadataAsync(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Crawl latest metadata from sina web
-	CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlMetadataResponse, error)
+	CrawlMetadataSync(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlMetadataResponse, error)
 	// Fetch metadata from collector
-	FetchMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (grpc.ServerStreamingClient[entity.Metadata], error)
+	PullMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (grpc.ServerStreamingClient[entity.Metadata], error)
 }
 
 type collectorClient struct {
@@ -57,19 +57,19 @@ func (c *collectorClient) CrawlMetadataAsync(ctx context.Context, in *wrapperspb
 	return out, nil
 }
 
-func (c *collectorClient) CrawlMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlMetadataResponse, error) {
+func (c *collectorClient) CrawlMetadataSync(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*CrawlMetadataResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CrawlMetadataResponse)
-	err := c.cc.Invoke(ctx, Collector_CrawlMetadata_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Collector_CrawlMetadataSync_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *collectorClient) FetchMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (grpc.ServerStreamingClient[entity.Metadata], error) {
+func (c *collectorClient) PullMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (grpc.ServerStreamingClient[entity.Metadata], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Collector_ServiceDesc.Streams[0], Collector_FetchMetadata_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Collector_ServiceDesc.Streams[0], Collector_PullMetadata_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (c *collectorClient) FetchMetadata(ctx context.Context, in *wrapperspb.Stri
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Collector_FetchMetadataClient = grpc.ServerStreamingClient[entity.Metadata]
+type Collector_PullMetadataClient = grpc.ServerStreamingClient[entity.Metadata]
 
 // CollectorServer is the server API for Collector service.
 // All implementations must embed UnimplementedCollectorServer
@@ -93,9 +93,9 @@ type CollectorServer interface {
 	// Crawl latest metadata from sina web(async)
 	CrawlMetadataAsync(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	// Crawl latest metadata from sina web
-	CrawlMetadata(context.Context, *wrapperspb.StringValue) (*CrawlMetadataResponse, error)
+	CrawlMetadataSync(context.Context, *wrapperspb.StringValue) (*CrawlMetadataResponse, error)
 	// Fetch metadata from collector
-	FetchMetadata(*wrapperspb.StringValue, grpc.ServerStreamingServer[entity.Metadata]) error
+	PullMetadata(*wrapperspb.StringValue, grpc.ServerStreamingServer[entity.Metadata]) error
 	mustEmbedUnimplementedCollectorServer()
 }
 
@@ -109,11 +109,11 @@ type UnimplementedCollectorServer struct{}
 func (UnimplementedCollectorServer) CrawlMetadataAsync(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CrawlMetadataAsync not implemented")
 }
-func (UnimplementedCollectorServer) CrawlMetadata(context.Context, *wrapperspb.StringValue) (*CrawlMetadataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CrawlMetadata not implemented")
+func (UnimplementedCollectorServer) CrawlMetadataSync(context.Context, *wrapperspb.StringValue) (*CrawlMetadataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CrawlMetadataSync not implemented")
 }
-func (UnimplementedCollectorServer) FetchMetadata(*wrapperspb.StringValue, grpc.ServerStreamingServer[entity.Metadata]) error {
-	return status.Errorf(codes.Unimplemented, "method FetchMetadata not implemented")
+func (UnimplementedCollectorServer) PullMetadata(*wrapperspb.StringValue, grpc.ServerStreamingServer[entity.Metadata]) error {
+	return status.Errorf(codes.Unimplemented, "method PullMetadata not implemented")
 }
 func (UnimplementedCollectorServer) mustEmbedUnimplementedCollectorServer() {}
 func (UnimplementedCollectorServer) testEmbeddedByValue()                   {}
@@ -154,34 +154,34 @@ func _Collector_CrawlMetadataAsync_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Collector_CrawlMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Collector_CrawlMetadataSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectorServer).CrawlMetadata(ctx, in)
+		return srv.(CollectorServer).CrawlMetadataSync(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Collector_CrawlMetadata_FullMethodName,
+		FullMethod: Collector_CrawlMetadataSync_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectorServer).CrawlMetadata(ctx, req.(*wrapperspb.StringValue))
+		return srv.(CollectorServer).CrawlMetadataSync(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Collector_FetchMetadata_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Collector_PullMetadata_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(wrapperspb.StringValue)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(CollectorServer).FetchMetadata(m, &grpc.GenericServerStream[wrapperspb.StringValue, entity.Metadata]{ServerStream: stream})
+	return srv.(CollectorServer).PullMetadata(m, &grpc.GenericServerStream[wrapperspb.StringValue, entity.Metadata]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Collector_FetchMetadataServer = grpc.ServerStreamingServer[entity.Metadata]
+type Collector_PullMetadataServer = grpc.ServerStreamingServer[entity.Metadata]
 
 // Collector_ServiceDesc is the grpc.ServiceDesc for Collector service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -195,14 +195,14 @@ var Collector_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Collector_CrawlMetadataAsync_Handler,
 		},
 		{
-			MethodName: "CrawlMetadata",
-			Handler:    _Collector_CrawlMetadata_Handler,
+			MethodName: "CrawlMetadataSync",
+			Handler:    _Collector_CrawlMetadataSync_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "FetchMetadata",
-			Handler:       _Collector_FetchMetadata_Handler,
+			StreamName:    "PullMetadata",
+			Handler:       _Collector_PullMetadata_Handler,
 			ServerStreams: true,
 		},
 	},

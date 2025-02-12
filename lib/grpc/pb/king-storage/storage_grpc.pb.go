@@ -22,8 +22,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Storage_ShowMetadata_FullMethodName   = "/storage.Storage/ShowMetadata"
 	Storage_PushMetadata_FullMethodName   = "/storage.Storage/PushMetadata"
+	Storage_CountStock_FullMethodName     = "/storage.Storage/CountStock"
+	Storage_CountQuote_FullMethodName     = "/storage.Storage/CountQuote"
 	Storage_GetStockOne_FullMethodName    = "/storage.Storage/GetStockOne"
 	Storage_GetStockAll_FullMethodName    = "/storage.Storage/GetStockAll"
 	Storage_GetQuoteLatest_FullMethodName = "/storage.Storage/GetQuoteLatest"
@@ -33,8 +34,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StorageClient interface {
-	ShowMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ShowResponse, error)
 	PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[entity.Metadata, PushResponse], error)
+	CountStock(ctx context.Context, in *CountStockRequest, opts ...grpc.CallOption) (*CountStockRepsonse, error)
+	CountQuote(ctx context.Context, in *CountQuoteRequest, opts ...grpc.CallOption) (*CountQuoteRepsonse, error)
 	GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error)
 	GetStockAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Stock], error)
 	GetQuoteLatest(ctx context.Context, in *GetQuoteLatestRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Quote], error)
@@ -46,16 +48,6 @@ type storageClient struct {
 
 func NewStorageClient(cc grpc.ClientConnInterface) StorageClient {
 	return &storageClient{cc}
-}
-
-func (c *storageClient) ShowMetadata(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ShowResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ShowResponse)
-	err := c.cc.Invoke(ctx, Storage_ShowMetadata_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *storageClient) PushMetadata(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[entity.Metadata, PushResponse], error) {
@@ -70,6 +62,26 @@ func (c *storageClient) PushMetadata(ctx context.Context, opts ...grpc.CallOptio
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Storage_PushMetadataClient = grpc.ClientStreamingClient[entity.Metadata, PushResponse]
+
+func (c *storageClient) CountStock(ctx context.Context, in *CountStockRequest, opts ...grpc.CallOption) (*CountStockRepsonse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CountStockRepsonse)
+	err := c.cc.Invoke(ctx, Storage_CountStock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *storageClient) CountQuote(ctx context.Context, in *CountQuoteRequest, opts ...grpc.CallOption) (*CountQuoteRepsonse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CountQuoteRepsonse)
+	err := c.cc.Invoke(ctx, Storage_CountQuote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
 
 func (c *storageClient) GetStockOne(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Stock, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -123,8 +135,9 @@ type Storage_GetQuoteLatestClient = grpc.ServerStreamingClient[Quote]
 // All implementations must embed UnimplementedStorageServer
 // for forward compatibility.
 type StorageServer interface {
-	ShowMetadata(context.Context, *wrapperspb.StringValue) (*ShowResponse, error)
 	PushMetadata(grpc.ClientStreamingServer[entity.Metadata, PushResponse]) error
+	CountStock(context.Context, *CountStockRequest) (*CountStockRepsonse, error)
+	CountQuote(context.Context, *CountQuoteRequest) (*CountQuoteRepsonse, error)
 	GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error)
 	GetStockAll(*emptypb.Empty, grpc.ServerStreamingServer[Stock]) error
 	GetQuoteLatest(*GetQuoteLatestRequest, grpc.ServerStreamingServer[Quote]) error
@@ -138,11 +151,14 @@ type StorageServer interface {
 // pointer dereference when methods are called.
 type UnimplementedStorageServer struct{}
 
-func (UnimplementedStorageServer) ShowMetadata(context.Context, *wrapperspb.StringValue) (*ShowResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ShowMetadata not implemented")
-}
 func (UnimplementedStorageServer) PushMetadata(grpc.ClientStreamingServer[entity.Metadata, PushResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method PushMetadata not implemented")
+}
+func (UnimplementedStorageServer) CountStock(context.Context, *CountStockRequest) (*CountStockRepsonse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CountStock not implemented")
+}
+func (UnimplementedStorageServer) CountQuote(context.Context, *CountQuoteRequest) (*CountQuoteRepsonse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CountQuote not implemented")
 }
 func (UnimplementedStorageServer) GetStockOne(context.Context, *wrapperspb.StringValue) (*Stock, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStockOne not implemented")
@@ -174,30 +190,48 @@ func RegisterStorageServer(s grpc.ServiceRegistrar, srv StorageServer) {
 	s.RegisterService(&Storage_ServiceDesc, srv)
 }
 
-func _Storage_ShowMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(StorageServer).ShowMetadata(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Storage_ShowMetadata_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StorageServer).ShowMetadata(ctx, req.(*wrapperspb.StringValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Storage_PushMetadata_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(StorageServer).PushMetadata(&grpc.GenericServerStream[entity.Metadata, PushResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Storage_PushMetadataServer = grpc.ClientStreamingServer[entity.Metadata, PushResponse]
+
+func _Storage_CountStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountStockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StorageServer).CountStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Storage_CountStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StorageServer).CountStock(ctx, req.(*CountStockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Storage_CountQuote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountQuoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StorageServer).CountQuote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Storage_CountQuote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StorageServer).CountQuote(ctx, req.(*CountQuoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
 
 func _Storage_GetStockOne_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
@@ -247,8 +281,12 @@ var Storage_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StorageServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ShowMetadata",
-			Handler:    _Storage_ShowMetadata_Handler,
+			MethodName: "CountStock",
+			Handler:    _Storage_CountStock_Handler,
+		},
+		{
+			MethodName: "CountQuote",
+			Handler:    _Storage_CountQuote_Handler,
 		},
 		{
 			MethodName: "GetStockOne",

@@ -67,7 +67,7 @@ func CronWithStoreMetadata() *domain.Plan {
 
 			now := time.Now()
 
-			source, err := client.DefaultCollector.FetchMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
+			source, err := client.DefaultCollector.PullMetadata(context.Background(), &wrapperspb.StringValue{Value: now.Format(time.DateOnly)})
 			if err != nil {
 				return err
 			}
