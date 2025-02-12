@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/eviltomorrow/king/apps/king-brain/domain/feature"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -2,11 +2,9 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
-	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -53,9 +51,4 @@ func FindPossibleChance(ctx context.Context, date time.Time) {
 		}
 		wg.Wait()
 	}()
-
-	for k := range result {
-		desc, level := domain.CalculateFeatureFunc(k)
-		fmt.Printf("%d,%s,%s,[%s]\r\n", level, k.Code, k.Name, desc)
-	}
 }

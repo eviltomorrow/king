@@ -1,17 +1,21 @@
 package feature
 
 import (
+	"fmt"
+
 	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
+	"github.com/eviltomorrow/king/lib/mathutil"
 )
 
 func init() {
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 150 日均线", F: FeatureWithClosedGTMA150})
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线向上延伸", F: FeatureWithMA150UP})
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线反转", F: FeatureWithReversalMA150})
-	domain.RegisterFeatureFunc(&domain.Feature{Desc: "最近 5 天内收盘价靠近 150 日均线", F: FeatureWithNearbyMA150})
+	// domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 150 日均线", F: FeatureWithClosedGTMA150})
+	// domain.RegisterFeatureFunc(&domain.Feature{Desc: "收盘价高于 200 日均线", F: FeatureWithClosedGTMA150})
+	// domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线高于 200 日均线", F: FeatureWithMA150GTMA200})
+	// domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线向上延伸", F: FeatureWithMA150UP})
+	// domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线反转", F: FeatureWithReversalMA150})
+	// domain.RegisterFeatureFunc(&domain.Feature{Desc: "最近 5 天内收盘价靠近 150 日均线", F: FeatureWithNearbyMA150})
+	domain.RegisterFeatureFunc(&domain.Feature{Desc: "150 日均线角度大于 10 度ca", F: FeatureWithAngleGt30MA150})
 }
 
 func FeatureWithClosedGTMA_50(k *chart.K) bool {
@@ -95,6 +99,32 @@ func FeatureWithReversalMA150(k *chart.K) bool {
 		s1, s2 := trend[len(trend)-2], trend[len(trend)-1]
 		if len(s1) > 1 && (s1[len(s1)-1] <= s1[0]) && len(s2) > 1 && (s2[len(s2)-1] > s2[0]) {
 			return true
+		}
+	}
+	return false
+}
+
+func FeatureWithAngleGt30MA150(k *chart.K) bool {
+	trend := calculateTrendWithMA(chart.Ma150, k)
+
+	if len(trend) != 0 {
+		last := trend[len(trend)-1]
+		if len(la) > 1 {
+			x := mathutil.Point{
+				X: 0,
+				Y: trend[1][0],
+			}
+
+			y := mathutil.Point{
+				X: float64(len(trend[1])),
+				Y: trend[1][len(trend[1])-1],
+			}
+
+			angle := mathutil.Angle(x, y)
+			fmt.Println(k.Name, angle)
+			if angle > 3 {
+				return true
+			}
 		}
 	}
 	return false
