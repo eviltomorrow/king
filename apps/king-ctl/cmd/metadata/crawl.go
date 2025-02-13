@@ -23,7 +23,7 @@ var CrawlCommand = &cobra.Command{
 		defer closeFunc()
 		ClientCollector = stub
 
-		if err := crawl(context.Background()); err != nil {
+		if err := crawlMetadataSync(context.Background()); err != nil {
 			log.Printf("crawl data failure, nest error: %v", err)
 			return
 		}
@@ -37,7 +37,7 @@ func init() {
 	CrawlCommand.Flags().StringVar(&IPVar, "ip", "127.0.0.1", "指定服务端 IP 地址")
 }
 
-func crawl(ctx context.Context) error {
+func crawlMetadataSync(ctx context.Context) error {
 	begin := time.Now()
 
 	resp, err := ClientCollector.CrawlMetadataSync(ctx, &wrapperspb.StringValue{Value: source})
