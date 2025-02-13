@@ -16,7 +16,6 @@ import (
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
-	"github.com/eviltomorrow/king/apps/king-brain/domain/service"
 )
 
 type Finder struct {
@@ -31,76 +30,6 @@ func (c *Finder) Service() func(*grpc.Server) {
 	return func(server *grpc.Server) {
 		pb.RegisterFinderServer(server, c)
 	}
-}
-
-func (c *Finder) reportMarketStatus(ctx context.Context, date time.Time, kind string) (*pb.MarketStatus, error) {
-	status, err := service.ReportMarketStatus(ctx, date, kind)
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.MarketStatus{
-		Date: status.Date,
-		Week: status.Week,
-		MarketIndex: &pb.MarketIndex{
-			ShangZheng: &pb.Point{
-				Value:      status.MarketIndex.ShangZheng.Value,
-				HasChanged: status.MarketIndex.ShangZheng.HasChanged,
-			},
-			ShenZheng: &pb.Point{
-				Value:      status.MarketIndex.ShenZheng.Value,
-				HasChanged: status.MarketIndex.ShenZheng.HasChanged,
-			},
-			ChuangYe: &pb.Point{
-				Value:      status.MarketIndex.ChuangYe.Value,
-				HasChanged: status.MarketIndex.ChuangYe.HasChanged,
-			},
-			BeiZheng_50: &pb.Point{
-				Value:      status.MarketIndex.BeiZheng50.Value,
-				HasChanged: status.MarketIndex.BeiZheng50.HasChanged,
-			},
-			KeChuang_50: &pb.Point{
-				Value:      status.MarketIndex.KeChuang50.Value,
-				HasChanged: status.MarketIndex.KeChuang50.HasChanged,
-			},
-		},
-		MarketStockCount: &pb.MarketStockCount{
-			Total:     status.MarketStockCount.Total,
-			Rise:      status.MarketStockCount.Rise,
-			RiseGt_7:  status.MarketStockCount.RiseGT7,
-			RiseGt_15: status.MarketStockCount.RiseGT15,
-			Fell:      status.MarketStockCount.Fell,
-			FellGt_7:  status.MarketStockCount.FellGT7,
-			FellGt_15: status.MarketStockCount.FellGT15,
-		},
-	}
-	return result, nil
-}
-
-func (c *Finder) ReportDaily(ctx context.Context, req *wrapperspb.StringValue) (*pb.MarketStatus, error) {
-	if req == nil {
-		return nil, fmt.Errorf("invalid request, req is nil")
-	}
-
-	t, err := time.ParseInLocation(time.DateOnly, req.Value, time.Local)
-	if err != nil {
-		return nil, fmt.Errorf("parse time failure, nest error: %v", err)
-	}
-
-	return c.reportMarketStatus(ctx, t, "day")
-}
-
-func (c *Finder) ReportWeekly(ctx context.Context, req *wrapperspb.StringValue) (*pb.MarketStatus, error) {
-	if req == nil {
-		return nil, fmt.Errorf("invalid request, req is nil")
-	}
-
-	t, err := time.ParseInLocation(time.DateOnly, req.Value, time.Local)
-	if err != nil {
-		return nil, fmt.Errorf("parse time failure, nest error: %v", err)
-	}
-
-	return c.reportMarketStatus(ctx, t, "week")
 }
 
 func (c *Finder) FindPossibleChance(ctx context.Context, req *wrapperspb.StringValue) (*pb.Chances, error) {

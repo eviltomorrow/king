@@ -28,7 +28,6 @@ func init() {
 	RootCommand.AddCommand(metadata.ArchiveCommand)
 	RootCommand.AddCommand(metadata.CrawlCommand)
 	RootCommand.AddCommand(metadata.ShowCommand)
-	RootCommand.AddCommand(metadata.ReportCommand)
 }
 
 func RunApp() error {

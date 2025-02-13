@@ -20,8 +20,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Finder_ReportDaily_FullMethodName        = "/brain.Finder/ReportDaily"
-	Finder_ReportWeekly_FullMethodName       = "/brain.Finder/ReportWeekly"
 	Finder_FindPossibleChance_FullMethodName = "/brain.Finder/FindPossibleChance"
 )
 
@@ -29,8 +27,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FinderClient interface {
-	ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
-	ReportWeekly(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error)
 	FindPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chances, error)
 }
 
@@ -40,26 +36,6 @@ type finderClient struct {
 
 func NewFinderClient(cc grpc.ClientConnInterface) FinderClient {
 	return &finderClient{cc}
-}
-
-func (c *finderClient) ReportDaily(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MarketStatus)
-	err := c.cc.Invoke(ctx, Finder_ReportDaily_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *finderClient) ReportWeekly(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*MarketStatus, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MarketStatus)
-	err := c.cc.Invoke(ctx, Finder_ReportWeekly_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *finderClient) FindPossibleChance(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Chances, error) {
@@ -76,8 +52,6 @@ func (c *finderClient) FindPossibleChance(ctx context.Context, in *wrapperspb.St
 // All implementations must embed UnimplementedFinderServer
 // for forward compatibility.
 type FinderServer interface {
-	ReportDaily(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
-	ReportWeekly(context.Context, *wrapperspb.StringValue) (*MarketStatus, error)
 	FindPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error)
 	mustEmbedUnimplementedFinderServer()
 }
@@ -89,12 +63,6 @@ type FinderServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFinderServer struct{}
 
-func (UnimplementedFinderServer) ReportDaily(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReportDaily not implemented")
-}
-func (UnimplementedFinderServer) ReportWeekly(context.Context, *wrapperspb.StringValue) (*MarketStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReportWeekly not implemented")
-}
 func (UnimplementedFinderServer) FindPossibleChance(context.Context, *wrapperspb.StringValue) (*Chances, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindPossibleChance not implemented")
 }
@@ -117,42 +85,6 @@ func RegisterFinderServer(s grpc.ServiceRegistrar, srv FinderServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Finder_ServiceDesc, srv)
-}
-
-func _Finder_ReportDaily_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FinderServer).ReportDaily(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Finder_ReportDaily_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FinderServer).ReportDaily(ctx, req.(*wrapperspb.StringValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Finder_ReportWeekly_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FinderServer).ReportWeekly(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Finder_ReportWeekly_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FinderServer).ReportWeekly(ctx, req.(*wrapperspb.StringValue))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Finder_FindPossibleChance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -180,14 +112,6 @@ var Finder_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "brain.Finder",
 	HandlerType: (*FinderServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ReportDaily",
-			Handler:    _Finder_ReportDaily_Handler,
-		},
-		{
-			MethodName: "ReportWeekly",
-			Handler:    _Finder_ReportWeekly_Handler,
-		},
 		{
 			MethodName: "FindPossibleChance",
 			Handler:    _Finder_FindPossibleChance_Handler,
