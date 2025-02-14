@@ -95,11 +95,11 @@ func RunApp() error {
 	cron := service.NewScheduler()
 	for _, c := range c.Crons {
 		plan, ok := domain.GetPlan(c.Plan)
-		zlog.Debug("Plan will be register", zap.String("name", plan.GetAlias()))
 		if ok {
 			if err := cron.Register(c.Crontab, plan); err != nil {
 				return err
 			}
+			zlog.Debug("Plan will be register", zap.String("name", plan.GetAlias()))
 		}
 	}
 	if err := cron.Start(); err != nil {
