@@ -123,7 +123,7 @@ func CronWithStoreMetadata() *domain.Plan {
 		},
 
 		NotifyWithError: func(err error) error {
-			return notification.DefaultNotifyForNtfyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"缓存数据", "数据库"})
+			return notification.DefaultNotifyForNtfyWithError(NameWithStoreMetadata, fmt.Errorf("failure: %v", err), []string{"存储数据", "数据库"})
 		},
 
 		Status: domain.Ready,
