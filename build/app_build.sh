@@ -25,7 +25,7 @@ GCFLAGS="all=${TRIMGOPATH}"
 
 CGO_ENABLED=$(echo $CGO_ENABLED)
 RACEFLAGS=""
-if [ ${CGO_ENABLED} == 1 ]; then
+if [ "${CGO_ENABLED}" == "1" ]; then
     RACEFLAGS="-race"
 fi
 

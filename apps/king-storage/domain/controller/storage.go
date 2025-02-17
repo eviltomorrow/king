@@ -148,24 +148,6 @@ func (g *Storage) CountQuote(ctx context.Context, req *pb.CountQuoteRequest) (*p
 	return &pb.CountQuoteRepsonse{Value: result}, nil
 }
 
-// func (g *Storage) ShowMetadata(ctx context.Context, req *wrapperspb.StringValue) (*pb.ShowResponse, error) {
-// 	if req == nil {
-// 		return nil, fmt.Errorf("invalid request, date is nil")
-// 	}
-
-// 	days, err := db.QuoteWithCountByDate(ctx, mysql.DB, db.Day, req.Value)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	weeks, err := db.QuoteWithCountByDate(ctx, mysql.DB, db.Week, req.Value)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &pb.ShowResponse{Queried: &pb.ShowResponse_QueriedCount{Days: days, Weeks: weeks}}, nil
-// }
-
 func (g *Storage) GetStockAll(_ *emptypb.Empty, gs pb.Storage_GetStockAllServer) error {
 	var offset, limit int64 = 0, 100
 
