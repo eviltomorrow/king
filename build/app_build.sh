@@ -23,6 +23,12 @@ done
 
 GCFLAGS="all=${TRIMGOPATH}"
 
+CGO_ENABLED=$(echo $CGO_ENABLED)
+RACEFLAGS=""
+if [ ${CGO_ENABLED} == 1 ]; then
+    RACEFLAGS="-race"
+fi
+
 function build_app(){
     LDFLAGS="-X main.AppName=${1} -X main.MainVersion=${MAINVERSION} -X main.GitSha=${GITSHA} -X main.BuildTime=${BUILDTIME} -s -w"
 
@@ -34,7 +40,7 @@ function build_app(){
     fi
 
     echo "go build -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go"
-    go build -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go
+    go build ${RACEFLAGS} -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${bin_dir}/${1}/bin/${1} ${app_dir}/${1}/main.go
 
     echo -e "\033[32m=> Build Success\033[0m"
 }

@@ -33,6 +33,17 @@ fmt: go_version_check
 		gofmt -l -s -w $$d/*.go || ret=$$? ; \
 	done ; exit $$ret
 
+
+.PHONY: race
+race: export CGO_ENABLED=1
+race: fmt
+	@mkdir -p bin
+ifeq (${app},)
+	@bash build/app_build.sh
+else
+	@bash build/app_build.sh ${app}
+endif
+
 # build
 .PHONY: build
 build: export CGO_ENABLED=0
