@@ -9,13 +9,13 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type MaKind string
+type DayNum string
 
 const (
-	Ma_10 MaKind = "ma_10"
-	Ma_50 MaKind = "ma_50"
-	Ma150 MaKind = "ma150"
-	Ma200 MaKind = "ma200"
+	DAY_10 DayNum = "10"
+	DAY_50 DayNum = "50"
+	DAY150 DayNum = "150"
+	DAY200 DayNum = "200"
 )
 
 type K struct {
@@ -40,13 +40,21 @@ type Candlestick struct {
 	Volume  int64
 	Account float64
 
-	MA         map[MaKind]float64
-	Volatility *Volatility // 波动
+	Indicators Indicators
+}
+
+type Indicators struct {
+	Trend      *Trend
+	Volatility *Volatility
 }
 
 func (c *Candlestick) String() string {
 	buf, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(c)
 	return string(buf)
+}
+
+type Trend struct {
+	MA map[DayNum]float64
 }
 
 type Volatility struct {
@@ -87,29 +95,34 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 		}
 
 		c := &Candlestick{
-			Date:       date,
-			High:       quote.High,
-			Low:        quote.Low,
-			Open:       quote.Open,
-			Close:      quote.Close,
-			Volume:     quote.Volume,
-			Account:    quote.Account,
-			MA:         make(map[MaKind]float64, 5),
-			Volatility: v,
+			Date:    date,
+			High:    quote.High,
+			Low:     quote.Low,
+			Open:    quote.Open,
+			Close:   quote.Close,
+			Volume:  quote.Volume,
+			Account: quote.Account,
+
+			Indicators: Indicators{
+				Trend: &Trend{
+					MA: make(map[DayNum]float64),
+				},
+				Volatility: v,
+			},
 		}
 
 		closed = append(closed, quote.Close)
 		if len(closed) >= 10 {
-			c.MA[Ma_10] = calculateMa(closed[i-10+1 : i+1])
+			c.Indicators.Trend.MA[DAY_10] = calculateMa(closed[i-10+1 : i+1])
 		}
 		if len(closed) >= 50 {
-			c.MA[Ma_50] = calculateMa(closed[i-50+1 : i+1])
+			c.Indicators.Trend.MA[DAY_50] = calculateMa(closed[i-50+1 : i+1])
 		}
 		if len(closed) >= 150 {
-			c.MA[Ma150] = calculateMa(closed[i-150+1 : i+1])
+			c.Indicators.Trend.MA[DAY150] = calculateMa(closed[i-150+1 : i+1])
 		}
 		if len(closed) >= 200 {
-			c.MA[Ma200] = calculateMa(closed[i-200+1 : i+1])
+			c.Indicators.Trend.MA[DAY200] = calculateMa(closed[i-200+1 : i+1])
 		}
 		candlesticks = append(candlesticks, c)
 	}

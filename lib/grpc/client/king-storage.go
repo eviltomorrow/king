@@ -1,14 +1,9 @@
 package client
 
 import (
-	"fmt"
-
 	"github.com/eviltomorrow/king/lib/finalizer"
+	"github.com/eviltomorrow/king/lib/grpc/client/internal"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-storage"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/balancer/roundrobin"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var DefaultStorage pb.StorageClient
@@ -26,12 +21,7 @@ func InitStorage() error {
 
 func NewStorageWithEtcd() (pb.StorageClient, func() error, error) {
 	target := "etcd:///grpclb/king-storage"
-	conn, err := grpc.NewClient(
-		target,
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-	)
+	conn, err := internal.DialWithEtcd(target)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -39,11 +29,7 @@ func NewStorageWithEtcd() (pb.StorageClient, func() error, error) {
 }
 
 func NewStorageWithTarget(target string) (pb.StorageClient, func() error, error) {
-	conn, err := grpc.NewClient(
-		target,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-	)
+	conn, err := internal.DialWithDirect(target)
 	if err != nil {
 		return nil, nil, err
 	}

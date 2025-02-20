@@ -1,23 +1,23 @@
-package service
+package model
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 )
 
-type Plan struct{}
+func init() {
+	domain.RegisterModel(&domain.Model{})
+}
 
-func AnalysisChartFindBuyPoint(ctx context.Context, k *chart.K) (*Plan, bool) {
+func F_01(k *chart.K) (*domain.Plan, bool) {
 	if len(k.Candlesticks) == 0 {
 		return nil, false
 	}
 
 	for _, c := range k.Candlesticks {
-		fmt.Println(c.String())
+		fmt.Println(c)
 	}
 	return nil, false
 }
-
-func assume()

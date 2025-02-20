@@ -1,14 +1,9 @@
 package client
 
 import (
-	"fmt"
-
 	"github.com/eviltomorrow/king/lib/finalizer"
+	"github.com/eviltomorrow/king/lib/grpc/client/internal"
 	pb "github.com/eviltomorrow/king/lib/grpc/pb/king-auth"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/balancer/roundrobin"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var DefaultPassport pb.PassportClient
@@ -26,12 +21,7 @@ func InitPassport() error {
 
 func NewAuthWithEtcd() (pb.PassportClient, func() error, error) {
 	target := "etcd:///grpclb/king-auth"
-	conn, err := grpc.NewClient(
-		target,
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-	)
+	conn, err := internal.DialWithEtcd(target)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -39,11 +29,7 @@ func NewAuthWithEtcd() (pb.PassportClient, func() error, error) {
 }
 
 func NewAuthWithTarget(target string) (pb.PassportClient, func() error, error) {
-	conn, err := grpc.NewClient(
-		target,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-	)
+	conn, err := internal.DialWithDirect(target)
 	if err != nil {
 		return nil, nil, err
 	}

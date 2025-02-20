@@ -1,4 +1,4 @@
-package service
+package model
 
 import (
 	"context"
@@ -10,22 +10,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAnalysisChart(t *testing.T) {
+func TestF01(t *testing.T) {
 	assert := assert.New(t)
 
-	date := time.Now()
 	stock := &data.Stock{
 		Code: "sh601933",
-		Name: "永辉超市",
+		Name: "--",
 	}
+	date := time.Date(2025, time.February, 20, 12, 0, 0, 0, time.Local)
 
-	ctx := context.Background()
-
-	quotes, err := data.GetQuotesN(ctx, date, stock.Code, "day", 250)
+	quotes, err := data.GetQuotesN(context.Background(), date, stock.Code, "day", 250)
 	assert.Nil(err)
 
-	k, err := chart.NewK(ctx, stock, quotes)
+	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
-	AnalysisChartFindBuyPoint(ctx, k)
+	F_01(k)
 }
