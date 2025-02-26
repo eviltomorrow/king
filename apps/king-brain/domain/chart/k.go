@@ -113,16 +113,16 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 
 		closed = append(closed, quote.Close)
 		if len(closed) >= 10 {
-			c.Indicators.Trend.MA[DAY_10] = calculateMa(closed[i-10+1 : i+1])
+			c.Indicators.Trend.MA[DAY_10] = CalculateMa(closed[i-10+1 : i+1])
 		}
 		if len(closed) >= 50 {
-			c.Indicators.Trend.MA[DAY_50] = calculateMa(closed[i-50+1 : i+1])
+			c.Indicators.Trend.MA[DAY_50] = CalculateMa(closed[i-50+1 : i+1])
 		}
 		if len(closed) >= 150 {
-			c.Indicators.Trend.MA[DAY150] = calculateMa(closed[i-150+1 : i+1])
+			c.Indicators.Trend.MA[DAY150] = CalculateMa(closed[i-150+1 : i+1])
 		}
 		if len(closed) >= 200 {
-			c.Indicators.Trend.MA[DAY200] = calculateMa(closed[i-200+1 : i+1])
+			c.Indicators.Trend.MA[DAY200] = CalculateMa(closed[i-200+1 : i+1])
 		}
 		candlesticks = append(candlesticks, c)
 	}

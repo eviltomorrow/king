@@ -1,10 +1,9 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
+	"github.com/eviltomorrow/king/apps/king-brain/domain/feature"
 )
 
 func init() {
@@ -16,8 +15,8 @@ func F_01(k *chart.K) (*domain.Plan, bool) {
 		return nil, false
 	}
 
-	for _, c := range k.Candlesticks {
-		fmt.Println(c)
+	if !feature.MA150IsUP(k) {
+		return nil, false
 	}
 	return nil, false
 }
