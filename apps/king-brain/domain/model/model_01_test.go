@@ -25,5 +25,8 @@ func TestF01(t *testing.T) {
 	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
-	F_01(k)
+	_, ok := F_01(k)
+	if ok {
+		t.Log(true)
+	}
 }

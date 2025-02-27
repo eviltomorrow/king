@@ -18,5 +18,5 @@ func F_01(k *chart.K) (*domain.Plan, bool) {
 	if !feature.MA150IsUP(k) {
 		return nil, false
 	}
-	return nil, false
+	return nil, true
 }

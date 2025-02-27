@@ -22,5 +22,15 @@ func MA150IsUP(k *chart.K) bool {
 }
 
 func MA150NearByClosed(k *chart.K) bool {
+	if len(k.Candlesticks) == 0 {
+		return false
+	}
+
+	last := k.Candlesticks[len(k.Candlesticks)-1]
+	ma150 := last.Indicators.Trend.MA[chart.DAY150]
+
+	if last.High > ma150 && last.Low < ma150 {
+		return true
+	}
 	return false
 }
