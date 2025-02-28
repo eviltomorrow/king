@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
 	"github.com/eviltomorrow/king/lib/zlog"
@@ -15,8 +17,7 @@ func FindPossibleChance(ctx context.Context, date time.Time) {
 	var (
 		wg sync.WaitGroup
 
-		pipe   = make(chan *data.Stock, 64)
-		result = make(chan *chart.K, 64)
+		pipe = make(chan *data.Stock, 64)
 	)
 
 	for i := 0; i < 10; i++ {
@@ -33,7 +34,11 @@ func FindPossibleChance(ctx context.Context, date time.Time) {
 					zlog.Error("NewK failure", zap.Error(err), zap.String("code", stock.Code))
 					continue
 				}
-				result <- k
+
+				plans := domain.ScanModel(k)
+				if len(plans) != 0 {
+					fmt.Println(k.Name)
+				}
 			}
 
 			wg.Done()
@@ -41,14 +46,12 @@ func FindPossibleChance(ctx context.Context, date time.Time) {
 	}
 
 	go func() {
-		defer func() {
-			close(result)
-		}()
-
 		if err := data.FetchStock(context.Background(), pipe); err != nil {
 			zlog.Error("FetchStock failure", zap.Error(err))
 			return
 		}
 		wg.Wait()
 	}()
+
+	time.Sleep(3 * time.Minute)
 }

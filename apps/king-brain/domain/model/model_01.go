@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	domain.RegisterModel(&domain.Model{})
+	domain.RegisterModel(&domain.Model{Desc: "", F: F_01})
 }
 
 func F_01(k *chart.K) (*domain.Plan, bool) {
@@ -16,6 +16,10 @@ func F_01(k *chart.K) (*domain.Plan, bool) {
 	}
 
 	if !feature.MA150IsUP(k) {
+		return nil, false
+	}
+
+	if !feature.MA150NearByClosed(k) {
 		return nil, false
 	}
 	return nil, true

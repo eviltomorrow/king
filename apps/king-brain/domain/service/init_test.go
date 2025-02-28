@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/eviltomorrow/king/apps/king-brain/conf"
+	_ "github.com/eviltomorrow/king/apps/king-brain/domain/model"
 	"github.com/eviltomorrow/king/lib/envutil"
 	"github.com/eviltomorrow/king/lib/flagsutil"
 	"github.com/eviltomorrow/king/lib/grpc/client"
