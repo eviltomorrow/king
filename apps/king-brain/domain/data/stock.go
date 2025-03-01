@@ -25,9 +25,6 @@ func (s *Stock) String() string {
 }
 
 func FetchStock(ctx context.Context, pipe chan *Stock) error {
-	if pipe == nil {
-		return fmt.Errorf("panic: invalid pipe")
-	}
 	defer func() {
 		close(pipe)
 	}()

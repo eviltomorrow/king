@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -14,5 +15,6 @@ func TestFindPossibleChance(t *testing.T) {
 	current, err := time.Parse(time.DateOnly, time.Now().Format(time.DateOnly))
 	assert.Nil(err)
 
-	FindPossibleChance(context.Background(), current)
+	plans := FindPossibleChance(context.Background(), current)
+	fmt.Println(len(plans))
 }

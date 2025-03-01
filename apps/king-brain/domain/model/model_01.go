@@ -22,5 +22,10 @@ func F_01(k *chart.K) (*domain.Plan, bool) {
 	if !feature.MA150NearByClosed(k) {
 		return nil, false
 	}
-	return nil, true
+
+	if !feature.MA150GtMA200(k) {
+		return nil, false
+	}
+
+	return &domain.Plan{K: k}, true
 }

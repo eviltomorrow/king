@@ -13,17 +13,18 @@ import (
 	"go.uber.org/zap"
 )
 
-func FindPossibleChance(ctx context.Context, date time.Time) {
+func FindPossibleChance(ctx context.Context, date time.Time) []*domain.Plan {
 	var (
 		wg sync.WaitGroup
 
-		pipe = make(chan *data.Stock, 64)
+		pipeCh = make(chan *data.Stock, 64)
+		planCh = make(chan *domain.Plan, 16)
 	)
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 16; i++ {
 		wg.Add(1)
 		go func() {
-			for stock := range pipe {
+			for stock := range pipeCh {
 				quotes, err := data.GetQuotesN(ctx, date, stock.Code, "day", 250)
 				if err != nil {
 					zlog.Error("GetQuote failure", zap.Error(err), zap.String("code", stock.Code))
@@ -35,9 +36,8 @@ func FindPossibleChance(ctx context.Context, date time.Time) {
 					continue
 				}
 
-				plans := domain.ScanModel(k)
-				if len(plans) != 0 {
-					fmt.Println(k.Name)
+				for _, plan := range domain.ScanModel(k) {
+					planCh <- plan
 				}
 			}
 
@@ -46,12 +46,21 @@ func FindPossibleChance(ctx context.Context, date time.Time) {
 	}
 
 	go func() {
-		if err := data.FetchStock(context.Background(), pipe); err != nil {
+		defer func() {
+			close(planCh)
+		}()
+
+		if err := data.FetchStock(context.Background(), pipeCh); err != nil {
 			zlog.Error("FetchStock failure", zap.Error(err))
-			return
 		}
 		wg.Wait()
 	}()
 
-	time.Sleep(3 * time.Minute)
+	plans := make([]*domain.Plan, 0, 64)
+	for plan := range planCh {
+		fmt.Println(plan.K.Code, plan.K.Name)
+		plans = append(plans, plan)
+	}
+
+	return plans
 }

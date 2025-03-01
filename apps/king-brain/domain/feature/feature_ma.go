@@ -34,3 +34,17 @@ func MA150NearByClosed(k *chart.K) bool {
 	}
 	return false
 }
+
+func MA150GtMA200(k *chart.K) bool {
+	if len(k.Candlesticks) == 0 {
+		return false
+	}
+
+	last := k.Candlesticks[len(k.Candlesticks)-1]
+	ma150, ma200 := last.Indicators.Trend.MA[chart.DAY150], last.Indicators.Trend.MA[chart.DAY200]
+
+	if ma150 > ma200 {
+		return true
+	}
+	return false
+}
