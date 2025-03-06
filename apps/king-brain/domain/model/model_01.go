@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
@@ -63,11 +64,15 @@ func InferClosedbyMa(k *chart.K, day int) (float64, bool) {
 	// fmt.Println(c)
 	// // c = 750.44
 
-	// c := 4.26
+	c := 4.28
 	// fmt.Println(closed)
 	// sum1 := mathutil.Sum(closed[:])
-	// sum2 := mathutil.Sum(closed[1:])
-
+	sum2 := mathutil.SumFloat64(closed[1:])
+	dd, _ := sum2.Float64()
+	aa := new(big.Float).SetPrec(64).SetFloat64(c)
+	bb := aa.Mul(aa, new(big.Float).SetPrec(64).SetFloat64(150))
+	cc := bb.Sub(bb, new(big.Float).SetPrec(64).SetFloat64(dd))
+	fmt.Println(cc)
 	// fmt.Println(sum1, sum2)
 	// fmt.Println((sum2 + 5.02) / 150)
 	// fmt.Println(sum1/150, sum2)
