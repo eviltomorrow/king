@@ -1,0 +1,2 @@
+{"level":"ERROR","time":"2025/03/06 17:07:36.506 +08:00","caller":"model_01.go:60","message":"infer ma failure","error":"[]x != []y"}
+{"level":"ERROR","time":"2025/03/06 17:08:10.816 +08:00","caller":"model_01.go:60","message":"infer ma failure","error":"[]x != []y"}

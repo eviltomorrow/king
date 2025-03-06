@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
@@ -9,20 +10,47 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type DayNum string
+// type DayNum string
 
-const (
-	DAY_10 DayNum = "10"
-	DAY_50 DayNum = "50"
-	DAY150 DayNum = "150"
-	DAY200 DayNum = "200"
-)
+// const (
+// 	DAY_10 DayNum = "10"
+// 	DAY_50 DayNum = "50"
+// 	DAY150 DayNum = "150"
+// 	DAY200 DayNum = "200"
+// )
 
 type K struct {
 	Name string
 	Code string
 
 	Candlesticks []*Candlestick
+}
+
+func (k *K) CalMA(day int) {
+	closed := make([]float64, 0, len(k.Candlesticks))
+
+	for i, c := range k.Candlesticks {
+		closed = append(closed, c.Close)
+		if len(closed) >= day {
+			c.Indicators.Trend.MA[day] = CalculateMa(closed[i-day+1 : i+1])
+		}
+	}
+	fmt.Println(closed[100:])
+}
+
+func (k *K) CalMoreMA(day []int) {
+	closed := make([]float64, 0, len(k.Candlesticks))
+
+	for i, c := range k.Candlesticks {
+		closed = append(closed, c.Close)
+
+		for _, d := range day {
+			if len(closed) >= d {
+				c.Indicators.Trend.MA[d] = CalculateMa(closed[i-d+1 : i+1])
+			}
+		}
+
+	}
 }
 
 func (k *K) String() string {
@@ -54,7 +82,7 @@ func (c *Candlestick) String() string {
 }
 
 type Trend struct {
-	MA map[DayNum]float64
+	MA map[int]float64
 }
 
 type Volatility struct {
@@ -65,11 +93,8 @@ type Volatility struct {
 }
 
 func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, error) {
-	var (
-		candlesticks = make([]*Candlestick, 0, len(quotes))
-
-		closed = make([]float64, 0, len(quotes))
-	)
+	candlesticks := make([]*Candlestick, 0, len(quotes))
+	// closed = make([]float64, 0, len(quotes))
 	for i, quote := range quotes {
 		date, err := time.Parse(time.DateOnly, quote.Date)
 		if err != nil {
@@ -105,25 +130,25 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 
 			Indicators: Indicators{
 				Trend: &Trend{
-					MA: make(map[DayNum]float64),
+					MA: make(map[int]float64),
 				},
 				Volatility: v,
 			},
 		}
 
-		closed = append(closed, quote.Close)
-		if len(closed) >= 10 {
-			c.Indicators.Trend.MA[DAY_10] = CalculateMa(closed[i-10+1 : i+1])
-		}
-		if len(closed) >= 50 {
-			c.Indicators.Trend.MA[DAY_50] = CalculateMa(closed[i-50+1 : i+1])
-		}
-		if len(closed) >= 150 {
-			c.Indicators.Trend.MA[DAY150] = CalculateMa(closed[i-150+1 : i+1])
-		}
-		if len(closed) >= 200 {
-			c.Indicators.Trend.MA[DAY200] = CalculateMa(closed[i-200+1 : i+1])
-		}
+		// closed = append(closed, quote.Close)
+		// if len(closed) >= 10 {
+		// 	c.Indicators.Trend.MA[DAY_10] = CalculateMa(closed[i-10+1 : i+1])
+		// }
+		// if len(closed) >= 50 {
+		// 	c.Indicators.Trend.MA[DAY_50] = CalculateMa(closed[i-50+1 : i+1])
+		// }
+		// if len(closed) >= 150 {
+		// 	c.Indicators.Trend.MA[DAY150] = CalculateMa(closed[i-150+1 : i+1])
+		// }
+		// if len(closed) >= 200 {
+		// 	c.Indicators.Trend.MA[DAY200] = CalculateMa(closed[i-200+1 : i+1])
+		// }
 		candlesticks = append(candlesticks, c)
 	}
 

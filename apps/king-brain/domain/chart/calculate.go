@@ -7,9 +7,10 @@ import (
 func CalculateMa(closed []float64) float64 {
 	sum := mathutil.Sum(closed)
 	return mathutil.Trunc2(sum / float64(len(closed)))
+	// return sum / float64(len(closed))
 }
 
-func CalculateTrendWithMA(kind DayNum, k *K) [][]float64 {
+func CalculateTrendWithMA(kind int, k *K) [][]float64 {
 	if len(k.Candlesticks) == 0 {
 		return nil
 	}

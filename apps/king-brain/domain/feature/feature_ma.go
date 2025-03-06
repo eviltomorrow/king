@@ -5,7 +5,7 @@ import (
 )
 
 func MA150IsUP(k *chart.K) bool {
-	trend := chart.CalculateTrendWithMA(chart.DAY150, k)
+	trend := chart.CalculateTrendWithMA(150, k)
 	if len(trend) == 0 {
 		return false
 	}
@@ -27,7 +27,7 @@ func MA150NearByClosed(k *chart.K) bool {
 	}
 
 	last := k.Candlesticks[len(k.Candlesticks)-1]
-	ma150 := last.Indicators.Trend.MA[chart.DAY150]
+	ma150 := last.Indicators.Trend.MA[150]
 
 	if last.High > ma150 && last.Low < ma150 {
 		return true
@@ -41,7 +41,7 @@ func MA150GtMA200(k *chart.K) bool {
 	}
 
 	last := k.Candlesticks[len(k.Candlesticks)-1]
-	ma150, ma200 := last.Indicators.Trend.MA[chart.DAY150], last.Indicators.Trend.MA[chart.DAY200]
+	ma150, ma200 := last.Indicators.Trend.MA[150], last.Indicators.Trend.MA[150]
 
 	if ma150 > ma200 {
 		return true
