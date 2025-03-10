@@ -1,15 +1,8 @@
 package chart
 
-import (
-	"github.com/eviltomorrow/king/lib/mathutil"
-)
+import "github.com/eviltomorrow/king/lib/mathutil"
 
-func CalculateMa(closed []float64) float64 {
-	sum := mathutil.Sum(closed)
-	return mathutil.Trunc2(sum / float64(len(closed)))
-}
-
-func CalculateTrendWithMA(kind int, k *K) [][]float64 {
+func CalculateMaToSegment(k *K, day int) [][]float64 {
 	if len(k.Candlesticks) == 0 {
 		return nil
 	}
@@ -17,7 +10,7 @@ func CalculateTrendWithMA(kind int, k *K) [][]float64 {
 	ma := make([]float64, 0, len(k.Candlesticks))
 	begin := -1
 	for i, candlestick := range k.Candlesticks {
-		val, ok := candlestick.Indicators.Trend.MA[kind]
+		val, ok := candlestick.Indicators.Trend.MA[day]
 		if !ok {
 			continue
 		}
@@ -72,4 +65,45 @@ func CalculateTrendWithMA(kind int, k *K) [][]float64 {
 	}
 
 	return trend
+}
+
+func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
+	result := make([]float64, 0, day)
+
+	x := make([]float64, 0, len(k.Candlesticks))
+	y := make([]float64, 0, len(k.Candlesticks))
+	n := 0
+	for _, c := range k.Candlesticks {
+		val, ok := c.Indicators.Trend.MA[day]
+		if ok {
+			n++
+			x = append(x, float64(n))
+			y = append(y, val)
+		}
+
+	}
+
+	a, b, err := mathutil.LeastSquares(x, y)
+	if err != nil {
+		return nil, err
+	}
+	next := a*float64(n+1) + b
+	result = append(result, mathutil.Trunc4(next))
+
+	for i := 1; i < day; i++ {
+		n = n + i
+		x = append(x, float64(n))
+		y = append(y, next)
+
+		a, b, err := mathutil.LeastSquares(x, y)
+		if err != nil {
+			return nil, err
+		}
+
+		next = a*float64(n+1) + b
+		result = append(result, next)
+
+	}
+
+	return result, nil
 }

@@ -25,18 +25,19 @@ type K struct {
 	Candlesticks []*Candlestick
 }
 
-func (k *K) CalMA(day int) {
+func (k *K) CalMa(day int) {
 	closed := make([]float64, 0, len(k.Candlesticks))
 
 	for i, c := range k.Candlesticks {
 		closed = append(closed, c.Close)
 		if len(closed) >= day {
-			c.Indicators.Trend.MA[day] = CalculateMa(closed[i-day+1 : i+1])
+			sum := mathutil.Sum(closed[i-day+1 : i+1])
+			c.Indicators.Trend.MA[day] = mathutil.Trunc4(sum / float64(day))
 		}
 	}
 }
 
-func (k *K) CalMoreMA(day []int) {
+func (k *K) CalMaMany(day []int) {
 	closed := make([]float64, 0, len(k.Candlesticks))
 
 	for i, c := range k.Candlesticks {
@@ -44,10 +45,10 @@ func (k *K) CalMoreMA(day []int) {
 
 		for _, d := range day {
 			if len(closed) >= d {
-				c.Indicators.Trend.MA[d] = CalculateMa(closed[i-d+1 : i+1])
+				sum := mathutil.Sum(closed[i-d+1 : i+1])
+				c.Indicators.Trend.MA[d] = mathutil.Trunc4(sum / float64(d))
 			}
 		}
-
 	}
 }
 

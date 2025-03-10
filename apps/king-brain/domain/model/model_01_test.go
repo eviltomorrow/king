@@ -29,6 +29,6 @@ func TestF01(t *testing.T) {
 
 	plan, ok := F_01(k)
 	if ok {
-		fmt.Println(plan)
+		fmt.Println(plan.K.Candlesticks[len(plan.K.Candlesticks)-1])
 	}
 }
