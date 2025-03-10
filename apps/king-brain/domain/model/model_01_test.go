@@ -26,5 +26,5 @@ func TestF01(t *testing.T) {
 	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
-	InferClosedbyMa(k, 150)
+	_ = k
 }

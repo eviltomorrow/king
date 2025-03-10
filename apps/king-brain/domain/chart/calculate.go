@@ -5,10 +5,8 @@ import (
 )
 
 func CalculateMa(closed []float64) float64 {
-	sum := mathutil.SumFloat64(closed)
-	val, _ := sum.Float64()
-	return mathutil.Trunc2(val / float64(len(closed)))
-	// return sum / float64(len(closed))
+	sum := mathutil.Sum(closed)
+	return sum / float64(len(closed))
 }
 
 func CalculateTrendWithMA(kind int, k *K) [][]float64 {

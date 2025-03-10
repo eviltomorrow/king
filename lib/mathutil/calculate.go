@@ -1,7 +1,6 @@
 package mathutil
 
 import (
-	"math/big"
 	"math/rand"
 	"time"
 )
@@ -40,15 +39,6 @@ func Sum[T int | uint | int64 | uint64 | float64](data []T) T {
 	var sum T
 	for _, d := range data {
 		sum += d
-	}
-	return sum
-}
-
-func SumFloat64(data []float64) *big.Float {
-	sum := &big.Float{}
-	for _, d := range data {
-		f := new(big.Float).SetPrec(64).SetFloat64(d)
-		sum.Add(sum, f)
 	}
 	return sum
 }

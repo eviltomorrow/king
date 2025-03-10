@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/eviltomorrow/king/apps/king-brain/domain/data"
@@ -35,7 +34,6 @@ func (k *K) CalMA(day int) {
 			c.Indicators.Trend.MA[day] = CalculateMa(closed[i-day+1 : i+1])
 		}
 	}
-	fmt.Println(closed[100:])
 }
 
 func (k *K) CalMoreMA(day []int) {
