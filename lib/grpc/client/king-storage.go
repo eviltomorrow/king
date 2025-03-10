@@ -19,6 +19,17 @@ func InitStorage() error {
 	return nil
 }
 
+func InitStorageWithTarget(target string) error {
+	client, shutdown, err := NewStorageWithTarget(target)
+	if err != nil {
+		return err
+	}
+	finalizer.RegisterCleanupFuncs(shutdown)
+
+	DefaultStorage = client
+	return nil
+}
+
 func NewStorageWithEtcd() (pb.StorageClient, func() error, error) {
 	target := "etcd:///grpclb/king-storage"
 	conn, err := internal.DialWithEtcd(target)

@@ -125,3 +125,13 @@ func InitClientForGRPC(fs ...func() error) error {
 	}
 	return nil
 }
+
+func InitClientForGRPCWithTarget(target string, fs ...func(string) error) error {
+	resolver.Register(lb.NewBuilder(etcd.Client))
+	for _, f := range fs {
+		if err := f(target); err != nil {
+			return err
+		}
+	}
+	return nil
+}
