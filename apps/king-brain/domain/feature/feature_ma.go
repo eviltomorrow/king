@@ -41,7 +41,7 @@ func MA150GtMA200(k *chart.K) bool {
 	}
 
 	last := k.Candlesticks[len(k.Candlesticks)-1]
-	ma150, ma200 := last.Indicators.Trend.MA[150], last.Indicators.Trend.MA[150]
+	ma150, ma200 := last.Indicators.Trend.MA[150], last.Indicators.Trend.MA[200]
 
 	if ma150 > ma200 {
 		return true

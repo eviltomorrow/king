@@ -1,10 +1,9 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/eviltomorrow/king/apps/king-brain/domain"
 	"github.com/eviltomorrow/king/apps/king-brain/domain/chart"
+	"github.com/eviltomorrow/king/apps/king-brain/domain/feature"
 )
 
 func init() {
@@ -18,7 +17,15 @@ func F_01(k *chart.K) (*domain.Plan, bool) {
 
 	k.CalMoreMA([]int{150, 200})
 
-	fmt.Println(k.String())
+	for _, f := range []func(k *chart.K) bool{
+		feature.MA150IsUP,
+		feature.MA150NearByClosed,
+		feature.MA150GtMA200,
+	} {
+		if ok := f(k); !ok {
+			return nil, false
+		}
+	}
 
 	return &domain.Plan{K: k}, true
 }

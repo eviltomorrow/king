@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestF01(t *testing.T) {
 		// Code: "sh688256",
 		Name: "--",
 	}
-	date := time.Date(2025, time.March, 5, 12, 0, 0, 0, time.Local)
+	date := time.Date(2025, time.March, 10, 12, 0, 0, 0, time.Local)
 
 	quotes, err := data.GetQuotesN(context.Background(), date, stock.Code, "day", 250)
 	assert.Nil(err)
@@ -26,5 +27,8 @@ func TestF01(t *testing.T) {
 	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
-	_ = k
+	plan, ok := F_01(k)
+	if ok {
+		fmt.Println(plan)
+	}
 }
