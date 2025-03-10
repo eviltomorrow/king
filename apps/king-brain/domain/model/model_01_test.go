@@ -2,7 +2,7 @@ package model
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -27,8 +27,9 @@ func TestF01(t *testing.T) {
 	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
-	plan, ok := F_01(k)
-	if ok {
-		fmt.Println(plan.K.Candlesticks[len(plan.K.Candlesticks)-1])
+	plan, err := F_01(k)
+	if err != nil {
+		log.Fatal(err)
 	}
+	_ = plan
 }

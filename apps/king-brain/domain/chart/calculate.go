@@ -1,10 +1,16 @@
 package chart
 
-import "github.com/eviltomorrow/king/lib/mathutil"
+import (
+	"errors"
 
-func CalculateMaToSegment(k *K, day int) [][]float64 {
+	"github.com/eviltomorrow/king/lib/mathutil"
+)
+
+var ErrNoData = errors.New("no data")
+
+func CalculateMaToSegment(k *K, day int) ([][]float64, error) {
 	if len(k.Candlesticks) == 0 {
-		return nil
+		return nil, ErrNoData
 	}
 
 	ma := make([]float64, 0, len(k.Candlesticks))
@@ -21,7 +27,7 @@ func CalculateMaToSegment(k *K, day int) [][]float64 {
 	}
 
 	if len(ma) == 0 {
-		return nil
+		return nil, ErrNoData
 	}
 
 	trend := make([][]float64, 0, 4)
@@ -61,17 +67,16 @@ func CalculateMaToSegment(k *K, day int) [][]float64 {
 			span = append(span, ma[j])
 		}
 		trend = append(trend, span)
-
 	}
 
-	return trend
+	return trend, nil
 }
 
 func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
-	result := make([]float64, 0, day)
+	result := make([]float64, 0, m)
 
-	x := make([]float64, 0, len(k.Candlesticks))
-	y := make([]float64, 0, len(k.Candlesticks))
+	x := make([]float64, 0, len(k.Candlesticks)+m)
+	y := make([]float64, 0, len(k.Candlesticks)+m)
 	n := 0
 	for _, c := range k.Candlesticks {
 		val, ok := c.Indicators.Trend.MA[day]
@@ -80,7 +85,10 @@ func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
 			x = append(x, float64(n))
 			y = append(y, val)
 		}
+	}
 
+	if len(x) == 0 || len(y) == 0 {
+		return nil, ErrNoData
 	}
 
 	a, b, err := mathutil.LeastSquares(x, y)
@@ -90,20 +98,18 @@ func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
 	next := a*float64(n+1) + b
 	result = append(result, mathutil.Trunc4(next))
 
-	for i := 1; i < day; i++ {
+	for i := 1; i < m; i++ {
 		n = n + i
 		x = append(x, float64(n))
 		y = append(y, next)
 
-		a, b, err := mathutil.LeastSquares(x, y)
+		a, b, err = mathutil.LeastSquares(x, y)
 		if err != nil {
 			return nil, err
 		}
 
 		next = a*float64(n+1) + b
-		result = append(result, next)
-
+		result = append(result, mathutil.Trunc4(next))
 	}
-
 	return result, nil
 }

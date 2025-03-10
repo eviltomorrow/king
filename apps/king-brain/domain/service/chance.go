@@ -36,7 +36,12 @@ func FindPossibleChance(ctx context.Context, date time.Time) []*domain.Plan {
 					continue
 				}
 
-				for _, plan := range domain.ScanModel(k) {
+				plans, err := domain.ScanModel(k)
+				if err != nil {
+					zlog.Error("ScanModel failure", zap.Error(err))
+					continue
+				}
+				for _, plan := range plans {
 					planCh <- plan
 				}
 			}

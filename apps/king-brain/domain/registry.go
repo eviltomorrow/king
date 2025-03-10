@@ -6,20 +6,24 @@ var cache []*Model
 
 type Model struct {
 	Desc string
-	F    func(k *chart.K) (*Plan, bool)
+	F    func(k *chart.K) (*Plan, error)
 }
 
 func RegisterModel(model *Model) {
 	cache = append(cache, model)
 }
 
-func ScanModel(k *chart.K) []*Plan {
+func ScanModel(k *chart.K) ([]*Plan, error) {
 	plans := make([]*Plan, 0, len(cache))
 	for _, model := range cache {
-		plan, ok := model.F(k)
-		if ok {
-			plans = append(plans, plan)
+		plan, err := model.F(k)
+		if err != nil {
+			return nil, err
 		}
+		if plan == nil {
+			continue
+		}
+		plans = append(plans, plan)
 	}
-	return plans
+	return plans, nil
 }
