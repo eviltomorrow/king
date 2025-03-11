@@ -32,7 +32,7 @@ func (k *K) CalMa(day int) {
 		closed = append(closed, c.Close)
 		if len(closed) >= day {
 			sum := mathutil.Sum(closed[i-day+1 : i+1])
-			c.Indicators.Trend.MA[day] = mathutil.Trunc4(sum / float64(day))
+			c.Indicators.Trend.Ma[day] = mathutil.Trunc4(sum / float64(day))
 		}
 	}
 }
@@ -46,7 +46,7 @@ func (k *K) CalMaMany(day []int) {
 		for _, d := range day {
 			if len(closed) >= d {
 				sum := mathutil.Sum(closed[i-d+1 : i+1])
-				c.Indicators.Trend.MA[d] = mathutil.Trunc4(sum / float64(d))
+				c.Indicators.Trend.Ma[d] = mathutil.Trunc4(sum / float64(d))
 			}
 		}
 	}
@@ -81,7 +81,7 @@ func (c *Candlestick) String() string {
 }
 
 type Trend struct {
-	MA map[int]float64
+	Ma map[int]float64
 }
 
 type Volatility struct {
@@ -129,25 +129,12 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 
 			Indicators: Indicators{
 				Trend: &Trend{
-					MA: make(map[int]float64),
+					Ma: make(map[int]float64, len(quotes)+10),
 				},
 				Volatility: v,
 			},
 		}
 
-		// closed = append(closed, quote.Close)
-		// if len(closed) >= 10 {
-		// 	c.Indicators.Trend.MA[DAY_10] = CalculateMa(closed[i-10+1 : i+1])
-		// }
-		// if len(closed) >= 50 {
-		// 	c.Indicators.Trend.MA[DAY_50] = CalculateMa(closed[i-50+1 : i+1])
-		// }
-		// if len(closed) >= 150 {
-		// 	c.Indicators.Trend.MA[DAY150] = CalculateMa(closed[i-150+1 : i+1])
-		// }
-		// if len(closed) >= 200 {
-		// 	c.Indicators.Trend.MA[DAY200] = CalculateMa(closed[i-200+1 : i+1])
-		// }
 		candlesticks = append(candlesticks, c)
 	}
 

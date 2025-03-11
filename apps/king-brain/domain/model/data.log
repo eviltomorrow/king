@@ -2,3 +2,5 @@
 {"level":"ERROR","time":"2025/03/06 17:08:10.816 +08:00","caller":"model_01.go:60","message":"infer ma failure","error":"[]x != []y"}
 {"level":"ERROR","time":"2025/03/11 06:54:33.075 +08:00","caller":"client.go:55","message":"connect to etcd failure","error":"connect to etcd service failure, nest endpoints: [127.0.0.1:2379]"}
 {"level":"ERROR","time":"2025/03/11 06:54:43.079 +08:00","caller":"client.go:55","message":"connect to etcd failure","error":"connect to etcd service failure, nest endpoints: [127.0.0.1:2379]"}
+{"level":"ERROR","time":"2025/03/11 08:38:22.030 +08:00","caller":"client.go:55","message":"connect to etcd failure","error":"connect to etcd service failure, nest endpoints: [192.168.33.10:2379]"}
+{"level":"ERROR","time":"2025/03/11 08:38:32.036 +08:00","caller":"client.go:55","message":"connect to etcd failure","error":"connect to etcd service failure, nest endpoints: [192.168.33.10:2379]"}

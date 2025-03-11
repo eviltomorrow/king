@@ -16,18 +16,25 @@ func F_01(k *chart.K) (*domain.Plan, error) {
 		return nil, nil
 	}
 
-	days := []int{20, 30, 40, 50, 100, 150, 200}
+	days := []int{150}
+	span := 150
 	k.CalMaMany(days)
 
 	for _, day := range days {
-		data, err := chart.CalculateMaOnNext(k, day, 10)
+		data, err := chart.CalculateMaOnNext(k, day, span, 1)
 		if err == chart.ErrNoData {
 			continue
 		}
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(data)
+
+		closed, err := chart.CalculateClosedOnNext(k, data, 10)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(closed)
+
 	}
 
 	return &domain.Plan{K: k}, nil

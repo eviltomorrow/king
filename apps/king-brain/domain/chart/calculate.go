@@ -2,6 +2,7 @@ package chart
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/eviltomorrow/king/lib/mathutil"
 )
@@ -13,34 +14,34 @@ func CalculateMaToSegment(k *K, day int) ([][]float64, error) {
 		return nil, ErrNoData
 	}
 
-	ma := make([]float64, 0, len(k.Candlesticks))
+	data := make([]float64, 0, len(k.Candlesticks))
 	begin := -1
 	for i, candlestick := range k.Candlesticks {
-		val, ok := candlestick.Indicators.Trend.MA[day]
+		ma, ok := candlestick.Indicators.Trend.Ma[day]
 		if !ok {
 			continue
 		}
 		if begin == -1 {
 			begin = i
 		}
-		ma = append(ma, val)
+		data = append(data, ma)
 	}
 
-	if len(ma) == 0 {
+	if len(data) == 0 {
 		return nil, ErrNoData
 	}
 
 	trend := make([][]float64, 0, 4)
 
-	for i := 0; i < len(ma); i++ {
+	for i := 0; i < len(data); i++ {
 		span := make([]float64, 0, 32)
-		span = append(span, ma[i])
+		span = append(span, data[i])
 
 		direction := 0
 	loop:
-		for j := i + 1; j < len(ma); j++ {
+		for j := i + 1; j < len(data); j++ {
 			switch {
-			case ma[i] > ma[j]:
+			case data[i] > data[j]:
 				if direction == 0 {
 					direction = 1
 				}
@@ -51,7 +52,7 @@ func CalculateMaToSegment(k *K, day int) ([][]float64, error) {
 					break loop
 				}
 
-			case ma[i] < ma[j]:
+			case data[i] < data[j]:
 				if direction == 0 {
 					direction = 2
 				}
@@ -64,7 +65,7 @@ func CalculateMaToSegment(k *K, day int) ([][]float64, error) {
 			default:
 				i = j
 			}
-			span = append(span, ma[j])
+			span = append(span, data[j])
 		}
 		trend = append(trend, span)
 	}
@@ -72,23 +73,30 @@ func CalculateMaToSegment(k *K, day int) ([][]float64, error) {
 	return trend, nil
 }
 
-func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
-	result := make([]float64, 0, m)
+func CalculateMaOnNext(k *K, day, span, count int) ([]float64, error) {
+	result := make([]float64, 0, count)
 
-	x := make([]float64, 0, len(k.Candlesticks)+m)
-	y := make([]float64, 0, len(k.Candlesticks)+m)
+	x := make([]float64, 0, len(k.Candlesticks)+count)
+	y := make([]float64, 0, len(k.Candlesticks)+count)
 	n := 0
 	for _, c := range k.Candlesticks {
-		val, ok := c.Indicators.Trend.MA[day]
+		ma, ok := c.Indicators.Trend.Ma[day]
 		if ok {
 			n++
 			x = append(x, float64(n))
-			y = append(y, val)
+			y = append(y, ma)
 		}
 	}
 
 	if len(x) == 0 || len(y) == 0 {
 		return nil, ErrNoData
+	}
+
+	if len(x) > span {
+		x = x[len(x)-span:]
+	}
+	if len(y) > span {
+		y = y[len(y)-span:]
 	}
 
 	a, b, err := mathutil.LeastSquares(x, y)
@@ -98,10 +106,17 @@ func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
 	next := a*float64(n+1) + b
 	result = append(result, mathutil.Trunc4(next))
 
-	for i := 1; i < m; i++ {
+	for i := 1; i < count; i++ {
 		n = n + i
 		x = append(x, float64(n))
 		y = append(y, next)
+
+		if len(x) > span {
+			x = x[len(x)-span:]
+		}
+		if len(y) > span {
+			y = y[len(y)-span:]
+		}
 
 		a, b, err = mathutil.LeastSquares(x, y)
 		if err != nil {
@@ -111,5 +126,30 @@ func CalculateMaOnNext(k *K, day, m int) ([]float64, error) {
 		next = a*float64(n+1) + b
 		result = append(result, mathutil.Trunc4(next))
 	}
+	return result, nil
+}
+
+func CalculateClosedOnNext(k *K, mas []float64, span int) ([]float64, error) {
+	if len(k.Candlesticks) < span+1 {
+		return nil, fmt.Errorf("no enough data")
+	}
+
+	closed := make([]float64, 0, len(k.Candlesticks)+len(mas))
+	for _, c := range k.Candlesticks {
+		closed = append(closed, c.Close)
+	}
+
+	result := make([]float64, 0, span)
+
+	sum := 0.0
+	for i := 0; i < len(mas); i++ {
+		sum = mathutil.Sum(closed[len(closed)-span+1:])
+		tmp := mas[i] * float64(span)
+
+		next := tmp - sum
+		closed = append(closed, next)
+		result = append(result, next)
+	}
+
 	return result, nil
 }

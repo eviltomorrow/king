@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -24,7 +23,6 @@ func TestF01(t *testing.T) {
 
 	quotes, err := data.GetQuotesN(context.Background(), date, stock.Code, "day", 250)
 	assert.Nil(err)
-	fmt.Println(err)
 	k, err := chart.NewK(context.Background(), stock, quotes)
 	assert.Nil(err)
 
