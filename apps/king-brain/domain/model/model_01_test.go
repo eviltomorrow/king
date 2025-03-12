@@ -15,8 +15,8 @@ func TestF01(t *testing.T) {
 	assert := assert.New(t)
 
 	stock := &data.Stock{
-		Code: "sh601933",
-		// Code: "sh688256",
+		// Code: "sh601933",
+		Code: "sh688256",
 		Name: "--",
 	}
 	date := time.Date(2025, time.March, 10, 12, 0, 0, 0, time.Local)
