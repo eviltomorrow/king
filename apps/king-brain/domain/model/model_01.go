@@ -29,10 +29,17 @@ func F_01(k *chart.K) (*domain.Plan, error) {
 	return &domain.Plan{K: k}, nil
 }
 
-func forecastDirectionOnNext(k *chart.K, ma []float64, day int, count int) ([]string, error) {
-	var (
-		currentMA     = k.Candlesticks[len(k.Candlesticks)-1].Indicators.Trend.Ma[day]
-		currentClosed = k.Candlesticks[len(k.Candlesticks)-1].Close
-	)
+func forecastDirectionOnNext(k *chart.K, next []float64, day int, count int) ([]string, error) {
+	if len(k.Candlesticks) < day+1 {
+		return nil, fmt.Errorf("no enough candlesticks")
+	}
+
+	current := k.Candlesticks[len(k.Candlesticks)-1]
+
+	ma, ok := current.Indicators.Trend.Ma[day]
+	if !ok {
+		return nil, fmt.Errorf("not found ma")
+	}
+
 	return nil, nil
 }
