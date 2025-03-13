@@ -127,28 +127,3 @@ func CalculateMaOnNext(k *K, day, span, count int) ([]float64, error) {
 	}
 	return result, nil
 }
-
-func CalculateClosedOnNext(k *K, day, span int, count int) ([]float64, error) {
-	// if len(k.Candlesticks) < span+1 {
-	// 	return nil, fmt.Errorf("no enough data")
-	// }
-
-	// closed := make([]float64, 0, len(k.Candlesticks)+len(mas))
-	// for _, c := range k.Candlesticks {
-	// 	closed = append(closed, c.Close)
-	// }
-
-	result := make([]float64, 0, span)
-
-	// sum := 0.0
-	// for i := 0; i < len(mas); i++ {
-	// 	sum = mathutil.Sum(closed[len(closed)-span+1:])
-	// 	tmp := mas[i] * float64(span)
-
-	// 	next := tmp - sum
-	// 	closed = append(closed, next)
-	// 	result = append(result, next)
-	// }
-
-	return result, nil
-}
