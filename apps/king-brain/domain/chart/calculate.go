@@ -2,6 +2,7 @@ package chart
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/eviltomorrow/king/lib/mathutil"
 )
@@ -72,50 +73,48 @@ func CalculateMaToSegment(k *K, day int) ([][]float64, error) {
 	return trend, nil
 }
 
-func CalculateMaOnNext(k *K, day, span, count int) ([]float64, error) {
+func CalculateMaOnNext(k *K, day, count int) ([]float64, error) {
+	segments, err := CalculateMaToSegment(k, day)
+	if err != nil {
+		return nil, err
+	}
+	if len(segments) == 0 {
+		return nil, fmt.Errorf("no ma segment")
+	}
+
+	segment := segments[len(segments)-1]
+
+	if len(segment) > day {
+		segment = segment[len(segment)-day:]
+	}
+
+	return CalculateOnNext(segment, count)
+}
+
+func CalculateOnNext(data []float64, count int) ([]float64, error) {
 	result := make([]float64, 0, count)
 
-	x := make([]float64, 0, len(k.Candlesticks)+count)
-	y := make([]float64, 0, len(k.Candlesticks)+count)
+	x := make([]float64, 0, len(data)+count)
+	y := make([]float64, 0, len(data)+count)
 	n := 0
-	for _, c := range k.Candlesticks {
-		ma, ok := c.Indicators.Trend.Ma[day]
-		if ok {
-			n++
-			x = append(x, float64(n))
-			y = append(y, ma)
-		}
-	}
 
-	if len(x) == 0 || len(y) == 0 {
-		return nil, ErrNoData
-	}
-
-	if len(x) > span {
-		x = x[len(x)-span:]
-	}
-	if len(y) > span {
-		y = y[len(y)-span:]
+	for _, d := range data {
+		n++
+		x = append(x, float64(n))
+		y = append(y, d)
 	}
 
 	a, b, err := mathutil.LeastSquares(x, y)
 	if err != nil {
 		return nil, err
 	}
+
 	next := a*float64(n+1) + b
 	result = append(result, mathutil.Trunc4(next))
 
 	for i := 1; i < count; i++ {
-		n = n + i
-		x = append(x, float64(n))
 		y = append(y, next)
-
-		if len(x) > span {
-			x = x[len(x)-span:]
-		}
-		if len(y) > span {
-			y = y[len(y)-span:]
-		}
+		y = y[1:]
 
 		a, b, err = mathutil.LeastSquares(x, y)
 		if err != nil {

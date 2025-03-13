@@ -16,6 +16,7 @@ func Trunc2(val float64) float64 {
 
 func Trunc4(val float64) float64 {
 	return math.Trunc((val+0.5/n10_4)*n10_4) / n10_4
+	// return val
 }
 
 func TruncN(f float64, n int) float64 {
