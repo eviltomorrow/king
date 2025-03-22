@@ -63,7 +63,7 @@ ifeq (${app},)
 	cp -f version deployments/version
 	@bash build/docker_build.sh ${MAINVERSION} ${GITSHA} ${BUILDTIME}
 else
-	docker build --target prod -t ${REGISTRY}/${ACCOUNT}/${app} . --build-arg APPNAME=${app} --build-arg MAINVERSION=${MAINVERSION} --build-arg GITSHA=${GITSHA} --build-arg BUILDTIME=${BUILDTIME}
+	docker build --target prod -t ${REGISTRY}/${ACCOUNT}/${app}:${MAINVERSION} . --build-arg APPNAME=${app} --build-arg MAINVERSION=${MAINVERSION} --build-arg GITSHA=${GITSHA} --build-arg BUILDTIME=${BUILDTIME}
 endif
 
 # Compile protobuf
