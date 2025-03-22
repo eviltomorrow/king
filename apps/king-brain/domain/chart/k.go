@@ -29,7 +29,7 @@ func (k *K) CalMa(day int) {
 	closed := make([]float64, 0, len(k.Candlesticks))
 
 	for i, c := range k.Candlesticks {
-		closed = append(closed, c.Close)
+		closed = append(closed, c.Closed)
 		if len(closed) >= day {
 			sum := mathutil.Sum(closed[i-day+1 : i+1])
 			c.Indicators.Trend.Ma[day] = mathutil.Trunc4(sum / float64(day))
@@ -41,7 +41,7 @@ func (k *K) CalMaMany(day []int) {
 	closed := make([]float64, 0, len(k.Candlesticks))
 
 	for i, c := range k.Candlesticks {
-		closed = append(closed, c.Close)
+		closed = append(closed, c.Closed)
 
 		for _, d := range day {
 			if len(closed) >= d {
@@ -63,7 +63,7 @@ type Candlestick struct {
 	High    float64
 	Low     float64
 	Open    float64
-	Close   float64
+	Closed  float64
 	Volume  int64
 	Account float64
 
@@ -123,7 +123,7 @@ func NewK(ctx context.Context, stock *data.Stock, quotes []*data.Quote) (*K, err
 			High:    quote.High,
 			Low:     quote.Low,
 			Open:    quote.Open,
-			Close:   quote.Close,
+			Closed:  quote.Close,
 			Volume:  quote.Volume,
 			Account: quote.Account,
 

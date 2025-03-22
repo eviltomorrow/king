@@ -59,6 +59,7 @@ func FetchMetadataFromSina(codes []string) ([]*model.Metadata, error) {
 		return nil, fmt.Errorf("url: %v, nest error: %v", url, err)
 	}
 
+	zlog.Debug("Get stock data", zap.String("data", data))
 	var (
 		result = make([]*model.Metadata, 0, len(codes))
 		exists = make(map[string]struct{}, len(codes))

@@ -17,19 +17,21 @@ func F_01(k *chart.K) (*domain.Plan, error) {
 		return nil, nil
 	}
 
-	days := []int{200}
+	days := []int{10, 20, 50, 150, 200}
 	k.CalMaMany(days)
 
-	next, err := chart.CalculateMaOnNext(k, 200, 3)
-	if err != nil {
-		log.Fatal(err)
+	for _, d := range days {
+		next, err := chart.CalculateMaOnNext(k, d, 3)
+		if err != nil {
+			log.Fatal(err)
+		}
+		forecastDirectionOnNext(k, next, d)
 	}
-	fmt.Println(next)
 
 	return &domain.Plan{K: k}, nil
 }
 
-func forecastDirectionOnNext(k *chart.K, next []float64, day int, count int) ([]string, error) {
+func forecastDirectionOnNext(k *chart.K, next []float64, day int) ([]string, error) {
 	if len(k.Candlesticks) < day+1 {
 		return nil, fmt.Errorf("no enough candlesticks")
 	}
@@ -41,5 +43,6 @@ func forecastDirectionOnNext(k *chart.K, next []float64, day int, count int) ([]
 		return nil, fmt.Errorf("not found ma")
 	}
 
+	fmt.Printf("day: %d, %f, %f, %v\r\n", day, current.Closed, ma, next)
 	return nil, nil
 }
