@@ -2,7 +2,9 @@ package flagsutil
 
 import (
 	"fmt"
+	"os"
 
+	flags "github.com/jessevdk/go-flags"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -24,4 +26,21 @@ func (f *Flags) String() string {
 		return fmt.Sprintf("marshal metadata failure, nest error: %v", err)
 	}
 	return string(buf)
+}
+
+func Parse(opts *Flags) ([]string, error) {
+	metadata, err := flags.NewParser(opts, flags.Default).Parse()
+	if err != nil {
+		switch flagsErr := err.(type) {
+		case flags.ErrorType:
+			fmt.Println(flagsErr)
+			if flagsErr == flags.ErrHelp {
+				os.Exit(0)
+			}
+			os.Exit(1)
+		default:
+			os.Exit(1)
+		}
+	}
+	return metadata, nil
 }

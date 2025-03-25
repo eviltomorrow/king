@@ -19,12 +19,11 @@ import (
 	"github.com/eviltomorrow/king/lib/procutil"
 	"github.com/eviltomorrow/king/lib/system"
 	"github.com/eviltomorrow/king/lib/zlog"
-	flags "github.com/jessevdk/go-flags"
 	"go.uber.org/zap"
 )
 
 func RunApp() error {
-	_, err := flags.Parse(flagsutil.Opts)
+	_, err := flagsutil.Parse(flagsutil.Opts)
 	if err != nil {
 		return err
 	}
