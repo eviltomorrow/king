@@ -59,10 +59,10 @@ func RunAppInBackground(args []string) error {
 
 	port, err := network.GetAvailablePort()
 	if err != nil {
-		return fmt.Errorf("get available port failure, nest error: %v", err)
+		return fmt.Errorf("generate available port failure, nest error: %v", err)
 	}
-	address := fmt.Sprintf("%s:%d", pingbackHost, port)
 
+	address := net.JoinHostPort(pingbackHost, fmt.Sprintf("%d", port))
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
 		return fmt.Errorf("listen %s failure, nest error: %v", address, err)
