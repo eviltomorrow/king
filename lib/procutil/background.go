@@ -16,9 +16,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-var (
-	pingbackHost = "127.0.0.1"
-)
+var pingbackHost = "127.0.0.1"
 
 type BootInfo struct {
 	ChallengeKey []byte `json:"challenge_key"`
@@ -41,7 +39,7 @@ func RunAppInBackground(args []string) error {
 	var (
 		name    = args[0]
 		newArgs = func() []string {
-			var data = make([]string, 0, len(args)-2)
+			data := make([]string, 0, len(args)-2)
 			// for _, arg := range args[1:] {
 			// 	switch arg {
 			// 	case "-d", "--daemon":
@@ -80,7 +78,7 @@ func RunAppInBackground(args []string) error {
 		return err
 	}
 	go func() {
-		var bi = &BootInfo{
+		bi := &BootInfo{
 			ChallengeKey: key,
 			ListenPort:   port,
 		}
@@ -148,12 +146,12 @@ func StopDaemon() error {
 		return nil
 	}
 
-	var bi = &BootInfo{}
+	bi := &BootInfo{}
 	if err := bi.UnMarshal(confirmationBytes); err != nil {
 		return err
 	}
 
-	address := fmt.Sprintf("%s:%d", pingbackHost, bi.ListenPort)
+	address := net.JoinHostPort(pingbackHost, fmt.Sprintf("%d", bi.ListenPort))
 	conn, err := net.DialTimeout("tcp", address, 5*time.Second)
 	if err != nil {
 		return fmt.Errorf("dialing confirmation address: %v", err)
