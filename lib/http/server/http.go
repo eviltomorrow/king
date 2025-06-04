@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	libhttp "github.com/eviltomorrow/king/lib/http"
 	"github.com/eviltomorrow/king/lib/http/middleware"
 	"github.com/eviltomorrow/king/lib/log"
 	"github.com/eviltomorrow/king/lib/network"
@@ -17,10 +18,10 @@ type HTTP struct {
 	server  *http.Server
 	handler *echo.Echo
 
-	RegisteredAPI []func(echo.Context) error
+	RegisteredAPI []func(libhttp.Router) error
 }
 
-func NewHTTP(network *network.Config, log *log.Config, supported ...func(echo.Context) error) *HTTP {
+func NewHTTP(network *network.Config, log *log.Config, supported ...func(libhttp.Router) error) *HTTP {
 	return &HTTP{
 		network: network,
 		log:     log,
@@ -34,6 +35,10 @@ func NewHTTP(network *network.Config, log *log.Config, supported ...func(echo.Co
 func (h *HTTP) Serve() error {
 	h.handler.Use(middleware.ServerRecoveryInterceptor())
 	h.handler.Use(middleware.ServerLogInterceptor())
+
+	for _, api := range h.RegisteredAPI {
+		api(h.handler)
+	}
 
 	h.server = &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", h.network.BindIP, h.network.BindPort),
