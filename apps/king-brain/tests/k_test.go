@@ -14,7 +14,7 @@ import (
 )
 
 func TestNewK(t *testing.T) {
-	quotes, err := data.GetQuotesN(context.Background(), time.Now(), "bj830946", "day", 2)
+	quotes, err := data.GetQuotesN(context.Background(), time.Now(), "sh600519", "day", 2)
 	if err != nil {
 		log.Fatal(err)
 	}
