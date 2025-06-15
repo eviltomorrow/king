@@ -86,10 +86,10 @@ export loki_promtail_version="3.1.0"
 export cassandra_version="4.1.5"
 export ntfy_version="latest"
 
-export redis_version="7.4.1"
-export mongo_version="7.0.15"
-export mysql_version="8.4.3"
-export etcd_version="3.5.16"
+export redis_version="7.4.4"
+export mongo_version="7.0.21"
+export mysql_version="8.4.5"
+export etcd_version="3.6.1"
 
 king_version=$(cat version | sed 's/^[ \t]*//g')
 export king_collector_version="${king_version}"
