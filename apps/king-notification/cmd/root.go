@@ -68,10 +68,10 @@ func RunApp() error {
 		return fmt.Errorf("init etcd failure, nest error: %v", err)
 	}
 
-	smtp, err := conf.LoadSMTP(filepath.Join(system.Directory.EtcDir, c.SmtpFile))
-	if err != nil {
-		return err
-	}
+	// smtp, err := conf.LoadSMTP(filepath.Join(system.Directory.EtcDir, c.SmtpFile))
+	// if err != nil {
+	// 	return err
+	// }
 	ntfy, err := conf.LoadNTFY(filepath.Join(system.Directory.EtcDir, c.NtfyFile))
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func RunApp() error {
 	s := server.NewGRPC(
 		c.GRPC,
 		c.Log,
-		controller.NewEmail(smtp).Service(),
+		// controller.NewEmail(smtp).Service(),
 		controller.NewNtfy(ntfy).Service(),
 		controller.NewTemplate().Service(),
 	)
