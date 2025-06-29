@@ -1,4 +1,4 @@
-package system
+package fs
 
 import "path/filepath"
 
