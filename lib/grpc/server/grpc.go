@@ -44,6 +44,8 @@ func NewGRPC(network *network.Config, log *log.Config, supported ...func(*grpc.S
 }
 
 func (g *GRPC) Serve() error {
+	g.ctx, g.cancel = context.WithCancel(context.Background())
+
 	midlog, err := middleware.InitLogger(&zlog.Config{
 		Level:  g.log.Level,
 		Format: "json",
@@ -122,7 +124,6 @@ func (g *GRPC) Serve() error {
 		}
 	}()
 
-	g.ctx, g.cancel = context.WithCancel(context.Background())
 	if etcd.Client != nil {
 		g.revokeFunc, err = etcd.RegisterService(g.ctx, buildinfo.AppName, system.Network.AccessIP, g.network.BindPort, 10)
 		if err != nil {
@@ -139,7 +140,9 @@ func (g *GRPC) Stop() error {
 	if g.server != nil {
 		g.server.GracefulStop()
 	}
-	g.cancel()
+	if g.cancel != nil {
+		g.cancel()
+	}
 
 	return nil
 }
