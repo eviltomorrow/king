@@ -13,7 +13,7 @@ import (
 	"github.com/eviltomorrow/king/lib/setting"
 )
 
-var HTTPDefault = &http.Client{
+var defaultHttpClient = &http.Client{
 	Transport: &http.Transport{
 		MaxIdleConns:          500,              // 连接池对所有 host 的最大空闲连接数
 		MaxIdleConnsPerHost:   200,              // 针对每个 host 的最大空闲连接数
@@ -26,7 +26,7 @@ var HTTPDefault = &http.Client{
 }
 
 // DefaultHeader default header
-var DefaultHeader = map[string]string{
+var defaultHttpHeader = map[string]string{
 	"Connection":                "keep-alive",
 	"Cache-Control":             "max-age=0",
 	"Upgrade-Insecure-Requests": "1",
@@ -34,6 +34,14 @@ var DefaultHeader = map[string]string{
 	"Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 	"Accept-Encoding":           "gzip, deflate",
 	"Accept-Language":           "zh-CN,zh;q=0.9,en;q=0.8,da;q=0.7,pt;q=0.6,ja;q=0.5",
+}
+
+func DefaultHttpHeader() map[string]string {
+	header := make(map[string]string, len(defaultHttpHeader))
+	for k, v := range defaultHttpHeader {
+		header[k] = v
+	}
+	return header
 }
 
 func Do(client *http.Client, request *http.Request, timeout time.Duration) (string, error) {

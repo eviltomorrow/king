@@ -8,7 +8,7 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	resp, err := Get("http://www.baidfsba13du1.com", 10*time.Second, DefaultHeader, nil)
+	resp, err := Get("http://www.baidfsba13du1.com", 10*time.Second, defaultHttpHeader, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

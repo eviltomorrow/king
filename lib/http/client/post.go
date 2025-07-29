@@ -16,5 +16,5 @@ func Post(url string, timeout time.Duration, header map[string]string, body io.R
 		request.Header.Add(key, val)
 	}
 
-	return Do(HTTPDefault, request, timeout)
+	return Do(defaultHttpClient, request, timeout)
 }
