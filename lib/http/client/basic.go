@@ -14,6 +14,14 @@ import (
 )
 
 var HTTPDefault = &http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns:          500,              // 连接池对所有 host 的最大空闲连接数
+		MaxIdleConnsPerHost:   200,              // 针对每个 host 的最大空闲连接数
+		MaxConnsPerHost:       0,                // 0=不限；若后端扛不住可设为具体值做流控
+		IdleConnTimeout:       90 * time.Second, // 空闲连接多久后关闭
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 2 * time.Second,
+	},
 	Timeout: setting.DEFUALT_HANDLE_10_SECOND,
 }
 
