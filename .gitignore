@@ -27,3 +27,4 @@
 /deployments/components/db/data
 /deployments/components/monitoring/data
 /tests/conf/ntfy.json
+*.pprof
