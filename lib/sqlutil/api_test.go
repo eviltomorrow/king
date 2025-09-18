@@ -9,7 +9,7 @@ import (
 func TestQuery(t *testing.T) {
 	// Table("").Columns([]string{}).Where(WithBetweenAnd("", "", "")).GroupBy([]string{}).OrderBy().Query(nil)
 
-	NewQueryHandler(mysql.DB).
+	NewQuery(mysql.DB).
 		Columns([]string{
 			"A as c",
 			"B",
