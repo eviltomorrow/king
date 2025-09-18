@@ -71,6 +71,10 @@ func (h *query) QueryOne(f func(row *sql.Row) error) error {
 }
 
 func (h *query) Query(f func(row *sql.Rows) error) error {
+	if h.table == "" {
+		return fmt.Errorf("table is invalid")
+	}
+
 	column := "*"
 	if len(h.columns) != 0 {
 		column = strings.Join(h.columns, ", ")

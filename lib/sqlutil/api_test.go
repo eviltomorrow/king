@@ -7,8 +7,6 @@ import (
 )
 
 func TestQuery(t *testing.T) {
-	// Table("").Columns([]string{}).Where(WithBetweenAnd("", "", "")).GroupBy([]string{}).OrderBy().Query(nil)
-
 	NewQuery(mysql.DB).
 		Columns([]string{
 			"A as c",
@@ -36,4 +34,20 @@ func TestQuery(t *testing.T) {
 		).
 		Limit(10, 10).
 		Query(nil)
+}
+
+func TestDelete(t *testing.T) {
+	NewDelete(mysql.DB).Table("C").Where(WithBetweenAnd("c", 10, 20)).Delete()
+}
+
+func TestInsert(t *testing.T) {
+	NewInsert(mysql.DB).Table("C").Insert(map[string]interface{}{"c": "is"})
+}
+
+func TestInsertBatch(t *testing.T) {
+	NewInsert(mysql.DB).Table("C").InsertBatch([]string{"c"}, []map[string]interface{}{{"c": "is"}, {"c": "is"}})
+}
+
+func TestUpdate(t *testing.T) {
+	NewUpdate(mysql.DB).Table("DB").Field(map[string]interface{}{"c": "d"}).Update()
 }

@@ -67,6 +67,7 @@ func (h *delete) Delete() (int64, error) {
 	}
 
 	fmt.Println(sql, args)
+
 	return 0, nil
 }
 
